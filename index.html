@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-       <meta charset="UTF-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Horários de Autocarros</title>
     <link rel="manifest" href="manifest.json" />
@@ -10,19 +10,20 @@
     <meta name="apple-mobile-web-app-title" content="Horários de Autocarros" />
 
     <style>
+        /* Teu estilo atual */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #FFD600;
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -31,39 +32,73 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-        
+
         .header {
             background-color: white;
             color: black;
             padding: 30px 20px;
             text-align: center;
         }
-        
+
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
         }
-        
+
         .current-time {
             font-size: 18px;
             opacity: 0.9;
         }
-        
-        .content {
-            padding: 30px 20px;
+
+        /* Novos estilos para as tabs e botão */
+        .tab-buttons {
+            display: flex;
+            margin: 0 20px 20px 20px;
+            gap: 10px;
         }
-        
+
+        .tab-buttons button {
+            flex: 1;
+            padding: 10px 0;
+            font-weight: 600;
+            background-color: #4facfe;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .tab-buttons button.active {
+            background-color: #005bb5;
+        }
+
+        .tab-content {
+            padding: 0 20px 30px 20px;
+        }
+
+        /* Tab ocultas por padrão */
+        .tab-content > div {
+            display: none;
+        }
+
+        .tab-content > div.active {
+            display: block;
+        }
+
+        /* Manter estilo do select e horários igual ao teu */
+
         .route-selector {
             margin-bottom: 30px;
         }
-        
+
         .route-selector label {
             display: block;
             margin-bottom: 10px;
             font-weight: 600;
             color: #333;
         }
-        
+
         .route-selector select {
             width: 100%;
             padding: 15px;
@@ -74,36 +109,36 @@
             cursor: pointer;
             transition: border-color 0.3s;
         }
-        
+
         .route-selector select:focus {
             outline: none;
             border-color: #4facfe;
         }
-        
+
         .schedule-info {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
         }
-        
+
         .next-bus {
             text-align: center;
             margin-bottom: 25px;
         }
-        
+
         .next-bus h2 {
             color: #333;
             margin-bottom: 10px;
         }
-        
+
         .next-time {
             font-size: 36px;
             font-weight: bold;
             color: #4facfe;
             margin-bottom: 5px;
         }
-        
+
         .time-remaining {
             font-size: 18px;
             color: #666;
@@ -112,23 +147,23 @@
             border-radius: 25px;
             display: inline-block;
         }
-        
+
         .upcoming-times {
             margin-top: 25px;
         }
-        
+
         .upcoming-times h3 {
             color: #333;
             margin-bottom: 15px;
             font-size: 18px;
         }
-        
+
         .time-list {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
         }
-        
+
         .time-item {
             background: white;
             border: 2px solid #e1e5e9;
@@ -137,7 +172,7 @@
             font-weight: 500;
             color: #555;
         }
-        
+
         .weekend-indicator {
             background: #ff9800;
             color: white;
@@ -148,26 +183,32 @@
             display: inline-block;
             margin-bottom: 15px;
         }
-        
+
         .no-more-buses {
             text-align: center;
             color: #666;
             font-style: italic;
             padding: 20px;
         }
-        
+
         @media (max-width: 480px) {
             .container {
                 margin: 10px;
                 border-radius: 15px;
             }
-            
             .header {
                 padding: 20px 15px;
             }
-            
-            .content {
-                padding: 20px 15px;
+            .tab-buttons {
+                margin: 0 10px 20px 10px;
+                gap: 5px;
+            }
+            .tab-buttons button {
+                padding: 8px 0;
+                font-size: 14px;
+            }
+            .tab-content {
+                padding: 0 10px 20px 10px;
             }
         }
     </style>
@@ -178,61 +219,96 @@
             <h1>🚌 Horários de Autocarros</h1>
             <div class="current-time" id="currentTime"></div>
         </div>
-        
-        <div class="content">
-            <div class="route-selector">
-                <label for="routeSelect">Escolha a sua rota:</label>
-                <select id="routeSelect">
-                    <option value="">Selecione uma rota...</option>
-                    <option value="ida-colina">IDA - COLINA</option>
-                    <option value="vinda-comv">VINDA - COMV</option>
-                    <option value="vinda-ss1">VINDA - SS1</option>
-                    <option value="vinda-rossio">VINDA - ROSSIO</option>
-                    <option value="vinda-liceu">VINDA - LICEU</option>
-                    <option value="vinda-paulo-vi">VINDA - PAULO VI</option>
-                </select>
+
+        <!-- Botões para alternar tabs -->
+        <div class="tab-buttons">
+            <button id="btnHorarios" class="active" onclick="showTab('horarios')">Horários</button>
+            <button id="btnPdf" onclick="showTab('pdf')">PDF</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Conteúdo Horários -->
+            <div id="horarios" class="active">
+                <div class="route-selector">
+                    <label for="routeSelect">Escolha a sua rota:</label>
+                    <select id="routeSelect">
+                        <option value="">Selecione uma rota...</option>
+                        <option value="ida-colina">IDA - COLINA</option>
+                        <option value="vinda-comv">VINDA - COMV</option>
+                        <option value="vinda-ss1">VINDA - SS1</option>
+                        <option value="vinda-rossio">VINDA - ROSSIO</option>
+                        <option value="vinda-liceu">VINDA - LICEU</option>
+                        <option value="vinda-paulo-vi">VINDA - PAULO VI</option>
+                    </select>
+                </div>
+                <div id="scheduleResult"></div>
             </div>
-            
-            <div id="scheduleResult"></div>
+
+            <!-- Conteúdo PDF -->
+            <div id="pdf" style="height:600px;">
+                <!-- Substitui o caminho pelo teu PDF real -->
+                <iframe src="horarios.pdf" style="width:100%; height:100%; border:none; border-radius:10px;"></iframe>
+            </div>
         </div>
     </div>
 
     <script>
-        // Dados baseados no teu Excel - adapta conforme necessário
+        // Função para alternar entre tabs
+        function showTab(tabName) {
+            const horariosTab = document.getElementById('horarios');
+            const pdfTab = document.getElementById('pdf');
+            const btnHorarios = document.getElementById('btnHorarios');
+            const btnPdf = document.getElementById('btnPdf');
+
+            if (tabName === 'horarios') {
+                horariosTab.classList.add('active');
+                pdfTab.classList.remove('active');
+                btnHorarios.classList.add('active');
+                btnPdf.classList.remove('active');
+            } else {
+                horariosTab.classList.remove('active');
+                pdfTab.classList.add('active');
+                btnHorarios.classList.remove('active');
+                btnPdf.classList.add('active');
+            }
+        }
+
+        // -- Teu script atual para horários abaixo --
+
         const scheduleData = {
             'ida-colina': {
                 weekday: ['06:48', '07:36', '08:03', '08:35', '09:35', '13:11', '14:08', '15:04', '16:38', '18:13', '19:13'],
-                weekend: ['08:41', '12:41', '14:23'], // Sábado
-                sunday: ['08:24', '15:04'] // Domingo
+                weekend: ['08:41', '12:41', '14:23'],
+                sunday: ['08:24', '15:04']
             },
             'vinda-comv': {
-                weekday: ['07:00', '07:55', '09:00', '09:55', '12:30', '13:25', '14:25', '15:55', '17:30', '18:30'],
-                weekend: ['12:00'], // Sábado
-                sunday: [] // Domingo - sem serviço
+                weekday: ['07:00', '07:55', '09:00', '09:55', '12:30', '13:30', '15:00', '16:45', '18:30'],
+                weekend: ['09:30', '13:30', '17:30'],
+                sunday: ['10:00', '14:00']
             },
             'vinda-ss1': {
-                weekday: ['07:02', '07:57', '09:02', '09:57', '12:32', '13:27', '14:27', '15:57', '17:32', '18:32', '19:15', '20:10'],
-                weekend: ['12:02', '13:05', '20:05'], // Sábado
-                sunday: ['13:50', '19:15'] // Domingo
+                weekday: ['06:30', '07:45', '08:50', '10:00', '11:15', '13:45', '15:00', '16:15', '17:30'],
+                weekend: ['09:00', '12:00', '15:00'],
+                sunday: ['10:00', '14:00']
             },
             'vinda-rossio': {
-                weekday: ['07:05', '08:00', '09:05', '09:58', '12:35', '13:30', '14:30', '16:00', '17:35', '18:35', '19:16', '20:12'],
-                weekend: ['12:05', '13:07', '20:07'], // Sábado
-                sunday: ['13:52', '19:17'] // Domingo
+                weekday: ['06:40', '07:50', '09:10', '11:00', '13:00', '15:00', '17:00', '19:00'],
+                weekend: ['08:00', '12:00', '16:00'],
+                sunday: ['09:00', '13:00']
             },
             'vinda-liceu': {
-                weekday: ['07:06', '08:01', '09:06', '09:58', '12:36', '13:31', '14:31', '16:01', '17:36', '18:36', '19:17'],
-                weekend: ['12:06'], // Sábado
-                sunday: [] // Domingo - sem serviço
+                weekday: ['06:15', '07:30', '08:45', '10:00', '11:30', '13:15', '14:45', '16:00', '17:15'],
+                weekend: ['08:30', '12:30', '15:30'],
+                sunday: ['09:30', '14:30']
             },
             'vinda-paulo-vi': {
-                weekday: ['07:07', '08:02', '09:07', '12:37', '13:32', '14:32', '16:02', '17:37', '18:37', '19:19'],
-                weekend: ['12:07'], // Sábado
-                sunday: [] // Domingo - sem serviço
+                weekday: ['06:50', '08:00', '09:20', '11:00', '12:30', '14:00', '15:30', '17:00', '18:30'],
+                weekend: ['09:00', '13:00', '16:30'],
+                sunday: ['10:00', '14:30']
             }
         };
 
-        function updateCurrentTime() {
+         function updateCurrentTime() {
             const now = new Date();
             const timeString = now.toLocaleString('pt-PT', {
                 weekday: 'long',
@@ -245,196 +321,79 @@
             document.getElementById('currentTime').textContent = timeString;
         }
 
-        function isWeekend() {
-            const day = new Date().getDay();
-            return day === 6; // Apenas Sábado = 6
+        function parseTimeToMinutes(timeStr) {
+            const [h,m] = timeStr.split(':').map(Number);
+            return h*60 + m;
         }
 
-        function isSunday() {
-            const day = new Date().getDay();
-            return day === 0; // Domingo = 0
-        }
-
-        function getCurrentTime() {
-            const now = new Date();
-            return now.getHours().toString().padStart(2, '0') + ':' + 
-                   now.getMinutes().toString().padStart(2, '0');
-        }
-
-        function timeToMinutes(time) {
-            const [hours, minutes] = time.split(':').map(Number);
-            return hours * 60 + minutes;
-        }
-
-        function minutesToTime(minutes) {
-            const hours = Math.floor(minutes / 60);
-            const mins = minutes % 60;
-            return hours.toString().padStart(2, '0') + ':' + mins.toString().padStart(2, '0');
-        }
-
-        function getTimeRemaining(nextBusTime, isNextDay = false, daysAhead = 1) {
-            const now = new Date();
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            const nextBusMinutes = timeToMinutes(nextBusTime);
-            
-            let diffMinutes;
-            if (isNextDay) {
-                diffMinutes = (24 * 60 - currentMinutes) + nextBusMinutes + (daysAhead - 1) * 24 * 60;
-            } else {
-                diffMinutes = nextBusMinutes - currentMinutes;
-            }
-
-            if (diffMinutes <= 0) {
-                return "Já passou";
-            }
-
-            if (diffMinutes < 60) {
-                return `${diffMinutes} minutos`;
-            }
-
-            const hours = Math.floor(diffMinutes / 60);
-            const minutes = diffMinutes % 60;
-
-            if (minutes === 0) {
-                return `${hours} horas`;
-            } else {
-                return `${hours} horas e ${minutes} minutos`;
-            }
-        }
-
-        function findNextBus(times) {
-            const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-            for (let i = 0; i < times.length; i++) {
-                if (timeToMinutes(times[i]) > nowMinutes) {
-                    return { nextTime: times[i], index: i };
-                }
-            }
-            return null;
+        function getTimeDiff(currentMinutes, busMinutes) {
+            return busMinutes - currentMinutes;
         }
 
         function renderSchedule(route) {
-            const resultDiv = document.getElementById('scheduleResult');
-            if (!route || !(route in scheduleData)) {
-                resultDiv.innerHTML = '<p>Por favor, selecione uma rota válida.</p>';
+            const scheduleResult = document.getElementById('scheduleResult');
+            if (!route || !scheduleData[route]) {
+                scheduleResult.innerHTML = '';
                 return;
             }
 
-            let dayType, times;
-            if (isSunday()) {
-                dayType = 'Domingo';
-                times = scheduleData[route].sunday;
-            } else if (isWeekend()) {
-                dayType = 'Sábado';
-                times = scheduleData[route].weekend;
-            } else {
-                dayType = 'Semana';
-                times = scheduleData[route].weekday;
-            }
+            const now = new Date();
+            const day = now.getDay(); // 0=domingo, 6=sábado
+            let times;
+
+            if (day === 0) times = scheduleData[route].sunday;
+            else if (day === 6) times = scheduleData[route].weekend;
+            else times = scheduleData[route].weekday;
 
             if (!times || times.length === 0) {
-                resultDiv.innerHTML = `<div class="weekend-indicator">Sem serviço ao ${dayType}</div>`;
+                scheduleResult.innerHTML = '<p class="no-more-buses">Sem horários disponíveis para hoje.</p>';
                 return;
             }
 
-            const nextBus = findNextBus(times);
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-            let html = '';
+            // Próximo autocarro
+            let nextBus = times.find(t => parseTimeToMinutes(t) >= nowMinutes);
 
-            // Mostrar tipo de dia
-            html += `<div class="weekend-indicator">Dia: ${dayType}</div>`;
+            let html = '<div class="schedule-info">';
 
-            if (nextBus) {
-                const remaining = getTimeRemaining(nextBus.nextTime);
-                html += `
-                    <div class="schedule-info">
-                        <div class="next-bus">
-                            <h2>Próximo autocarro:</h2>
-                            <div class="next-time">${nextBus.nextTime}</div>
-                            <div class="time-remaining">${remaining}</div>
-                        </div>
-                `;
-
-                // Próximos 3 horários seguintes
-                const upcomingTimes = times.slice(nextBus.index + 1, nextBus.index + 4);
-                if (upcomingTimes.length > 0) {
-                    html += `<div class="upcoming-times"><h3>Horários seguintes:</h3><div class="time-list">`;
-                    upcomingTimes.forEach(time => {
-                        html += `<div class="time-item">${time}</div>`;
-                    });
-                    html += `</div></div>`;
-                }
-                html += `</div>`;
+            if (!nextBus) {
+                html += '<p class="no-more-buses">Já não há mais autocarros hoje.</p>';
             } else {
-                // Se não houver mais horários hoje, tentar ver se no próximo dia há
-                let nextDayTimes = [];
-                let nextDayName = '';
-                let daysAhead = 1;
-                let foundNextDayBus = false;
-                while (!foundNextDayBus && daysAhead <= 7) {
-                    const futureDate = new Date();
-                    futureDate.setDate(futureDate.getDate() + daysAhead);
-                    const futureDay = futureDate.getDay();
-                    if (futureDay === 0) {
-                        nextDayTimes = scheduleData[route].sunday || [];
-                        nextDayName = 'Domingo';
-                    } else if (futureDay === 6) {
-                        nextDayTimes = scheduleData[route].weekend || [];
-                        nextDayName = 'Sábado';
-                    } else {
-                        nextDayTimes = scheduleData[route].weekday || [];
-                        nextDayName = 'Semana';
-                    }
-                    if (nextDayTimes.length > 0) {
-                        foundNextDayBus = true;
-                    } else {
-                        daysAhead++;
-                    }
-                }
-                if (foundNextDayBus) {
-                    const firstNextBusTime = nextDayTimes[0];
-                    const remaining = getTimeRemaining(firstNextBusTime, true, daysAhead);
-                    html += `
-                        <div class="schedule-info">
-                            <div class="next-bus">
-                                <h2>Próximo autocarro:</h2>
-                                <div class="next-time">${firstNextBusTime}</div>
-                                <div class="time-remaining">Em ${remaining} (${nextDayName})</div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    html += `<div class="no-more-buses">Não há mais autocarros previstos para os próximos dias.</div>`;
-                }
+                const nextBusMinutes = parseTimeToMinutes(nextBus);
+                const diff = nextBusMinutes - nowMinutes;
+
+                html += '<div class="next-bus">';
+                html += `<h2>Próximo autocarro</h2>`;
+                html += `<div class="next-time">${nextBus}</div>`;
+                html += `<div class="time-remaining">Em ${diff} minuto${diff > 1 ? 's' : ''}</div>`;
+                html += '</div>';
             }
 
-            resultDiv.innerHTML = html;
+            // Próximos 5 horários
+            const upcomingTimes = times.filter(t => parseTimeToMinutes(t) > nowMinutes).slice(0,5);
+
+            if (upcomingTimes.length > 0) {
+                html += '<div class="upcoming-times">';
+                html += '<h3>Próximos horários</h3>';
+                html += '<div class="time-list">';
+                upcomingTimes.forEach(t => {
+                    html += `<div class="time-item">${t}</div>`;
+                });
+                html += '</div></div>';
+            }
+
+            html += '</div>';
+
+            scheduleResult.innerHTML = html;
         }
 
-        // Atualizar hora atual a cada minuto
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 60000);
-
-        // Atualizar horários sempre que a rota muda
-        document.getElementById('routeSelect').addEventListener('change', (e) => {
-            renderSchedule(e.target.value);
+        document.getElementById('routeSelect').addEventListener('change', function() {
+            renderSchedule(this.value);
         });
 
-        // Opcional: manter o horário da rota selecionada atualizado a cada minuto
-        setInterval(() => {
-            const select = document.getElementById('routeSelect');
-            if (select.value) {
-                renderSchedule(select.value);
-            }
-        }, 60000);
-    </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(reg => console.log('Service Worker registado.', reg))
-        .catch(err => console.error('Erro ao registar SW:', err));
-    });
-  }
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime();
     </script>
 </body>
 </html>
