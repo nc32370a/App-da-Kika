@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8" />
+       <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Horários de Autocarros</title>
     <link rel="manifest" href="manifest.json" />
@@ -184,12 +184,12 @@
                 <label for="routeSelect">Escolha a sua rota:</label>
                 <select id="routeSelect">
                     <option value="">Selecione uma rota...</option>
-                    <option value="ida-colina">🏁 IDA - COLINA</option>
-                    <option value="vinda-comv">🏠 VINDA - COMV</option>
-                    <option value="vinda-ss1">🏠 VINDA - SS1</option>
-                    <option value="vinda-rossio">🏠 VINDA - ROSSIO</option>
-                    <option value="vinda-liceu">🏠 VINDA - LICEU</option>
-                    <option value="vinda-paulo-vi">🏠 VINDA - PAULO VI</option>
+                    <option value="ida-colina">IDA - COLINA</option>
+                    <option value="vinda-comv">VINDA - COMV</option>
+                    <option value="vinda-ss1">VINDA - SS1</option>
+                    <option value="vinda-rossio">VINDA - ROSSIO</option>
+                    <option value="vinda-liceu">VINDA - LICEU</option>
+                    <option value="vinda-paulo-vi">VINDA - PAULO VI</option>
                 </select>
             </div>
             
@@ -272,155 +272,161 @@
             return hours.toString().padStart(2, '0') + ':' + mins.toString().padStart(2, '0');
         }
 
-        function getTimeRemaining(nextBusTime) {
+        function getTimeRemaining(nextBusTime, isNextDay = false, daysAhead = 1) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             const nextBusMinutes = timeToMinutes(nextBusTime);
             
-            let diffMinutes = nextBusMinutes - currentMinutes;
-            
-            // Se o autocarro é para o dia seguinte
-            if (diffMinutes < 0) {
-                diffMinutes += 24 * 60;
+            let diffMinutes;
+            if (isNextDay) {
+                diffMinutes = (24 * 60 - currentMinutes) + nextBusMinutes + (daysAhead - 1) * 24 * 60;
+            } else {
+                diffMinutes = nextBusMinutes - currentMinutes;
             }
-            
+
+            if (diffMinutes <= 0) {
+                return "Já passou";
+            }
+
             if (diffMinutes < 60) {
                 return `${diffMinutes} minutos`;
+            }
+
+            const hours = Math.floor(diffMinutes / 60);
+            const minutes = diffMinutes % 60;
+
+            if (minutes === 0) {
+                return `${hours} horas`;
             } else {
-                const hours = Math.floor(diffMinutes / 60);
-                const minutes = diffMinutes % 60;
-                return `${hours}h ${minutes}m`;
+                return `${hours} horas e ${minutes} minutos`;
             }
         }
 
-        function findNextBus(route) {
-            const currentTime = getCurrentTime();
-            const currentMinutes = timeToMinutes(currentTime);
-            const weekend = isWeekend();
-            const sunday = isSunday();
-            
-            let schedule;
-            let dayType;
-            
-            if (sunday) {
-                schedule = scheduleData[route].sunday || [];
-                dayType = 'Domingo';
-            } else if (weekend) {
-                schedule = scheduleData[route].weekend || [];
-                dayType = 'Sábado';
-            } else {
-                schedule = scheduleData[route].weekday || [];
-                dayType = 'Semana';
-            }
-            
-            // Se não há serviço neste dia
-            if (schedule.length === 0) {
-                return { nextBus: null, upcomingBuses: [], dayType, noService: true };
-            }
-            
-            // Encontrar próximo autocarro
-            let nextBus = null;
-            let upcomingBuses = [];
-            
-            for (let time of schedule) {
-                const busMinutes = timeToMinutes(time);
-                if (busMinutes > currentMinutes) {
-                    if (!nextBus) nextBus = time;
-                    upcomingBuses.push(time);
+        function findNextBus(times) {
+            const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+            for (let i = 0; i < times.length; i++) {
+                if (timeToMinutes(times[i]) > nowMinutes) {
+                    return { nextTime: times[i], index: i };
                 }
             }
-            
-            // Se não há mais autocarros hoje, o próximo é o primeiro de amanhã
-            if (!nextBus && schedule.length > 0) {
-                nextBus = schedule[0];
-                upcomingBuses = schedule.slice(1, 4);
-            } else {
-                upcomingBuses = upcomingBuses.slice(1, 4);
-            }
-            
-            return { nextBus, upcomingBuses, dayType };
+            return null;
         }
 
-        function displaySchedule(route) {
-            const result = findNextBus(route);
+        function renderSchedule(route) {
             const resultDiv = document.getElementById('scheduleResult');
-            
-            if (result.noService) {
-                resultDiv.innerHTML = `
-                    <div class="schedule-info">
-                        <div class="weekend-indicator">${result.dayType}</div>
-                        <div class="no-more-buses">Não há serviço neste dia para esta rota.</div>
-                    </div>
-                `;
+            if (!route || !(route in scheduleData)) {
+                resultDiv.innerHTML = '<p>Por favor, selecione uma rota válida.</p>';
                 return;
             }
-            
-            if (!result.nextBus) {
-                resultDiv.innerHTML = `
-                    <div class="schedule-info">
-                        <div class="weekend-indicator">${result.dayType}</div>
-                        <div class="no-more-buses">Não há mais autocarros hoje.</div>
-                    </div>
-                `;
+
+            let dayType, times;
+            if (isSunday()) {
+                dayType = 'Domingo';
+                times = scheduleData[route].sunday;
+            } else if (isWeekend()) {
+                dayType = 'Sábado';
+                times = scheduleData[route].weekend;
+            } else {
+                dayType = 'Semana';
+                times = scheduleData[route].weekday;
+            }
+
+            if (!times || times.length === 0) {
+                resultDiv.innerHTML = `<div class="weekend-indicator">Sem serviço ao ${dayType}</div>`;
                 return;
             }
-            
-            const routeName = document.getElementById('routeSelect').selectedOptions[0].text;
-            
-            let html = '<div class="schedule-info">';
-            
-            if (result.dayType !== 'Semana') {
-                html += `<div class="weekend-indicator">Horário de ${result.dayType}</div>`;
-            }
-            
-            html += `
-                <div class="next-bus">
-                    <h2>Próximo autocarro: ${routeName}</h2>
-                    <div class="next-time">${result.nextBus}</div>
-                    <div class="time-remaining">${getTimeRemaining(result.nextBus)}</div>
-                </div>
-            `;
-            
-            if (result.upcomingBuses.length > 0) {
+
+            const nextBus = findNextBus(times);
+
+            let html = '';
+
+            // Mostrar tipo de dia
+            html += `<div class="weekend-indicator">Dia: ${dayType}</div>`;
+
+            if (nextBus) {
+                const remaining = getTimeRemaining(nextBus.nextTime);
                 html += `
-                    <div class="upcoming-times">
-                        <h3>Próximos horários:</h3>
-                        <div class="time-list">
+                    <div class="schedule-info">
+                        <div class="next-bus">
+                            <h2>Próximo autocarro:</h2>
+                            <div class="next-time">${nextBus.nextTime}</div>
+                            <div class="time-remaining">${remaining}</div>
+                        </div>
                 `;
-                
-                result.upcomingBuses.forEach(time => {
-                    html += `<div class="time-item">${time}</div>`;
-                });
-                
-                html += '</div></div>';
+
+                // Próximos 3 horários seguintes
+                const upcomingTimes = times.slice(nextBus.index + 1, nextBus.index + 4);
+                if (upcomingTimes.length > 0) {
+                    html += `<div class="upcoming-times"><h3>Horários seguintes:</h3><div class="time-list">`;
+                    upcomingTimes.forEach(time => {
+                        html += `<div class="time-item">${time}</div>`;
+                    });
+                    html += `</div></div>`;
+                }
+                html += `</div>`;
+            } else {
+                // Se não houver mais horários hoje, tentar ver se no próximo dia há
+                let nextDayTimes = [];
+                let nextDayName = '';
+                let daysAhead = 1;
+                let foundNextDayBus = false;
+                while (!foundNextDayBus && daysAhead <= 7) {
+                    const futureDate = new Date();
+                    futureDate.setDate(futureDate.getDate() + daysAhead);
+                    const futureDay = futureDate.getDay();
+                    if (futureDay === 0) {
+                        nextDayTimes = scheduleData[route].sunday || [];
+                        nextDayName = 'Domingo';
+                    } else if (futureDay === 6) {
+                        nextDayTimes = scheduleData[route].weekend || [];
+                        nextDayName = 'Sábado';
+                    } else {
+                        nextDayTimes = scheduleData[route].weekday || [];
+                        nextDayName = 'Semana';
+                    }
+                    if (nextDayTimes.length > 0) {
+                        foundNextDayBus = true;
+                    } else {
+                        daysAhead++;
+                    }
+                }
+                if (foundNextDayBus) {
+                    const firstNextBusTime = nextDayTimes[0];
+                    const remaining = getTimeRemaining(firstNextBusTime, true, daysAhead);
+                    html += `
+                        <div class="schedule-info">
+                            <div class="next-bus">
+                                <h2>Próximo autocarro:</h2>
+                                <div class="next-time">${firstNextBusTime}</div>
+                                <div class="time-remaining">Em ${remaining} (${nextDayName})</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `<div class="no-more-buses">Não há mais autocarros previstos para os próximos dias.</div>`;
+                }
             }
-            
-            html += '</div>';
+
             resultDiv.innerHTML = html;
         }
 
-        // Event listeners
-        document.getElementById('routeSelect').addEventListener('change', function() {
-            const selectedRoute = this.value;
-            if (selectedRoute) {
-                displaySchedule(selectedRoute);
-            } else {
-                document.getElementById('scheduleResult').innerHTML = '';
-            }
+        // Atualizar hora atual a cada minuto
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 60000);
+
+        // Atualizar horários sempre que a rota muda
+        document.getElementById('routeSelect').addEventListener('change', (e) => {
+            renderSchedule(e.target.value);
         });
 
-        // Inicializar
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
-        
-        // Atualizar horários a cada minuto
+        // Opcional: manter o horário da rota selecionada atualizado a cada minuto
         setInterval(() => {
-            const selectedRoute = document.getElementById('routeSelect').value;
-            if (selectedRoute) {
-                displaySchedule(selectedRoute);
+            const select = document.getElementById('routeSelect');
+            if (select.value) {
+                renderSchedule(select.value);
             }
         }, 60000);
-   </script>
+    </script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
