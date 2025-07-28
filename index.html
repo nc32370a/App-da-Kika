@@ -79,8 +79,9 @@
             display: none;
         }
 
-        .tab-content > div.active {
-            display: block;
+        .tab-content > div.active,
+        .tab-content > div[style*="block"] {
+            display: block !important;
         }
 
         .route-selector {
@@ -250,22 +251,40 @@
     </div>
 
     <script>
-        function showTab(tabName) {
-            const horariosTab = document.getElementById('horarios');
-            const pdfTab = document.getElementById('pdf');
-            const btnHorarios = document.getElementById('btnHorarios');
-            const btnPdf = document.getElementById('btnPdf');
+        // Função para debug
+        function log(message) {
+            console.log('[Bus App]', message);
+        }
 
-            if (tabName === 'horarios') {
-                horariosTab.classList.add('active');
-                pdfTab.classList.remove('active');
-                btnHorarios.classList.add('active');
-                btnPdf.classList.remove('active');
-            } else {
-                horariosTab.classList.remove('active');
-                pdfTab.classList.add('active');
-                btnHorarios.classList.remove('active');
-                btnPdf.classList.add('active');
+        function showTab(tabName) {
+            log('Changing to tab: ' + tabName);
+            
+            try {
+                const horariosTab = document.getElementById('horarios');
+                const pdfTab = document.getElementById('pdf');
+                const btnHorarios = document.getElementById('btnHorarios');
+                const btnPdf = document.getElementById('btnPdf');
+
+                if (!horariosTab || !pdfTab || !btnHorarios || !btnPdf) {
+                    log('Error: Could not find tab elements');
+                    return;
+                }
+
+                if (tabName === 'horarios') {
+                    horariosTab.style.display = 'block';
+                    pdfTab.style.display = 'none';
+                    btnHorarios.classList.add('active');
+                    btnPdf.classList.remove('active');
+                } else if (tabName === 'pdf') {
+                    horariosTab.style.display = 'none';
+                    pdfTab.style.display = 'block';
+                    btnHorarios.classList.remove('active');
+                    btnPdf.classList.add('active');
+                }
+                
+                log('Tab changed successfully');
+            } catch (error) {
+                log('Error changing tab: ' + error.message);
             }
         }
 
@@ -337,98 +356,131 @@
         }
 
         function renderSchedule(route) {
+            log('Rendering schedule for route: ' + route);
+            
             const scheduleResult = document.getElementById('scheduleResult');
+            if (!scheduleResult) {
+                log('Error: scheduleResult element not found');
+                return;
+            }
+
             if (!route || !scheduleData[route]) {
+                log('No route selected or invalid route');
                 scheduleResult.innerHTML = '';
                 return;
             }
 
-            const now = new Date();
-            const currentDay = now.getDay();
-            const nowMinutes = now.getHours() * 60 + now.getMinutes();
-            
-            // Obter horários de hoje
-            const todayTimes = getTimesForDay(route, currentDay);
-            
-            // Encontrar próximo autocarro de hoje
-            let nextBus = todayTimes.find(t => parseTimeToMinutes(t) >= nowMinutes);
-            
-            let html = '<div class="schedule-info">';
-
-            if (nextBus) {
-                // Há próximo autocarro hoje
-                const nextBusMinutes = parseTimeToMinutes(nextBus);
-                const diff = nextBusMinutes - nowMinutes;
-
-                html += '<div class="next-bus">';
-                html += '<h2>Próximo autocarro</h2>';
-                html += `<div class="next-time">${nextBus}</div>`;
-                html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
-                html += '</div>';
-
-                // Próximos horários (excluindo o próximo autocarro)
-                const upcomingTimes = todayTimes.filter(t => parseTimeToMinutes(t) > nextBusMinutes).slice(0, 4);
+            try {
+                const now = new Date();
+                const currentDay = now.getDay();
+                const nowMinutes = now.getHours() * 60 + now.getMinutes();
                 
-                if (upcomingTimes.length > 0) {
-                    html += '<div class="upcoming-times">';
-                    html += '<h3>Próximos horários</h3>';
-                    html += '<div class="time-list">';
-                    upcomingTimes.forEach(t => {
-                        html += `<div class="time-item">${t}</div>`;
-                    });
-                    html += '</div></div>';
-                }
-            } else {
-                // Não há mais autocarros hoje
-                html += '<p class="no-more-buses">Já não há mais autocarros hoje.</p>';
+                log('Current day: ' + currentDay + ', Current time: ' + now.getHours() + ':' + now.getMinutes());
                 
-                // Procurar horários dos próximos dias
-                let tomorrowTimes = [];
-                let searchDay = (currentDay + 1) % 7;
-                let daysChecked = 0;
+                // Obter horários de hoje
+                const todayTimes = getTimesForDay(route, currentDay);
+                log('Today times: ' + JSON.stringify(todayTimes));
                 
-                while (tomorrowTimes.length === 0 && daysChecked < 7) {
-                    tomorrowTimes = getTimesForDay(route, searchDay);
-                    if (tomorrowTimes.length === 0) {
-                        searchDay = (searchDay + 1) % 7;
-                        daysChecked++;
-                    } else {
-                        break;
+                // Encontrar próximo autocarro de hoje
+                let nextBus = todayTimes.find(t => parseTimeToMinutes(t) >= nowMinutes);
+                log('Next bus: ' + nextBus);
+                
+                let html = '<div class="schedule-info">';
+
+                if (nextBus) {
+                    // Há próximo autocarro hoje
+                    const nextBusMinutes = parseTimeToMinutes(nextBus);
+                    const diff = nextBusMinutes - nowMinutes;
+
+                    html += '<div class="next-bus">';
+                    html += '<h2>Próximo autocarro</h2>';
+                    html += `<div class="next-time">${nextBus}</div>`;
+                    html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
+                    html += '</div>';
+
+                    // Próximos horários (excluindo o próximo autocarro)
+                    const upcomingTimes = todayTimes.filter(t => parseTimeToMinutes(t) > nextBusMinutes).slice(0, 4);
+                    
+                    if (upcomingTimes.length > 0) {
+                        html += '<div class="upcoming-times">';
+                        html += '<h3>Próximos horários</h3>';
+                        html += '<div class="time-list">';
+                        upcomingTimes.forEach(t => {
+                            html += `<div class="time-item">${t}</div>`;
+                        });
+                        html += '</div></div>';
+                    }
+                } else {
+                    // Não há mais autocarros hoje
+                    html += '<p class="no-more-buses">Já não há mais autocarros hoje.</p>';
+                    
+                    // Procurar horários dos próximos dias
+                    let tomorrowTimes = [];
+                    let searchDay = (currentDay + 1) % 7;
+                    let daysChecked = 0;
+                    
+                    while (tomorrowTimes.length === 0 && daysChecked < 7) {
+                        tomorrowTimes = getTimesForDay(route, searchDay);
+                        if (tomorrowTimes.length === 0) {
+                            searchDay = (searchDay + 1) % 7;
+                            daysChecked++;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    if (tomorrowTimes.length > 0) {
+                        const dayName = getDayName(searchDay);
+                        const isNextDay = daysChecked === 0;
+                        
+                        html += '<div class="upcoming-times">';
+                        html += `<div class="day-indicator">${isNextDay ? 'Amanhã' : dayName}</div>`;
+                        html += '<h3>Próximos horários</h3>';
+                        html += '<div class="time-list">';
+                        tomorrowTimes.slice(0, 5).forEach(t => {
+                            html += `<div class="time-item tomorrow">${t}</div>`;
+                        });
+                        html += '</div></div>';
                     }
                 }
-                
-                if (tomorrowTimes.length > 0) {
-                    const dayName = getDayName(searchDay);
-                    const isNextDay = daysChecked === 0;
-                    
-                    html += '<div class="upcoming-times">';
-                    html += `<div class="day-indicator">${isNextDay ? 'Amanhã' : dayName}</div>`;
-                    html += '<h3>Próximos horários</h3>';
-                    html += '<div class="time-list">';
-                    tomorrowTimes.slice(0, 5).forEach(t => {
-                        html += `<div class="time-item tomorrow">${t}</div>`;
-                    });
-                    html += '</div></div>';
-                }
-            }
 
-            html += '</div>';
-            scheduleResult.innerHTML = html;
+                html += '</div>';
+                scheduleResult.innerHTML = html;
+                log('Schedule rendered successfully');
+                
+            } catch (error) {
+                log('Error rendering schedule: ' + error.message);
+                scheduleResult.innerHTML = '<p class="no-more-buses">Erro ao carregar horários.</p>';
+            }
         }
 
-        document.getElementById('routeSelect').addEventListener('change', function() {
-            renderSchedule(this.value);
+        // Inicialização quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            log('DOM loaded, initializing app');
+            
+            const routeSelect = document.getElementById('routeSelect');
+            if (routeSelect) {
+                routeSelect.addEventListener('change', function() {
+                    log('Route changed to: ' + this.value);
+                    renderSchedule(this.value);
+                });
+            } else {
+                log('Error: routeSelect element not found');
+            }
+
+            updateCurrentTime();
+            
+            // Garantir que o tab inicial está visível
+            showTab('horarios');
         });
 
         setInterval(updateCurrentTime, 1000);
         setInterval(() => {
-            const selectedRoute = document.getElementById('routeSelect').value;
+            const selectedRoute = document.getElementById('routeSelect')?.value;
             if (selectedRoute) {
                 renderSchedule(selectedRoute);
             }
-        }, 60000); // Atualizar horários a cada minuto
-
-        updateCurrentTime();
+        }, 60000);
     </script>
 </body>
 </html>
