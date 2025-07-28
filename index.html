@@ -1,14 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horários de Autocarros</title>
-    <link rel="manifest" href="manifest.json" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Horários de Autocarros" />
-
     <style>
         * {
             margin: 0;
@@ -184,12 +179,12 @@
                 <label for="routeSelect">Escolha a sua rota:</label>
                 <select id="routeSelect">
                     <option value="">Selecione uma rota...</option>
-                    <option value="ida-colina">🏁 IDA - COLINA</option>
-                    <option value="vinda-comv">🏠 VINDA - COMV</option>
-                    <option value="vinda-ss1">🏠 VINDA - SS1</option>
-                    <option value="vinda-rossio">🏠 VINDA - ROSSIO</option>
-                    <option value="vinda-liceu">🏠 VINDA - LICEU</option>
-                    <option value="vinda-paulo-vi">🏠 VINDA - PAULO VI</option>
+                    <option value="ida-colina">IDA - COLINA</option>
+                    <option value="vinda-comv">VINDA - COMV</option>
+                    <option value="vinda-ss1">VINDA - SS1</option>
+                    <option value="vinda-rossio">VINDA - ROSSIO</option>
+                    <option value="vinda-liceu">VINDA - LICEU</option>
+                    <option value="vinda-paulo-vi">VINDA - PAULO VI</option>
                 </select>
             </div>
             
@@ -272,24 +267,37 @@
             return hours.toString().padStart(2, '0') + ':' + mins.toString().padStart(2, '0');
         }
 
-        function getTimeRemaining(nextBusTime) {
+        function getTimeRemaining(nextBusTime, isNextDay = false, daysAhead = 1) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             const nextBusMinutes = timeToMinutes(nextBusTime);
             
-            let diffMinutes = nextBusMinutes - currentMinutes;
+            let diffMinutes;
             
-            // Se o autocarro é para o dia seguinte
-            if (diffMinutes < 0) {
-                diffMinutes += 24 * 60;
+            if (isNextDay) {
+                // Calcular para o próximo dia com serviço
+                diffMinutes = (daysAhead * 24 * 60) - currentMinutes + nextBusMinutes;
+            } else {
+                diffMinutes = nextBusMinutes - currentMinutes;
             }
             
             if (diffMinutes < 60) {
-                return `${diffMinutes} minutos`;
-            } else {
+                return ${diffMinutes} minutos;
+            } else if (diffMinutes < 24 * 60) {
                 const hours = Math.floor(diffMinutes / 60);
                 const minutes = diffMinutes % 60;
-                return `${hours}h ${minutes}m`;
+                return ${hours}h ${minutes}m;
+            } else {
+                const days = Math.floor(diffMinutes / (24 * 60));
+                const remainingMinutes = diffMinutes % (24 * 60);
+                const hours = Math.floor(remainingMinutes / 60);
+                const minutes = remainingMinutes % 60;
+                
+                if (hours === 0 && minutes === 0) {
+                    return ${days} dia${days > 1 ? 's' : ''};
+                } else {
+                    return ${days} dia${days > 1 ? 's' : ''} ${hours}h ${minutes}m;
+                }
             }
         }
 
@@ -313,32 +321,66 @@
                 dayType = 'Semana';
             }
             
-            // Se não há serviço neste dia
-            if (schedule.length === 0) {
-                return { nextBus: null, upcomingBuses: [], dayType, noService: true };
-            }
-            
-            // Encontrar próximo autocarro
+            // Encontrar próximo autocarro HOJE
             let nextBus = null;
             let upcomingBuses = [];
             
-            for (let time of schedule) {
-                const busMinutes = timeToMinutes(time);
-                if (busMinutes > currentMinutes) {
-                    if (!nextBus) nextBus = time;
-                    upcomingBuses.push(time);
+            // Se há serviço hoje, procurar autocarros que ainda não passaram
+            if (schedule.length > 0) {
+                for (let time of schedule) {
+                    const busMinutes = timeToMinutes(time);
+                    if (busMinutes > currentMinutes) {
+                        if (!nextBus) nextBus = time;
+                        upcomingBuses.push(time);
+                    }
                 }
             }
             
-            // Se não há mais autocarros hoje, o próximo é o primeiro de amanhã
-            if (!nextBus && schedule.length > 0) {
-                nextBus = schedule[0];
-                upcomingBuses = schedule.slice(1, 4);
-            } else {
+            // Se encontrou autocarros hoje
+            if (nextBus) {
                 upcomingBuses = upcomingBuses.slice(1, 4);
+                return { nextBus, upcomingBuses, dayType, isNextDay: false };
             }
             
-            return { nextBus, upcomingBuses, dayType };
+            // Se não há mais autocarros hoje, procurar o próximo dia com serviço
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            let searchDay = tomorrow.getDay();
+            let daysChecked = 0;
+            
+            while (daysChecked < 7) {
+                let tomorrowSchedule;
+                let tomorrowDayType;
+                
+                if (searchDay === 0) { // Domingo
+                    tomorrowSchedule = scheduleData[route].sunday || [];
+                    tomorrowDayType = 'Domingo';
+                } else if (searchDay === 6) { // Sábado
+                    tomorrowSchedule = scheduleData[route].weekend || [];
+                    tomorrowDayType = 'Sábado';
+                } else { // Semana (Segunda a Sexta)
+                    tomorrowSchedule = scheduleData[route].weekday || [];
+                    const dayNames = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'];
+                    tomorrowDayType = daysChecked === 0 ? 'Segunda-feira' : 'Semana';
+                }
+                
+                if (tomorrowSchedule.length > 0) {
+                    return { 
+                        nextBus: tomorrowSchedule[0], 
+                        upcomingBuses: tomorrowSchedule.slice(1, 4), 
+                        dayType: tomorrowDayType,
+                        isNextDay: true,
+                        daysAhead: daysChecked + 1
+                    };
+                }
+                
+                // Próximo dia
+                daysChecked++;
+                searchDay = (searchDay + 1) % 7;
+            }
+            
+            // Não há serviço em nenhum dia (não deveria acontecer)
+            return { nextBus: null, upcomingBuses: [], dayType, noService: true };
         }
 
         function displaySchedule(route) {
@@ -348,18 +390,7 @@
             if (result.noService) {
                 resultDiv.innerHTML = `
                     <div class="schedule-info">
-                        <div class="weekend-indicator">${result.dayType}</div>
-                        <div class="no-more-buses">Não há serviço neste dia para esta rota.</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            if (!result.nextBus) {
-                resultDiv.innerHTML = `
-                    <div class="schedule-info">
-                        <div class="weekend-indicator">${result.dayType}</div>
-                        <div class="no-more-buses">Não há mais autocarros hoje.</div>
+                        <div class="no-more-buses">Esta rota não tem serviço disponível.</div>
                     </div>
                 `;
                 return;
@@ -369,17 +400,30 @@
             
             let html = '<div class="schedule-info">';
             
-            if (result.dayType !== 'Semana') {
-                html += `<div class="weekend-indicator">Horário de ${result.dayType}</div>`;
+            // Mostrar indicador do dia
+            if (result.isNextDay) {
+                html += <div class="weekend-indicator">Próximo: ${result.dayType}</div>;
+            } else if (result.dayType !== 'Semana') {
+                html += <div class="weekend-indicator">${result.dayType}</div>;
             }
             
             html += `
                 <div class="next-bus">
                     <h2>Próximo autocarro: ${routeName}</h2>
                     <div class="next-time">${result.nextBus}</div>
-                    <div class="time-remaining">${getTimeRemaining(result.nextBus)}</div>
-                </div>
+                    <div class="time-remaining">${getTimeRemaining(result.nextBus, result.isNextDay, result.daysAhead)}</div>
             `;
+            
+            if (result.isNextDay && result.daysAhead === 1) {
+                html += <div style="margin-top: 10px; font-size: 14px; color: #666;">Amanhã</div>;
+            } else if (result.isNextDay && result.daysAhead > 1) {
+                const dayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+                const futureDate = new Date();
+                futureDate.setDate(futureDate.getDate() + result.daysAhead);
+                html += <div style="margin-top: 10px; font-size: 14px; color: #666;">${dayNames[futureDate.getDay()]}</div>;
+            }
+            
+            html += '</div>';
             
             if (result.upcomingBuses.length > 0) {
                 html += `
@@ -389,7 +433,7 @@
                 `;
                 
                 result.upcomingBuses.forEach(time => {
-                    html += `<div class="time-item">${time}</div>`;
+                    html += <div class="time-item">${time}</div>;
                 });
                 
                 html += '</div></div>';
@@ -420,15 +464,6 @@
                 displaySchedule(selectedRoute);
             }
         }, 60000);
-   </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(reg => console.log('Service Worker registado.', reg))
-        .catch(err => console.error('Erro ao registar SW:', err));
-    });
-  }
     </script>
 </body>
 </html>
