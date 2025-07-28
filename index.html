@@ -333,63 +333,64 @@
             return busMinutes - currentMinutes;
         }
 
-        function renderSchedule(route) {
-            const scheduleResult = document.getElementById('scheduleResult');
-            if (!route || !scheduleData[route]) {
-                scheduleResult.innerHTML = '';
-                return;
-            }
+  function renderSchedule(route) {
+    const scheduleResult = document.getElementById('scheduleResult');
+    if (!route || !scheduleData[route]) {
+        scheduleResult.innerHTML = '';
+        return;
+    }
 
-            const now = new Date();
-            const day = now.getDay(); // 0=domingo, 6=sábado
-            let times;
+    const now = new Date();
+    const day = now.getDay(); // 0=domingo, 6=sábado
+    let times;
 
-            if (day === 0) times = scheduleData[route].sunday;
-            else if (day === 6) times = scheduleData[route].weekend;
-            else times = scheduleData[route].weekday;
+    if (day === 0) times = scheduleData[route].sunday;
+    else if (day === 6) times = scheduleData[route].weekend;
+    else times = scheduleData[route].weekday;
 
-            if (!times || times.length === 0) {
-                scheduleResult.innerHTML = '<p class="no-more-buses">Sem horários disponíveis para hoje.</p>';
-                return;
-            }
+    if (!times || times.length === 0) {
+        scheduleResult.innerHTML = '<p class="no-more-buses">Sem horários disponíveis para hoje.</p>';
+        return;
+    }
 
-            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-            // Próximo autocarro
-            let nextBus = times.find(t => parseTimeToMinutes(t) >= nowMinutes);
+    // Encontrar próximo autocarro do dia atual
+    let nextBus = times.find(t => parseTimeToMinutes(t) >= nowMinutes);
 
-            let html = '<div class="schedule-info">';
+    let html = '<div class="schedule-info">';
 
-            if (!nextBus) {
-                html += '<p class="no-more-buses">Já não há mais autocarros hoje.</p>';
-            } else {
-                const nextBusMinutes = parseTimeToMinutes(nextBus);
-                const diff = nextBusMinutes - nowMinutes;
+    if (!nextBus) {
+        // Se não há próximo autocarro HOJE, mostrar mensagem
+        html += '<p class="no-more-buses">Já não há mais autocarros hoje.</p>';
+    } else {
+        const nextBusMinutes = parseTimeToMinutes(nextBus);
+        const diff = nextBusMinutes - nowMinutes;
 
-                html += '<div class="next-bus">';
-                html += `<h2>Próximo autocarro</h2>`;
-                html += `<div class="next-time">${nextBus}</div>`;
-                html += `<div class="time-remaining">Em ${diff} minuto${diff > 1 ? 's' : ''}</div>`;
-                html += '</div>';
-            }
+        html += '<div class="next-bus">';
+        html += `<h2>Próximo autocarro</h2>`;
+        html += `<div class="next-time">${nextBus}</div>`;
+        html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
+        html += '</div>';
 
-            // Próximos 5 horários
-            const upcomingTimes = times.filter(t => parseTimeToMinutes(t) > nowMinutes).slice(0,5);
+        // Próximos 5 horários
+        const upcomingTimes = times.filter(t => parseTimeToMinutes(t) > nowMinutes).slice(0,5);
 
-            if (upcomingTimes.length > 0) {
-                html += '<div class="upcoming-times">';
-                html += '<h3>Próximos horários</h3>';
-                html += '<div class="time-list">';
-                upcomingTimes.forEach(t => {
-                    html += `<div class="time-item">${t}</div>`;
-                });
-                html += '</div></div>';
-            }
-
-            html += '</div>';
-
-            scheduleResult.innerHTML = html;
+        if (upcomingTimes.length > 0) {
+            html += '<div class="upcoming-times">';
+            html += '<h3>Próximos horários</h3>';
+            html += '<div class="time-list">';
+            upcomingTimes.forEach(t => {
+                html += `<div class="time-item">${t}</div>`;
+            });
+            html += '</div></div>';
         }
+    }
+
+    html += '</div>';
+
+    scheduleResult.innerHTML = html;
+}
 
         document.getElementById('routeSelect').addEventListener('change', function() {
             renderSchedule(this.value);
