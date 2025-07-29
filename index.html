@@ -128,6 +128,10 @@
         }
 
         .next-time {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             font-size: 36px;
             font-weight: bold;
             color: #4facfe;
@@ -154,9 +158,12 @@
         }
 
         .time-list {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
+            justify-items: center;
+            max-width: 250px;
+            margin: 0 auto;
         }
 
         .time-item {
@@ -224,6 +231,7 @@
         <div class="tab-buttons">
             <button id="btnHorarios" class="active" onclick="showTab('horarios')">Horários</button>
             <button id="btnPdf" onclick="showTab('pdf')">PDF</button>
+            <button id="btnLembretes" onclick="showTab('lembretes')">Lembretes</button>
         </div>
 
         <div class="tab-content">
@@ -246,6 +254,11 @@
             <div id="pdf" style="text-align:center;">
                 <img src="https://nc32370a.github.io/App-da-Kika/Capturar.PNG" alt="Horários de Autocarros" style="max-width:100%; border-radius:10px;" />
             </div>
+
+<div id="lembretes" style="display: none; text-align: center; padding: 20px;">
+    <h3 style="margin-bottom: 15px;">Lembretes Ativos</h3>
+    <div id="reminderSummary"></div>
+</div>
         </div>
     </div>
 
@@ -255,30 +268,134 @@
             console.log('[Bus App]', message);
         }
 
-        function showTab(tabName) {
-    try {
-        const horariosTab = document.getElementById('horarios');
-        const pdfTab = document.getElementById('pdf');
-        const btnHorarios = document.getElementById('btnHorarios');
-        const btnPdf = document.getElementById('btnPdf');
+// Notificações
+if ('Notification' in window && Notification.permission !== 'granted') {
+    Notification.requestPermission().then(permission => {
+        console.log('[Notificações]', permission);
+    });
+}
 
-        if (tabName === 'horarios') {
-            horariosTab.classList.add('active');
-            pdfTab.classList.remove('active');
-            btnHorarios.classList.add('active');
-            btnPdf.classList.remove('active');
-        } else if (tabName === 'pdf') {
-            horariosTab.classList.remove('active');
-            pdfTab.classList.add('active');
-            btnHorarios.classList.remove('active');
-            btnPdf.classList.add('active');
+function getReminders() {
+  const data = localStorage.getItem('reminders');
+  if (!data) return [];
+  try {
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
+
+function saveReminders(reminders) {
+  localStorage.setItem('reminders', JSON.stringify(reminders));
+}
+
+function scheduleReminder(time) {
+    const route = document.getElementById("routeSelect").value;
+    if (!route || !time) return alert("Rota ou hora inválida.");
+
+    const existing = getReminders();
+    if (existing.some(r => r.time === time && r.route === route)) {
+        return alert("Lembrete já existe.");
+    }
+
+    const [h, m] = time.split(":").map(Number);
+    const busTime = new Date();
+    busTime.setHours(h, m, 0, 0);
+
+    const now = new Date();
+    const delay = busTime - now - 10 * 60 * 1000;
+
+    if (delay <= 0) {
+        return alert("Este horário já passou ou está a menos de 10 minutos.");
+    }
+
+    // Salva lembrete
+    const reminders = [...existing, { time, route }];
+    saveReminders(reminders);
+    updateReminderSummary();
+    alert(`Lembrete criado para ${time} (${route})`);
+
+    // Agenda notificação
+    setTimeout(() => {
+        if (Notification.permission === 'granted') {
+            new Notification("🚌 Lembrete", {
+                body: `O autocarro (${route}) passa às ${time}. Está quase!`,
+                icon: "https://cdn-icons-png.flaticon.com/512/61/61205.png"
+            });
         }
+        removeReminder(route, time);
+        updateReminderSummary();
+    }, delay);
+}
 
-        log('Tab changed successfully');
-    } catch (error) {
-        log('Error changing tab: ' + error.message);
+function updateReminderSummary() {
+    const container = document.getElementById("reminderSummary");
+    const reminders = getReminders();
+
+    if (!container) return;
+
+    if (reminders.length === 0) {
+        container.innerHTML = "<p>Nenhum lembrete ativo.</p>";
+        return;
+    }
+
+    let html = `<p><strong>${reminders.length}</strong> lembrete(s) ativo(s):</p><ul style="list-style:none; padding:0;">`;
+    reminders.forEach((r, i) => {
+        html += `<li style="margin-bottom:10px;">
+            🚌 ${r.time} — ${r.route}
+            <button onclick="removeReminder('${r.route}', '${r.time}')" style="margin-left:10px; font-size:12px; padding:3px 6px; border:none; border-radius:5px; background:#e53935; color:white; cursor:pointer;">❌ Remover</button>
+        </li>`;
+    });
+    html += "</ul>";
+    container.innerHTML = html;
+}
+
+function removeReminder(route, time) {
+    let reminders = getReminders();
+    reminders = reminders.filter(r => !(r.time === time && r.route === route));
+    saveReminders(reminders);
+    updateReminderSummary();
+}
+
+function cleanupExpiredReminders() {
+    const now = new Date();
+    let reminders = getReminders();
+
+    reminders = reminders.filter(r => {
+        const [h, m] = r.time.split(":").map(Number);
+        const busDate = new Date();
+        busDate.setHours(h, m, 0, 0);
+        return busDate > now;
+    });
+
+    saveReminders(reminders);
+}
+
+// Chamado ao abrir separador de lembretes
+function showTab(tabName) {
+    const tabs = ['horarios', 'pdf', 'lembretes'];
+    const buttons = ['btnHorarios', 'btnPdf', 'btnLembretes'];
+
+    tabs.forEach((tabId, index) => {
+        const tab = document.getElementById(tabId);
+        const btn = document.getElementById(buttons[index]);
+
+        if (tab && btn) {
+            const isActive = tabId === tabName;
+            tab.style.display = isActive ? 'block' : 'none';
+            btn.classList.toggle('active', isActive);
+        }
+    });
+
+    if (tabName === 'lembretes') {
+        cleanupExpiredReminders();
+        updateReminderSummary();
     }
 }
+
+// Executar limpeza periódica
+setInterval(cleanupExpiredReminders, 60 * 1000); // a cada 1 minuto
+
         const scheduleData = {
             'ida-colina': {
                 weekday: ['06:48', '07:36', '08:03', '08:35', '09:35', '13:11', '14:08', '15:04', '16:38', '18:13', '19:13'],
@@ -385,9 +502,14 @@
 
                     html += '<div class="next-bus">';
                     html += '<h2>Próximo autocarro</h2>';
-                    html += `<div class="next-time">${nextBus}</div>`;
-                    html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
-                    html += '</div>';
+                    html += `<div class="next-time" style="display:flex; align-items:center; gap:10px;">`;
+    html += `<span>${nextBus}</span>`;
+    html += `<button onclick="scheduleReminder('${nextBus}')" style="font-size: 14px; padding: 5px 10px; border-radius: 8px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
+                🔔 Lembrar-me
+             </button>`;
+    html += `</div>`;
+    html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
+    html += '</div>';
 
                     // Próximos horários (excluindo o próximo autocarro)
                     const upcomingTimes = todayTimes.filter(t => parseTimeToMinutes(t) > nextBusMinutes).slice(0, 4);
@@ -397,8 +519,14 @@
                         html += '<h3>Próximos horários</h3>';
                         html += '<div class="time-list">';
                         upcomingTimes.forEach(t => {
-                            html += `<div class="time-item">${t}</div>`;
-                        });
+    html += `
+        <div class="time-item">
+            ${t}
+            <button onclick="scheduleReminder('${t}')" style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
+                🔔
+            </button>
+        </div>`;
+});
                         html += '</div></div>';
                     }
                 } else {
