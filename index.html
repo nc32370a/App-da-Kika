@@ -79,10 +79,9 @@
             display: none;
         }
 
-        .tab-content > div.active,
-        .tab-content > div[style*="block"] {
-            display: block !important;
-        }
+       .tab-content > div.active {
+    	 display: block;
+	}
 
         .route-selector {
             margin-bottom: 30px;
@@ -257,37 +256,29 @@
         }
 
         function showTab(tabName) {
-            log('Changing to tab: ' + tabName);
-            
-            try {
-                const horariosTab = document.getElementById('horarios');
-                const pdfTab = document.getElementById('pdf');
-                const btnHorarios = document.getElementById('btnHorarios');
-                const btnPdf = document.getElementById('btnPdf');
+    try {
+        const horariosTab = document.getElementById('horarios');
+        const pdfTab = document.getElementById('pdf');
+        const btnHorarios = document.getElementById('btnHorarios');
+        const btnPdf = document.getElementById('btnPdf');
 
-                if (!horariosTab || !pdfTab || !btnHorarios || !btnPdf) {
-                    log('Error: Could not find tab elements');
-                    return;
-                }
-
-                if (tabName === 'horarios') {
-                    horariosTab.style.display = 'block';
-                    pdfTab.style.display = 'none';
-                    btnHorarios.classList.add('active');
-                    btnPdf.classList.remove('active');
-                } else if (tabName === 'pdf') {
-                    horariosTab.style.display = 'none';
-                    pdfTab.style.display = 'block';
-                    btnHorarios.classList.remove('active');
-                    btnPdf.classList.add('active');
-                }
-                
-                log('Tab changed successfully');
-            } catch (error) {
-                log('Error changing tab: ' + error.message);
-            }
+        if (tabName === 'horarios') {
+            horariosTab.classList.add('active');
+            pdfTab.classList.remove('active');
+            btnHorarios.classList.add('active');
+            btnPdf.classList.remove('active');
+        } else if (tabName === 'pdf') {
+            horariosTab.classList.remove('active');
+            pdfTab.classList.add('active');
+            btnHorarios.classList.remove('active');
+            btnPdf.classList.add('active');
         }
 
+        log('Tab changed successfully');
+    } catch (error) {
+        log('Error changing tab: ' + error.message);
+    }
+}
         const scheduleData = {
             'ida-colina': {
                 weekday: ['06:48', '07:36', '08:03', '08:35', '09:35', '13:11', '14:08', '15:04', '16:38', '18:13', '19:13'],
