@@ -44,6 +44,22 @@
             margin-bottom: 10px;
         }
 
+	.banner {
+  background-image: url('https://raw.githubusercontent.com/nc32370a/App-da-Kika/main/banner.PNG'); /* põe aqui o caminho correto da tua imagem */
+  background-size: cover;      /* cobre toda a área */
+  background-position: center; /* centra a imagem */
+  padding: 20px 20px 20px 20px;          /* espaço interno */
+  margin: 0px 0px 25px 0px;
+  color: white;                /* texto branco */
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.7); /* sombra para texto */
+  border-radius: 15px 15px 15px 15px; /* arredonda todos os cantos, podes ajustar só os inferiores */
+  display: flex;              /* ativa flexbox */
+  flex-direction: column;     /* empilha itens verticalmente */
+  justify-content: center;    /* centraliza verticalmente */
+  align-items: center;        /* centraliza horizontalmente */
+  text-align: center;         /* centraliza o texto */
+  height: 150px;              /* define altura para centralização vertical */
+}
         .current-time {
             font-size: 18px;
             opacity: 0.9;
@@ -223,7 +239,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <div class="banner">
             <h1>🚌 Horários de Autocarros</h1>
             <div class="current-time" id="currentTime"></div>
         </div>
