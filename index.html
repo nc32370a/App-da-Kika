@@ -320,7 +320,6 @@ function scheduleReminder(time) {
         if (Notification.permission === 'granted') {
             new Notification("🚌 Lembrete", {
                 body: `O autocarro (${route}) passa às ${time}. Está quase!`,
-                icon: "https://cdn-icons-png.flaticon.com/512/61/61205.png"
             });
         }
         removeReminder(route, time);
