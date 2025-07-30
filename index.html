@@ -294,8 +294,22 @@ if ('Notification' in window && Notification.permission !== 'granted') {
 function getReminders() {
   const data = localStorage.getItem('reminders');
   if (!data) return [];
+
   try {
-    return JSON.parse(data);
+    let parsed = JSON.parse(data);
+    const now = new Date();
+
+    // Limpa lembretes já expirados
+    parsed = parsed.filter(r => {
+      const [h, m] = r.time.split(":").map(Number);
+      const busDate = new Date();
+      busDate.setHours(h, m, 0, 0);
+      return busDate > now;
+    });
+
+    // Guarda só os lembretes ainda válidos
+    saveReminders(parsed);
+    return parsed;
   } catch {
     return [];
   }
