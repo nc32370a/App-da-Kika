@@ -8,21 +8,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Horários de Autocarros" />
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #FFD600;
             min-height: 100vh;
             padding: 20px;
         }
-
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -31,46 +24,28 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-
-        .header {
-            background-color: white;
-            color: black;
-            padding: 30px 20px;
+        .banner {
+            background-image: url('https://raw.githubusercontent.com/nc32370a/App-da-Kika/refs/heads/main/banner.PNG');
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            margin: 0px 0px 25px 0px;
+            color: white;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
+            height: 150px;
         }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-	.banner {
-  background-image: url('https://raw.githubusercontent.com/nc32370a/App-da-Kika/refs/heads/main/banner.PNG'); /* põe aqui o caminho correto da tua imagem */
-  background-size: cover;      /* cobre toda a área */
-  background-position: center; /* centra a imagem */
-  padding: 20px 20px 20px 20px;          /* espaço interno */
-  margin: 0px 0px 25px 0px;
-  color: white;                /* texto branco */
-  text-shadow: 1px 1px 5px rgba(0,0,0,0.7); /* sombra para texto */
-  border-radius: 15px 15px 15px 15px; /* arredonda todos os cantos, podes ajustar só os inferiores */
-  display: flex;              /* ativa flexbox */
-  flex-direction: column;     /* empilha itens verticalmente */
-  justify-content: center;    /* centraliza verticalmente */
-  align-items: center;        /* centraliza horizontalmente */
-  text-align: center;         /* centraliza o texto */
-  height: 150px;              /* define altura para centralização vertical */
-}
-        .current-time {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-
+        .current-time { font-size: 18px; opacity: 0.9; }
         .tab-buttons {
             display: flex;
             margin: 0 20px 20px 20px;
             gap: 10px;
         }
-
         .tab-buttons button {
             flex: 1;
             padding: 10px 0;
@@ -82,34 +57,17 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
-        .tab-buttons button.active {
-            background-color: #005bb5;
-        }
-
-        .tab-content {
-            padding: 0 20px 30px 20px;
-        }
-
-        .tab-content > div {
-            display: none;
-        }
-
-       .tab-content > div.active {
-    	 display: block;
-	}
-
-        .route-selector {
-            margin-bottom: 30px;
-        }
-
+        .tab-buttons button.active { background-color: #005bb5; }
+        .tab-content { padding: 0 20px 30px 20px; }
+        .tab-content > div { display: none; }
+        .tab-content > div.active { display: block; }
+        .route-selector { margin-bottom: 30px; }
         .route-selector label {
             display: block;
             margin-bottom: 10px;
             font-weight: 600;
             color: #333;
         }
-
         .route-selector select {
             width: 100%;
             padding: 15px;
@@ -120,40 +78,19 @@
             cursor: pointer;
             transition: border-color 0.3s;
         }
-
-        .route-selector select:focus {
-            outline: none;
-            border-color: #4facfe;
-        }
-
+        .route-selector select:focus { outline: none; border-color: #4facfe; }
         .schedule-info {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
         }
-
-        .next-bus {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .next-bus h2 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
+        .next-bus { text-align: center; margin-bottom: 25px; }
+        .next-bus h2 { color: #333; margin-bottom: 10px; }
         .next-time {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 36px;
-            font-weight: bold;
-            color: #4facfe;
-            margin-bottom: 5px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-size: 36px; font-weight: bold; color: #4facfe; margin-bottom: 5px;
         }
-
         .time-remaining {
             font-size: 18px;
             color: #666;
@@ -162,17 +99,8 @@
             border-radius: 25px;
             display: inline-block;
         }
-
-        .upcoming-times {
-            margin-top: 25px;
-        }
-
-        .upcoming-times h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
+        .upcoming-times { margin-top: 25px; }
+        .upcoming-times h3 { color: #333; margin-bottom: 15px; font-size: 18px; }
         .time-list {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -181,7 +109,6 @@
             max-width: 250px;
             margin: 0 auto;
         }
-
         .time-item {
             background: white;
             border: 2px solid #e1e5e9;
@@ -190,13 +117,11 @@
             font-weight: 500;
             color: #555;
         }
-
         .time-item.tomorrow {
             background: #fff3cd;
             border-color: #ffc107;
             color: #856404;
         }
-
         .day-indicator {
             background: #ff9800;
             color: white;
@@ -207,33 +132,19 @@
             display: inline-block;
             margin-bottom: 15px;
         }
-
         .no-more-buses {
             text-align: center;
             color: #666;
             font-style: italic;
             padding: 20px;
         }
-
         @media (max-width: 480px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-            .header {
-                padding: 20px 15px;
-            }
-            .tab-buttons {
-                margin: 0 10px 20px 10px;
-                gap: 5px;
-            }
-            .tab-buttons button {
-                padding: 8px 0;
-                font-size: 14px;
-            }
-            .tab-content {
-                padding: 0 10px 20px 10px;
-            }
+            .container { margin: 10px; border-radius: 15px; }
+            .banner { padding: 15px; height: 120px; }
+            .header { padding: 20px 15px; }
+            .tab-buttons { margin: 0 10px 20px 10px; gap: 5px; }
+            .tab-buttons button { padding: 8px 0; font-size: 14px; }
+            .tab-content { padding: 0 10px 20px 10px; }
         }
     </style>
 </head>
@@ -243,13 +154,11 @@
             <h1>🚌 Horários de Autocarros</h1>
             <div class="current-time" id="currentTime"></div>
         </div>
-
         <div class="tab-buttons">
             <button id="btnHorarios" class="active" onclick="showTab('horarios')">Horários</button>
             <button id="btnPdf" onclick="showTab('pdf')">PDF</button>
             <button id="btnLembretes" onclick="showTab('lembretes')">Lembretes</button>
         </div>
-
         <div class="tab-content">
             <div id="horarios" class="active">
                 <div class="route-selector">
@@ -266,155 +175,24 @@
                 </div>
                 <div id="scheduleResult"></div>
             </div>
-
             <div id="pdf" style="text-align:center;">
                 <img src="https://nc32370a.github.io/App-da-Kika/Capturar.PNG" alt="Horários de Autocarros" style="max-width:100%; border-radius:10px;" />
             </div>
-
-<div id="lembretes" style="display: none; text-align: center; padding: 20px;">
-    <h3 style="margin-bottom: 15px;">Lembretes Ativos</h3>
-    <div id="reminderSummary"></div>
-</div>
+            <div id="lembretes" style="display: none; text-align: center; padding: 20px;">
+                <h3 style="margin-bottom: 15px;">Lembretes Ativos</h3>
+                <div id="reminderSummary"></div>
+            </div>
         </div>
     </div>
-
     <script>
-        // Função para debug
-        function log(message) {
-            console.log('[Bus App]', message);
+        // Notificações
+        if ('Notification' in window && Notification.permission !== 'granted') {
+            Notification.requestPermission().then(permission => {
+                console.log('[Notificações]', permission);
+            });
         }
 
-// Notificações
-if ('Notification' in window && Notification.permission !== 'granted') {
-    Notification.requestPermission().then(permission => {
-        console.log('[Notificações]', permission);
-    });
-}
-
-function getReminders() {
-  const data = localStorage.getItem('reminders');
-  if (!data) return [];
-
-  try {
-    let parsed = JSON.parse(data);
-    const now = new Date();
-
-    // Limpa lembretes já expirados
-    parsed = parsed.filter(r => {
-      const [h, m] = r.time.split(":").map(Number);
-      const busDate = new Date();
-      busDate.setHours(h, m, 0, 0);
-      return busDate > now;
-    });
-
-    // Guarda só os lembretes ainda válidos
-    saveReminders(parsed);
-    return parsed;
-  } catch {
-    return [];
-  }
-}
-
-function saveReminders(reminders) {
-  localStorage.setItem('reminders', JSON.stringify(reminders));
-}
-
-function scheduleReminder(time) {
-    const route = document.getElementById("routeSelect").value;
-    if (!route || !time) return alert("Rota ou hora inválida.");
-
-    const existing = getReminders();
-    if (existing.some(r => r.time === time && r.route === route)) {
-        return alert("Lembrete já existe.");
-    }
-
-    const [h, m] = time.split(":").map(Number);
-    const busTime = new Date();
-    busTime.setHours(h, m, 0, 0);
-
-    const now = new Date();
-    const delay = busTime - now - 10 * 60 * 1000;
-
-    if (delay <= 0) {
-        return alert("Este horário já passou ou está a menos de 10 minutos.");
-    }
-
-    // Salva lembrete
-    const reminders = [...existing, { time, route }];
-    saveReminders(reminders);
-    updateReminderSummary();
-    alert(`Lembrete criado para ${time} (${route})`);
-    downloadICS(route, busTime);
-   }
-
-function updateReminderSummary() {
-    const container = document.getElementById("reminderSummary");
-    const reminders = getReminders();
-
-    if (!container) return;
-
-    if (reminders.length === 0) {
-        container.innerHTML = "<p>Nenhum lembrete ativo.</p>";
-        return;
-    }
-
-    let html = `<p><strong>${reminders.length}</strong> lembrete(s) ativo(s):</p><ul style="list-style:none; padding:0;">`;
-    reminders.forEach((r, i) => {
-        html += `<li style="margin-bottom:10px;">
-            🚌 ${r.time} — ${r.route}
-            <button onclick="removeReminder('${r.route}', '${r.time}'); alert('Se adicionou ao calendário, remova manualmente esse evento.');" style="margin-left:10px; font-size:12px; padding:3px 6px; border:none; border-radius:5px; background:#e53935; color:white; cursor:pointer;">❌ Remover</button>
-        </li>`;
-    });
-    html += "</ul>";
-    container.innerHTML = html;
-}
-
-function removeReminder(route, time) {
-    let reminders = getReminders();
-    reminders = reminders.filter(r => !(r.time === time && r.route === route));
-    saveReminders(reminders);
-    updateReminderSummary();
-}
-
-function cleanupExpiredReminders() {
-    const now = new Date();
-    let reminders = getReminders();
-
-    reminders = reminders.filter(r => {
-        const [h, m] = r.time.split(":").map(Number);
-        const busDate = new Date();
-        busDate.setHours(h, m, 0, 0);
-        return busDate > now;
-    });
-
-    saveReminders(reminders);
-}
-
-// Chamado ao abrir separador de lembretes
-function showTab(tabName) {
-    const tabs = ['horarios', 'pdf', 'lembretes'];
-    const buttons = ['btnHorarios', 'btnPdf', 'btnLembretes'];
-
-    tabs.forEach((tabId, index) => {
-        const tab = document.getElementById(tabId);
-        const btn = document.getElementById(buttons[index]);
-
-        if (tab && btn) {
-            const isActive = tabId === tabName;
-            tab.style.display = isActive ? 'block' : 'none';
-            btn.classList.toggle('active', isActive);
-        }
-    });
-
-    if (tabName === 'lembretes') {
-        cleanupExpiredReminders();
-        updateReminderSummary();
-    }
-}
-
-// Executar limpeza periódica
-setInterval(cleanupExpiredReminders, 60 * 1000); // a cada 1 minuto
-
+        // --- Dados ---
         const scheduleData = {
             'ida-colina': {
                 weekday: ['06:48', '07:36', '08:03', '08:35', '09:35', '13:11', '14:08', '15:04', '16:38', '18:13', '19:13'],
@@ -448,115 +226,165 @@ setInterval(cleanupExpiredReminders, 60 * 1000); // a cada 1 minuto
             }
         };
 
+        // --- Funções utilitárias ---
         function updateCurrentTime() {
             const now = new Date();
             const timeString = now.toLocaleString('pt-PT', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
             });
             document.getElementById('currentTime').textContent = timeString;
         }
-
         function parseTimeToMinutes(timeStr) {
             const [h, m] = timeStr.split(':').map(Number);
             return h * 60 + m;
         }
-
         function getDayType(dayOfWeek) {
             if (dayOfWeek === 0) return 'sunday';
             else if (dayOfWeek === 6) return 'weekend';
             else return 'weekday';
         }
-
         function getDayName(dayOfWeek) {
             const days = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
             return days[dayOfWeek];
         }
-
         function getTimesForDay(route, dayOfWeek) {
             const dayType = getDayType(dayOfWeek);
             return scheduleData[route][dayType] || [];
         }
 
-        function renderSchedule(route) {
-            log('Rendering schedule for route: ' + route);
-            
-            const scheduleResult = document.getElementById('scheduleResult');
-            if (!scheduleResult) {
-                log('Error: scheduleResult element not found');
+        // --- Lembretes ---
+        function getReminders() {
+            const data = localStorage.getItem('reminders');
+            if (!data) return [];
+            try {
+                let parsed = JSON.parse(data);
+                const now = new Date();
+                // Só mantém lembretes futuros
+                parsed = parsed.filter(r => {
+                    const busDate = new Date(r.date + "T" + r.time + ":00");
+                    return busDate > now;
+                });
+                saveReminders(parsed);
+                return parsed;
+            } catch { return []; }
+        }
+        function saveReminders(reminders) {
+            localStorage.setItem('reminders', JSON.stringify(reminders));
+        }
+        function scheduleReminder(time, dateObj) {
+            const route = document.getElementById("routeSelect").value;
+            if (!route || !time || !dateObj) return alert("Rota, hora ou data inválida.");
+            const existing = getReminders();
+            if (existing.some(r => r.time === time && r.route === route && r.date === dateObj.toISOString().slice(0,10))) {
+                return alert("Lembrete já existe.");
+            }
+            const now = new Date();
+            const delay = dateObj - now - 10 * 60 * 1000;
+            if (delay <= 0) {
+                return alert("Este horário já passou ou está a menos de 10 minutos.");
+            }
+            const reminders = [...existing, { time, route, date: dateObj.toISOString().slice(0,10) }];
+            saveReminders(reminders);
+            updateReminderSummary();
+            alert(`Lembrete criado para ${time} (${route}) em ${dateObj.toLocaleDateString()}`);
+            downloadICS(route, dateObj);
+        }
+        function updateReminderSummary() {
+            const container = document.getElementById("reminderSummary");
+            const reminders = getReminders();
+            if (!container) return;
+            if (reminders.length === 0) {
+                container.innerHTML = "<p>Nenhum lembrete ativo.</p>";
                 return;
             }
+            let html = `<p><strong>${reminders.length}</strong> lembrete(s) ativo(s):</p><ul style="list-style:none; padding:0;">`;
+            reminders.forEach((r, i) => {
+                html += `<li style="margin-bottom:10px;">
+                    🚌 ${r.time} — ${r.route} — ${r.date}
+                    <button onclick="removeReminder('${r.route}', '${r.time}', '${r.date}'); alert('Se adicionou ao calendário, remova manualmente esse evento.');"
+                        style="margin-left:10px; font-size:12px; padding:3px 6px; border:none; border-radius:5px; background:#e53935; color:white; cursor:pointer;">
+                        ❌ Remover
+                    </button>
+                </li>`;
+            });
+            html += "</ul>";
+            container.innerHTML = html;
+        }
+        function removeReminder(route, time, date) {
+            let reminders = getReminders();
+            reminders = reminders.filter(r => !(r.time === time && r.route === route && r.date === date));
+            saveReminders(reminders);
+            updateReminderSummary();
+        }
+        function cleanupExpiredReminders() {
+            const now = new Date();
+            let reminders = getReminders();
+            reminders = reminders.filter(r => {
+                const busDate = new Date(r.date + "T" + r.time + ":00");
+                return busDate > now;
+            });
+            saveReminders(reminders);
+        }
 
+        // --- Horários ---
+        function renderSchedule(route) {
+            const scheduleResult = document.getElementById('scheduleResult');
+            if (!scheduleResult) return;
             if (!route || !scheduleData[route]) {
-                log('No route selected or invalid route');
                 scheduleResult.innerHTML = '';
                 return;
             }
-
             try {
                 const now = new Date();
                 const currentDay = now.getDay();
                 const nowMinutes = now.getHours() * 60 + now.getMinutes();
-                
-                log('Current day: ' + currentDay + ', Current time: ' + now.getHours() + ':' + now.getMinutes());
-                
-                // Obter horários de hoje
                 const todayTimes = getTimesForDay(route, currentDay);
-                log('Today times: ' + JSON.stringify(todayTimes));
-                
-                // Encontrar próximo autocarro de hoje
                 let nextBus = todayTimes.find(t => parseTimeToMinutes(t) >= nowMinutes);
-                log('Next bus: ' + nextBus);
-                
                 let html = '<div class="schedule-info">';
-
                 if (nextBus) {
-                    // Há próximo autocarro hoje
+                    // Próximo autocarro hoje
                     const nextBusMinutes = parseTimeToMinutes(nextBus);
                     const diff = nextBusMinutes - nowMinutes;
-
                     html += '<div class="next-bus">';
                     html += '<h2>Próximo autocarro</h2>';
                     html += `<div class="next-time" style="display:flex; align-items:center; gap:10px;">`;
-    html += `<span>${nextBus}</span>`;
-    html += `<button onclick="scheduleReminder('${nextBus}')" style="font-size: 14px; padding: 5px 10px; border-radius: 8px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
-                🔔 Lembrar-me
-             </button>`;
-    html += `</div>`;
-    html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
-    html += '</div>';
-
-                    // Próximos horários (excluindo o próximo autocarro)
+                    html += `<span>${nextBus}</span>`;
+                    const nextBusDate = new Date();
+                    const [nextH, nextM] = nextBus.split(":").map(Number);
+                    nextBusDate.setHours(nextH, nextM, 0, 0);
+                    html += `<button onclick="scheduleReminder('${nextBus}', new Date('${nextBusDate.toISOString()}'))"
+                        style="font-size: 14px; padding: 5px 10px; border-radius: 8px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
+                        🔔 Lembrar-me
+                    </button>`;
+                    html += `</div>`;
+                    html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
+                    html += '</div>';
+                    // Próximos horários de hoje
                     const upcomingTimes = todayTimes.filter(t => parseTimeToMinutes(t) > nextBusMinutes).slice(0, 4);
-                    
                     if (upcomingTimes.length > 0) {
                         html += '<div class="upcoming-times">';
                         html += '<h3>Próximos horários</h3>';
                         html += '<div class="time-list">';
                         upcomingTimes.forEach(t => {
-    html += `
-        <div class="time-item">
-            ${t}
-            <button onclick="scheduleReminder('${t}')" style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
-                🔔
-            </button>
-        </div>`;
-});
+                            const upcomingDate = new Date();
+                            const [h, m] = t.split(":").map(Number);
+                            upcomingDate.setHours(h, m, 0, 0);
+                            html += `<div class="time-item">
+                                ${t}
+                                <button onclick="scheduleReminder('${t}', new Date('${upcomingDate.toISOString()}'))"
+                                    style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
+                                    🔔
+                                </button>
+                            </div>`;
+                        });
                         html += '</div></div>';
                     }
                 } else {
-                    // Não há mais autocarros hoje
+                    // Não há autocarros hoje, mostra próximos dias
                     html += '<p class="no-more-buses">Já não há mais autocarros hoje.</p>';
-                    
-                    // Procurar horários dos próximos dias
                     let tomorrowTimes = [];
                     let searchDay = (currentDay + 1) % 7;
                     let daysChecked = 0;
-                    
                     while (tomorrowTimes.length === 0 && daysChecked < 7) {
                         tomorrowTimes = getTimesForDay(route, searchDay);
                         if (tomorrowTimes.length === 0) {
@@ -566,108 +394,98 @@ setInterval(cleanupExpiredReminders, 60 * 1000); // a cada 1 minuto
                             break;
                         }
                     }
-                    
                     if (tomorrowTimes.length > 0) {
                         const dayName = getDayName(searchDay);
                         const isNextDay = daysChecked === 0;
-                        
                         html += '<div class="upcoming-times">';
                         html += `<div class="day-indicator">${isNextDay ? 'Amanhã' : dayName}</div>`;
                         html += '<h3>Próximos horários</h3>';
                         html += '<div class="time-list">';
-                       tomorrowTimes.slice(0, 5).forEach(t => {
-    // Constrói a data completa do horário futuro
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + daysChecked + 1); // avança para o dia correto
-    const [h, m] = t.split(':').map(Number);
-    futureDate.setHours(h, m, 0, 0);
-
-    html += `<div class="time-item tomorrow">
-        ${t}
-        <button onclick="downloadICS('${route}', new Date('${futureDate.toISOString()}'))" style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
-            🔔
-        </button>
-    </div>`;
-});
+                        tomorrowTimes.slice(0, 5).forEach(t => {
+                            const futureDate = new Date();
+                            futureDate.setDate(futureDate.getDate() + daysChecked + 1);
+                            const [h, m] = t.split(':').map(Number);
+                            futureDate.setHours(h, m, 0, 0);
+                            html += `<div class="time-item tomorrow">
+                                ${t}
+                                <button onclick="scheduleReminder('${t}', new Date('${futureDate.toISOString()}'))"
+                                    style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
+                                    🔔
+                                </button>
+                            </div>`;
+                        });
                         html += '</div></div>';
                     }
                 }
-
                 html += '</div>';
                 scheduleResult.innerHTML = html;
-                log('Schedule rendered successfully');
-                
             } catch (error) {
-                log('Error rendering schedule: ' + error.message);
                 scheduleResult.innerHTML = '<p class="no-more-buses">Erro ao carregar horários.</p>';
             }
         }
 
-        // Inicialização quando a página carrega
+        // --- Inicialização ---
         document.addEventListener('DOMContentLoaded', function() {
-            log('DOM loaded, initializing app');
-            
             const routeSelect = document.getElementById('routeSelect');
             if (routeSelect) {
                 routeSelect.addEventListener('change', function() {
-                    log('Route changed to: ' + this.value);
                     renderSchedule(this.value);
                 });
-            } else {
-                log('Error: routeSelect element not found');
             }
-
             updateCurrentTime();
-            
-            // Garantir que o tab inicial está visível
             showTab('horarios');
-// Verifica lembretes a cada minuto
-setInterval(() => {
-    const reminders = getReminders();
-    const now = new Date();
-
-    reminders.forEach(r => {
-        const [h, m] = r.time.split(":").map(Number);
-        const busTime = new Date();
-        busTime.setHours(h, m, 0, 0);
-
-        const diffMs = busTime - now;
-        const diffMin = Math.floor(diffMs / 60000);
-
-        // Se estiver a 10 minutos do autocarro, dispara a notificação
-        if (diffMin === 10 && Notification.permission === 'granted') {
-            new Notification("🚌 Lembrete", {
-                body: `O autocarro (${r.route}) passa às ${r.time}. Está quase!`,
-            });
-
-            removeReminder(r.route, r.time);
-            updateReminderSummary();
-        }
-    });
-}, 60000); // Executa a cada minuto
+            setInterval(updateCurrentTime, 1000);
+            setInterval(() => {
+                const selectedRoute = document.getElementById('routeSelect')?.value;
+                if (selectedRoute) renderSchedule(selectedRoute);
+            }, 60000);
+            // Verifica lembretes a cada minuto
+            setInterval(() => {
+                const reminders = getReminders();
+                const now = new Date();
+                reminders.forEach(r => {
+                    const busTime = new Date(r.date + "T" + r.time + ":00");
+                    const diffMs = busTime - now;
+                    const diffMin = Math.floor(diffMs / 60000);
+                    if (diffMin === 10 && Notification.permission === 'granted') {
+                        new Notification("🚌 Lembrete", {
+                            body: `O autocarro (${r.route}) passa às ${r.time}. Está quase!`,
+                        });
+                        removeReminder(r.route, r.time, r.date);
+                        updateReminderSummary();
+                    }
+                });
+            }, 60000);
+            setInterval(cleanupExpiredReminders, 60 * 1000);
         });
 
-        setInterval(updateCurrentTime, 1000);
-        setInterval(() => {
-            const selectedRoute = document.getElementById('routeSelect')?.value;
-            if (selectedRoute) {
-                renderSchedule(selectedRoute);
+        // Tabs
+        function showTab(tabName) {
+            const tabs = ['horarios', 'pdf', 'lembretes'];
+            const buttons = ['btnHorarios', 'btnPdf', 'btnLembretes'];
+            tabs.forEach((tabId, index) => {
+                const tab = document.getElementById(tabId);
+                const btn = document.getElementById(buttons[index]);
+                if (tab && btn) {
+                    const isActive = tabId === tabName;
+                    tab.style.display = isActive ? 'block' : 'none';
+                    btn.classList.toggle('active', isActive);
+                }
+            });
+            if (tabName === 'lembretes') {
+                cleanupExpiredReminders();
+                updateReminderSummary();
             }
-        }, 60000);
-// Função para criar e descarregar o ficheiro .ics
-function downloadICS(routeName, dateTime) {
-  const dtStart = dateTime.toISOString().replace(/-|:|\.\d+/g, '') + 'Z';
-  const dtEnd = new Date(dateTime.getTime() + 30*60000)
-    .toISOString()
-    .replace(/-|:|\.\d+/g, '') + 'Z';
+        }
 
-  const summary = `Autocarro - ${routeName}`;
-  const description = `Lembrete: autocarro da rota ${routeName} às ${dateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-
-  // Gerar um UID simples com base no timestamp
-  const uid = `lembrete-${routeName}-${Date.now()}@teuapp.com`;
-
-  const icsContent = 
+        // .ics
+        function downloadICS(routeName, dateTime) {
+            const dtStart = dateTime.toISOString().replace(/-|:|\.\d+/g, '') + 'Z';
+            const dtEnd = new Date(dateTime.getTime() + 30*60000).toISOString().replace(/-|:|\.\d+/g, '') + 'Z';
+            const summary = `Autocarro - ${routeName}`;
+            const description = `Lembrete: autocarro da rota ${routeName} às ${dateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            const uid = `lembrete-${routeName}-${Date.now()}@teuapp.com`;
+            const icsContent =
 `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//TeuApp//Autocarros//PT
@@ -684,16 +502,14 @@ ACTION:DISPLAY
 END:VALARM
 END:VEVENT
 END:VCALENDAR`;
-
-  const blob = new Blob([icsContent], {type: 'text/calendar'});
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `lembrete-${routeName}-${dtStart}.ics`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+            const blob = new Blob([icsContent], {type: 'text/calendar'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `lembrete-${routeName}-${dtStart}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
-
