@@ -344,18 +344,8 @@ function scheduleReminder(time) {
     saveReminders(reminders);
     updateReminderSummary();
     alert(`Lembrete criado para ${time} (${route})`);
-
-    // Agenda notificação
-    setTimeout(() => {
-        if (Notification.permission === 'granted') {
-            new Notification("🚌 Lembrete", {
-                body: `O autocarro (${route}) passa às ${time}. Está quase!`,
-            });
-        }
-        removeReminder(route, time);
-        updateReminderSummary();
-    }, delay);
-}
+    downloadICS(route, busTime);
+   }
 
 function updateReminderSummary() {
     const container = document.getElementById("reminderSummary");
@@ -372,7 +362,7 @@ function updateReminderSummary() {
     reminders.forEach((r, i) => {
         html += `<li style="margin-bottom:10px;">
             🚌 ${r.time} — ${r.route}
-            <button onclick="removeReminder('${r.route}', '${r.time}')" style="margin-left:10px; font-size:12px; padding:3px 6px; border:none; border-radius:5px; background:#e53935; color:white; cursor:pointer;">❌ Remover</button>
+            <button onclick="removeReminder('${r.route}', '${r.time}'); alert('Se adicionou ao calendário, remova manualmente esse evento.');" style="margin-left:10px; font-size:12px; padding:3px 6px; border:none; border-radius:5px; background:#e53935; color:white; cursor:pointer;">❌ Remover</button>
         </li>`;
     });
     html += "</ul>";
@@ -585,9 +575,20 @@ setInterval(cleanupExpiredReminders, 60 * 1000); // a cada 1 minuto
                         html += `<div class="day-indicator">${isNextDay ? 'Amanhã' : dayName}</div>`;
                         html += '<h3>Próximos horários</h3>';
                         html += '<div class="time-list">';
-                        tomorrowTimes.slice(0, 5).forEach(t => {
-                            html += `<div class="time-item tomorrow">${t}</div>`;
-                        });
+                       tomorrowTimes.slice(0, 5).forEach(t => {
+    // Constrói a data completa do horário futuro
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + daysChecked + 1); // avança para o dia correto
+    const [h, m] = t.split(':').map(Number);
+    futureDate.setHours(h, m, 0, 0);
+
+    html += `<div class="time-item tomorrow">
+        ${t}
+        <button onclick="downloadICS('${route}', new Date('${futureDate.toISOString()}'))" style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
+            🔔
+        </button>
+    </div>`;
+});
                         html += '</div></div>';
                     }
                 }
@@ -620,6 +621,30 @@ setInterval(cleanupExpiredReminders, 60 * 1000); // a cada 1 minuto
             
             // Garantir que o tab inicial está visível
             showTab('horarios');
+// Verifica lembretes a cada minuto
+setInterval(() => {
+    const reminders = getReminders();
+    const now = new Date();
+
+    reminders.forEach(r => {
+        const [h, m] = r.time.split(":").map(Number);
+        const busTime = new Date();
+        busTime.setHours(h, m, 0, 0);
+
+        const diffMs = busTime - now;
+        const diffMin = Math.floor(diffMs / 60000);
+
+        // Se estiver a 10 minutos do autocarro, dispara a notificação
+        if (diffMin === 10 && Notification.permission === 'granted') {
+            new Notification("🚌 Lembrete", {
+                body: `O autocarro (${r.route}) passa às ${r.time}. Está quase!`,
+            });
+
+            removeReminder(r.route, r.time);
+            updateReminderSummary();
+        }
+    });
+}, 60000); // Executa a cada minuto
         });
 
         setInterval(updateCurrentTime, 1000);
@@ -629,6 +654,46 @@ setInterval(cleanupExpiredReminders, 60 * 1000); // a cada 1 minuto
                 renderSchedule(selectedRoute);
             }
         }, 60000);
+// Função para criar e descarregar o ficheiro .ics
+function downloadICS(routeName, dateTime) {
+  const dtStart = dateTime.toISOString().replace(/-|:|\.\d+/g, '') + 'Z';
+  const dtEnd = new Date(dateTime.getTime() + 30*60000)
+    .toISOString()
+    .replace(/-|:|\.\d+/g, '') + 'Z';
+
+  const summary = `Autocarro - ${routeName}`;
+  const description = `Lembrete: autocarro da rota ${routeName} às ${dateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+  // Gerar um UID simples com base no timestamp
+  const uid = `lembrete-${routeName}-${Date.now()}@teuapp.com`;
+
+  const icsContent = 
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//TeuApp//Autocarros//PT
+BEGIN:VEVENT
+UID:${uid}
+SUMMARY:${summary}
+DESCRIPTION:${description}
+DTSTART:${dtStart}
+DTEND:${dtEnd}
+BEGIN:VALARM
+TRIGGER:-PT10M
+DESCRIPTION:Lembrete do autocarro
+ACTION:DISPLAY
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+  const blob = new Blob([icsContent], {type: 'text/calendar'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `lembrete-${routeName}-${dtStart}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
     </script>
 </body>
 </html>
+
