@@ -491,47 +491,58 @@
         }
 
         // --- ICS ---
-        function downloadICS(route, dateObj, time) {
-            // Gera datas para ICS
-            function pad(n) { return n < 10 ? '0' + n : n; }
-            const yyyy = dateObj.getFullYear();
-            const mm = pad(dateObj.getMonth() + 1);
-            const dd = pad(dateObj.getDate());
-            const HH = pad(parseInt(time.split(':')[0], 10));
-            const MM = pad(parseInt(time.split(':')[1], 10));
-            const dtStart = `${yyyy}${mm}${dd}T${HH}${MM}00Z`;
+        function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
 
-            // Evento com duração de 30 minutos
-            const dtEndObj = new Date(dateObj);
-            dtEndObj.setHours(parseInt(time.split(':')[0], 10));
-            dtEndObj.setMinutes(parseInt(time.split(':')[1], 10) + 30);
-            const HHend = pad(dtEndObj.getHours());
-            const MMend = pad(dtEndObj.getMinutes());
-            const dtEnd = `${yyyy}${mm}${dd}T${HHend}${MMend}00Z`;
+function downloadICS(route, dateObj, time) {
+    // Gera datas para ICS
+    function pad(n) { return n < 10 ? '0' + n : n; }
+    const yyyy = dateObj.getFullYear();
+    const mm = pad(dateObj.getMonth() + 1);
+    const dd = pad(dateObj.getDate());
+    const HH = pad(parseInt(time.split(':')[0], 10));
+    const MM = pad(parseInt(time.split(':')[1], 10));
+    const dtStart = `${yyyy}${mm}${dd}T${HH}${MM}00Z`;
 
-            const icsContent = [
-                "BEGIN:VCALENDAR",
-                "VERSION:2.0",
-                "PRODID:-//App da Kika//PT",
-                "BEGIN:VEVENT",
-                `UID:${route}-${dtStart}@appdakika`,
-                `DTSTAMP:${dtStart}`,
-                `DTSTART:${dtStart}`,
-                `DTEND:${dtEnd}`,
-                `SUMMARY:Lembrete Autocarro - ${route}`,
-                "DESCRIPTION:Hora de apanhar o autocarro!",
-                "END:VEVENT",
-                "END:VCALENDAR"
-            ].join("\r\n");
+    // Evento com duração de 30 minutos
+    const dtEndObj = new Date(dateObj);
+    dtEndObj.setHours(parseInt(time.split(':')[0], 10));
+    dtEndObj.setMinutes(parseInt(time.split(':')[1], 10) + 30);
+    const HHend = pad(dtEndObj.getHours());
+    const MMend = pad(dtEndObj.getMinutes());
+    const dtEnd = `${yyyy}${mm}${dd}T${HHend}${MMend}00Z`;
 
-            const blob = new Blob([icsContent], { type: "text/calendar" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `lembrete-${route}-${yyyy}${mm}${dd}-${time}.ics`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+    const icsContent = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//App da Kika//PT",
+        "BEGIN:VEVENT",
+        `UID:${route}-${dtStart}@appdakika`,
+        `DTSTAMP:${dtStart}`,
+        `DTSTART:${dtStart}`,
+        `DTEND:${dtEnd}`,
+        `SUMMARY:Lembrete Autocarro - ${route}`,
+        "DESCRIPTION:Hora de apanhar o autocarro!",
+        "END:VEVENT",
+        "END:VCALENDAR"
+    ].join("\r\n");
+
+    if (isIOS()) {
+        // Safari no iOS: abre numa nova aba para o utilizador poder guardar manualmente
+        const icsData = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+        window.open(icsData, '_blank');
+    } else {
+        // Outros browsers: download automático
+        const blob = new Blob([icsContent], { type: "text/calendar" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `lembrete-${route}-${yyyy}${mm}${dd}-${time}.ics`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
     </script>
 </body>
 </html>
