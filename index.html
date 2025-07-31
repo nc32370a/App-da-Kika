@@ -161,6 +161,15 @@
             #map { height: 250px; }
         }
     </style>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
+    });
+  });
+</script>
 </head>
 <body>
     <div class="container">
