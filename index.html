@@ -624,14 +624,18 @@
                 paragens.forEach(p => {
                     const marcador = L.marker([p.lat, p.lng], {icon: p.tipo === "ida" ? iconAzul : iconVermelho})
                         .addTo(mapInstance)
-                        .bindPopup(`<b>${p.nome}</b>`);
-                    marcador.on('click', function() {
-                        // Seleciona a rota no dropdown, abre tab de horários, mostra horários dessa rota
-                        document.getElementById('routeSelect').value = p.id;
-                        showTab('horarios');
-                        renderSchedule(p.id);
-                    });
-                });
+                        .bindTooltip(p.nome, {
+        permanent: false,
+        direction: 'top',
+        offset: [0, -10],
+        opacity: 0.9
+    });
+                    marcador.on('dblclick', function() {
+        document.getElementById('routeSelect').value = p.id;
+        showTab('horarios');
+        renderSchedule(p.id);
+    });
+});
             }
 
             // Inicializa mapa apenas ao abrir tab
