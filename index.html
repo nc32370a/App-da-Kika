@@ -382,9 +382,10 @@
                 `UID:${route}-${dtStart}@appdakika`,
                 `DTSTAMP:${dtStart}`,
                 `DTSTART:${dtStart}`,
-                `DTEND:${dtEnd}Z`,
+                `DTEND:${dtEnd}`,
                 `SUMMARY:Lembrete Autocarro - ${route}`,
                 "DESCRIPTION:Hora de apanhar o autocarro!",
+                "END:VALARM",
                 "END:VEVENT",
                 "END:VCALENDAR"
             ].join("\r\n");
