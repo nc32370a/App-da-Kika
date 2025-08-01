@@ -385,6 +385,10 @@
                 `DTEND:${dtEnd}`,
                 `SUMMARY:Lembrete Autocarro - ${route}`,
                 "DESCRIPTION:Hora de apanhar o autocarro!",
+                "BEGIN:VALARM",
+                "TRIGGER:-PT10M",
+                "ACTION:DISPLAY",
+                "DESCRIPTION:Lembrete do autocarro",
                 "END:VALARM",
                 "END:VEVENT",
                 "END:VCALENDAR"
