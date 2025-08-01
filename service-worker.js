@@ -6,6 +6,8 @@ const FILES_TO_CACHE = [
   '/android-chrome-192x192.png',
   '/android-chrome-512x512.png',
   '/apple-touch-icon.png',
+  '/OneSignalSDKWorker.js',
+  '/OneSignalSDKUpdaterWorker.js',
   // se tiveres CSS externo ou JS externo, põe aqui também
 ];
 
@@ -37,6 +39,9 @@ self.addEventListener('activate', (event) => {
 
 // Interceptando requisições e respondendo com cache primeiro
 self.addEventListener('fetch', (event) => {
+  if (event.request.url.includes('onesignal.com')) {
+    return fetch(event.request);
+  }
   event.respondWith(
     caches.match(event.request)
       .then((response) => response || fetch(event.request))
