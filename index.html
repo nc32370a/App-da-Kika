@@ -587,6 +587,7 @@ END:VCALENDAR`;
             };
         }
 
+// A sua função renderSchedule corrigida
 function renderSchedule(routeId) {
     const scheduleResult = document.getElementById('scheduleResult');
     scheduleResult.innerHTML = '';
@@ -599,9 +600,10 @@ function renderSchedule(routeId) {
     }
     
     const scheduleKey = selectedRoute.nome.replace(/\s*-\s*/g, '-');
+    const scheduleDataForRoute = window.appData.scheduleData[scheduleKey] || {};
     
     const now = new Date();
-    const nowTime = now.toTimeString().split(' ')[0];
+    const nowTime = now.toTimeString().split(' ')[0].substring(0, 5);
     const nowDayIndex = now.getDay();
 
     const dayMap = {
@@ -614,44 +616,30 @@ function renderSchedule(routeId) {
         6: 'weekend'
     };
 
-    let schedulesForDay = window.appData.scheduleData[scheduleKey]?.[dayMap[nowDayIndex]] || [];
-    let upcomingTimesToday = schedulesForDay.filter(time => time > nowTime.substring(0, 5));
+    let schedulesForDay = scheduleDataForRoute[dayMap[nowDayIndex]] || [];
+    let upcomingTimesToday = schedulesForDay.filter(time => time > nowTime);
     
     let nextBusTime = null;
-    let allUpcomingTimes = [];
+    let upcomingTimesList = [];
     let isTomorrow = false;
 
     if (upcomingTimesToday.length > 0) {
         nextBusTime = upcomingTimesToday[0];
-        allUpcomingTimes = upcomingTimesToday.slice(1);
+        upcomingTimesList = upcomingTimesToday.slice(1);
     } else {
+        // Apenas verifica o dia seguinte, sem procurar mais.
         let nextDayIndex = (nowDayIndex + 1) % 7;
-        let daysSearched = 0;
-        let nextDaySchedules = [];
-
-        while (daysSearched < 7) {
-            let currentDayKey = dayMap[nextDayIndex];
-            nextDaySchedules = window.appData.scheduleData[scheduleKey]?.[currentDayKey] || [];
-            
-            if (nextDaySchedules.length > 0) {
-                isTomorrow = true;
-                break;
-            }
-
-            nextDayIndex = (nextDayIndex + 1) % 7;
-            daysSearched++;
-        }
-
+        let nextDaySchedules = scheduleDataForRoute[dayMap[nextDayIndex]] || [];
+        
         if (nextDaySchedules.length > 0) {
+            isTomorrow = true;
             nextBusTime = nextDaySchedules[0];
-            allUpcomingTimes = nextDaySchedules.slice(1); 
+            upcomingTimesList = nextDaySchedules.slice(1);
         }
     }
     
-    // Limitar a lista de próximos horários a um máximo de 4
-    const timesToList = allUpcomingTimes.slice(0, 4);
+    const timesToList = upcomingTimesList.slice(0, 4);
 
-    // Geração do HTML para o próximo autocarro
     let nextBusHtml = `<div class="no-more-buses">Não há mais horários para hoje.</div>`;
     if (nextBusTime) {
         const [nextHour, nextMinute] = nextBusTime.split(':').map(Number);
@@ -692,7 +680,6 @@ function renderSchedule(routeId) {
         `;
     }
 
-    // Geração do HTML para a lista de horários
     let upcomingListHtml = '';
     
     if (timesToList.length > 0) {
