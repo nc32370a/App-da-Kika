@@ -347,6 +347,9 @@
                     <span style="margin-right:20px;">IDA (azul)</span>
                     <span style="display:inline-block; width:12px; height:12px; background:#d32f2f; border-radius:50%; margin-right:6px; vertical-align:middle;"></span>
                     <span>VINDA (vermelho)</span>
+                    <br>
+                    <span style="display:inline-block; width:12px; height:12px; background:#4caf50; border-radius:50%; margin-right:6px; vertical-align:middle; margin-top: 10px;"></span>
+                    <span style="margin-top: 10px;">Sua localização (verde)</span>
                 </div>
             </div>
         </div>
@@ -771,6 +774,8 @@ END:VCALENDAR`;
 
             // --- Mapa Leaflet ---
             let mapInstance;
+            let userLocationMarker;
+
             function initMap() {
                 if (mapInstance) return; // Só inicializa uma vez
                 mapInstance = L.map('map').setView([40.655, -7.92], 13);
@@ -797,6 +802,15 @@ END:VCALENDAR`;
                     popupAnchor: [1, -34],
                     shadowSize: [41, 41]
                 });
+                // Novo ícone verde para a localização do utilizador
+                const iconVerde = new L.Icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+                    shadowUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
 
                 paragens.forEach(p => {
                     const marcador = L.marker([p.lat, p.lng], {icon: p.tipo === "ida" ? iconAzul : iconVermelho})
@@ -813,6 +827,35 @@ END:VCALENDAR`;
         renderSchedule(p.id);
     });
 });
+                // Adiciona a funcionalidade de geolocalização
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const { latitude, longitude } = position.coords;
+                            const userLatlng = [latitude, longitude];
+
+                            // Remove o marcador antigo se existir
+                            if (userLocationMarker) {
+                                mapInstance.removeLayer(userLocationMarker);
+                            }
+
+                            userLocationMarker = L.marker(userLatlng, {icon: iconVerde})
+                                .addTo(mapInstance)
+                                .bindPopup("A sua localização");
+                            
+                            // Ajusta a vista do mapa para a localização do utilizador e um zoom apropriado
+                            mapInstance.setView(userLatlng, 15);
+                        },
+                        (error) => {
+                            console.error("Erro na geolocalização: ", error);
+                            // Opcional: mostrar uma mensagem ao utilizador sobre a falha na geolocalização
+                            // showModal("Não foi possível obter a sua localização.");
+                        }
+                    );
+                } else {
+                    console.log("Geolocalização não é suportada neste navegador.");
+                    // Opcional: mostrar uma mensagem ao utilizador sobre a falta de suporte
+                }
             }
 
             // Inicializa mapa apenas ao abrir tab
