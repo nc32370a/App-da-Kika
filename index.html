@@ -13,6 +13,8 @@
     <meta name="application-name" content="Horários de Autocarros">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Ícones para WhatsApp e Calendário -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -107,10 +109,9 @@
         .upcoming-times { margin-top: 25px; }
         .upcoming-times h3 { color: #333; margin-bottom: 15px; font-size: 18px; }
         .time-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 10px;
-            justify-items: center;
             max-width: 250px;
             margin: 0 auto;
         }
@@ -121,6 +122,9 @@
             border-radius: 8px;
             font-weight: 500;
             color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .time-item.tomorrow {
             background: #fff3cd;
@@ -151,6 +155,118 @@
             margin-bottom: 10px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.10);
         }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .action-buttons button {
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 8px;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .action-buttons .btn-reminder {
+            background-color: #4caf50;
+        }
+        .action-buttons .btn-whatsapp {
+            background-color: #25D366;
+        }
+        .action-buttons .btn-calendar {
+            background-color: #f44336;
+        }
+        .action-buttons .btn-reminder:hover { background-color: #43a047; }
+        .action-buttons .btn-calendar:hover { background-color: #d32f2f; }
+        .action-buttons .btn-whatsapp:hover { background-color: #128C7E; }
+        .whatsapp-share-btn {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: none;
+            background-color: #25D366;
+            color: white;
+            cursor: pointer;
+        }
+        .reminder-list {
+            list-style: none;
+            padding: 0;
+        }
+        .reminder-item {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .reminder-details {
+            text-align: left;
+            flex-grow: 1;
+        }
+        .reminder-details h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .reminder-details p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .reminder-remove {
+            background: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .reminder-remove:hover {
+            background: #c2185b;
+        }
+        /* Estilos do modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         @media (max-width: 480px) {
             .container { margin: 10px; border-radius: 15px; }
             .banner { padding: 15px; height: 120px; }
@@ -159,17 +275,34 @@
             .tab-buttons button { padding: 8px 0; font-size: 14px; }
             .tab-content { padding: 0 10px 20px 10px; }
             #map { height: 250px; }
+            .time-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                padding: 10px;
+            }
+            .time-item .action-buttons {
+                margin-top: 5px;
+            }
+            .time-list { max-width: none; }
         }
     </style>
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-    });
-  });
-</script>
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        // Configuração do OneSignal
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                // Substitua 'SEU_APP_ID' pelo seu OneSignal App ID
+                appId: "SEU_APP_ID",
+                safari_web_id: "SEU_SAFARI_WEB_ID",
+                serviceWorkerUpdaterPath: 'OneSignalSDKUpdateWorker.js',
+                serviceWorkerPath: 'OneSignalSDKWorker.js',
+            });
+            console.log('OneSignal SDK inicializado.');
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -204,7 +337,8 @@
             </div>
             <div id="lembretes" style="display: none; text-align: center; padding: 20px;">
                 <h3 style="margin-bottom: 15px;">Lembretes Ativos</h3>
-                <div id="reminderSummary"></div>
+                <div id="remindersContainer"></div>
+                <p id="noRemindersMessage" style="color: #666; font-style: italic;"></p>
             </div>
             <div id="mapa" style="display:none;">
                 <div id="map"></div>
@@ -218,16 +352,17 @@
         </div>
     </div>
 
+    <!-- Modal para mensagens -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        // Permissão para notificações
-        if ('Notification' in window && Notification.permission !== 'granted') {
-            Notification.requestPermission().then(permission => {
-                console.log('[Notificações]', permission);
-            });
-        }
-
         // --- Dados ---
         const scheduleData = {
             'ida-colina': {
@@ -236,17 +371,17 @@
                 sunday: ['08:24', '15:04']
             },
             'vinda-comv': {
-                weekday: ['07:00', '07:55', '09:00', '12:30', '13:25', '14:25', '15:55', '17:30', '18:30'],
+                weekday: ['07:00', '07:55', '09:00', '09:55', '12:30', '13:25', '14:25', '15:55', '17:30', '18:30'],
                 weekend: ['12:00'],
                 sunday: []
             },
             'vinda-ss1': {
-                weekday: ['07:02', '07:57', '09:02', '09:55', '12:32', '13:27', '14:27', '15:57', '17:32', '18:32', '19:15', '20:10'],
+                weekday: ['07:02', '07:57', '09:02', '09:57', '12:32', '13:27', '14:27', '15:57', '17:32', '18:32', '19:15', '20:10'],
                 weekend: ['12:02', '13:05', '20:05'],
                 sunday: ['13:50', '19:15']
             },
             'vinda-rossio': {
-                weekday: ['07:05', '08:00', '09:05', '09:57', '12:35', '13:30', '14:30', '16:00', '17:35', '18:35', '19:16', '20:12'],
+                weekday: ['07:05', '08:00', '09:05', '09:58', '12:35', '13:30', '14:30', '16:00', '17:35', '18:35', '19:16', '20:12'],
                 weekend: ['12:05', '13:07', '20:07'],
                 sunday: ['13:52', '19:17']
             },
@@ -256,7 +391,7 @@
                 sunday: []
             },
             'vinda-paulo-vi': {
-                weekday: ['07:07', '08:02', '09:07', '09:58', '12:37', '13:32', '14:32', '16:02', '17:37', '18:37', '19:19'],
+                weekday: ['07:07', '08:02', '09:07', '12:37', '13:32', '14:32', '16:02', '17:37', '18:37', '19:19'],
                 weekend: ['12:07'],
                 sunday: []
             }
@@ -334,154 +469,137 @@
             return scheduleData[route][dayType] || [];
         }
 
-        // --- Lembretes ---
+        // --- Lembretes locais e notificações ---
+        function showModal(message) {
+            const modal = document.getElementById('messageModal');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+            modal.style.display = 'block';
+        }
+        function closeModal() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
         function getReminders() {
-            const data = localStorage.getItem('reminders');
-            if (!data) return [];
-            try {
-                let parsed = JSON.parse(data);
-                const now = new Date();
-                parsed = parsed.filter(r => {
-                    const busDate = new Date(r.date + "T" + r.time + ":00");
-                    return busDate > now;
-                });
-                saveReminders(parsed);
-                return parsed;
-            } catch { return []; }
+            return JSON.parse(localStorage.getItem('reminders') || '[]');
         }
-        function saveReminders(reminders) {
+        function setReminders(reminders) {
             localStorage.setItem('reminders', JSON.stringify(reminders));
-        }
-
-        // --- ICS ---
-        function isIOS() {
-            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        }
-        function downloadICS(route, dateObj, time) {
-            function pad(n) { return n < 10 ? '0' + n : n; }
-            const yyyy = dateObj.getFullYear();
-            const mm = pad(dateObj.getMonth() + 1);
-            const dd = pad(dateObj.getDate());
-            const HH = pad(parseInt(time.split(':')[0], 10));
-            const MM = pad(parseInt(time.split(':')[1], 10));
-            const dtStart = `${yyyy}${mm}${dd}T${HH}${MM}00`;
-
-            // Evento com duração de 30 minutos
-            const dtEndObj = new Date(dateObj);
-            dtEndObj.setHours(parseInt(time.split(':')[0], 10));
-            dtEndObj.setMinutes(parseInt(time.split(':')[1], 10) + 30);
-            const HHend = pad(dtEndObj.getHours());
-            const MMend = pad(dtEndObj.getMinutes());
-            const dtEnd = `${yyyy}${mm}${dd}T${HHend}${MMend}00`;
-
-            const icsContent = [
-                "BEGIN:VCALENDAR",
-                "VERSION:2.0",
-                "PRODID:-//App da Kika//PT",
-                "BEGIN:VEVENT",
-                `UID:${route}-${dtStart}@appdakika`,
-                `DTSTAMP:${dtStart}`,
-                `DTSTART:${dtStart}`,
-                `DTEND:${dtEnd}`,
-                `SUMMARY:Lembrete Autocarro - ${route}`,
-                "DESCRIPTION:Hora de apanhar o autocarro!",
-                "BEGIN:VALARM",
-                "TRIGGER:-PT10M",
-                "ACTION:DISPLAY",
-                "DESCRIPTION:Lembrete do autocarro",
-                "END:VALARM",
-                "END:VEVENT",
-                "END:VCALENDAR"
-            ].join("\r\n");
-
-            if (isIOS()) {
-                // Safari/iOS: abre numa nova aba para guardar manualmente
-                const icsData = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
-                window.open(icsData, '_blank');
-            } else {
-                // Outros browsers: download automático
-                const blob = new Blob([icsContent], { type: "text/calendar" });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = `lembrete-${route}-${yyyy}${mm}${dd}-${time}.ics`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-
-        function scheduleReminder(time, baseDateObj) {
-            const route = document.getElementById("routeSelect").value;
-            if (!route || !time || !baseDateObj) return alert("Rota, hora ou data inválida.");
-
-            // Cria o objeto Date para o horário do autocarro
-            const [h, m] = time.split(":").map(Number);
-            const dateObj = new Date(baseDateObj);
-            dateObj.setHours(h, m, 0, 0);
-
-            const dateStr = dateObj.toISOString().slice(0,10);
-            const existing = getReminders();
-
-            if (existing.some(r => r.time === time && r.route === route && r.date === dateStr)) {
-                return alert("Lembrete já existe.");
-            }
-
-            const now = new Date();
-            const delay = dateObj - now - 10 * 60 * 1000;
-            if (delay <= 0) {
-                return alert("Este horário já passou ou está a menos de 10 minutos.");
-            }
-
-            // Salva lembrete local (web)
-            const reminders = [...existing, { time, route, date: dateStr }];
-            saveReminders(reminders);
-            updateReminderSummary();
-            alert(`Lembrete criado para ${time} (${route}) em ${dateObj.toLocaleDateString()}`);
-
-            // Emite ficheiro ICS automaticamente
-            downloadICS(route, dateObj, time);
-
-            // Chama lembrete nativo Android se disponível
-            if (window.AndroidBridge && typeof window.AndroidBridge.scheduleNativeReminder === "function") {
-                AndroidBridge.scheduleNativeReminder(time, dateStr, route);
-            }
-        }
-
-        function updateReminderSummary() {
-            const container = document.getElementById("reminderSummary");
-            const reminders = getReminders();
-            if (!container) return;
-            if (reminders.length === 0) {
-                container.innerHTML = "<p>Nenhum lembrete ativo.</p>";
-                return;
-            }
-            let html = `<p><strong>${reminders.length}</strong> lembrete(s) ativo(s):</p><ul style="list-style:none; padding:0;">`;
-            reminders.forEach((r, i) => {
-                html += `<li style="margin-bottom:10px;">
-                    🚌 ${r.time} — ${r.route} — ${r.date}
-                    <button onclick="removeReminder('${r.route}', '${r.time}', '${r.date}'); alert('Se adicionou ao calendário, remova manualmente esse evento.');"
-                        style="margin-left:10px; font-size:12px; padding:3px 6px; border:none; border-radius:5px; background:#e53935; color:white; cursor:pointer;">
-                        ❌ Remover
-                    </button>
-                </li>`;
-            });
-            html += "</ul>";
-            container.innerHTML = html;
-        }
-        function removeReminder(route, time, date) {
-            let reminders = getReminders();
-            reminders = reminders.filter(r => !(r.time === time && r.route === route && r.date === date));
-            saveReminders(reminders);
-            updateReminderSummary();
+            renderReminders();
         }
         function cleanupExpiredReminders() {
             const now = new Date();
-            let reminders = getReminders();
-            reminders = reminders.filter(r => {
-                const busDate = new Date(r.date + "T" + r.time + ":00");
-                return busDate > now;
-            });
-            saveReminders(reminders);
+            const reminders = getReminders().filter(r => new Date(r.timestamp) > now);
+            localStorage.setItem('reminders', JSON.stringify(reminders));
+        }
+        function setReminder(time, route, timestamp) {
+            const reminders = getReminders();
+            // Verifica se o lembrete já existe para evitar duplicação
+            if (reminders.some(r => r.time === time && r.route === route)) {
+                showModal(`O lembrete para a rota ${route} às ${time} já existe.`);
+                return;
+            }
+            const reminderId = Date.now();
+            reminders.push({ id: reminderId, time, route, timestamp: new Date(timestamp) });
+            setReminders(reminders);
+            showModal(`Lembrete agendado para a rota ${route} às ${time}!`);
+        }
+        function removeReminder(id) {
+            const reminders = getReminders().filter(r => r.id !== id);
+            setReminders(reminders);
+            showModal(`O lembrete foi apagado. Por favor, remova-o manualmente do seu calendário nativo caso o tenha adicionado.`);    
+        }
+        function renderReminders() {
+            const container = document.getElementById("remindersContainer");
+            const message = document.getElementById("noRemindersMessage");
+            if (!container || !message) return;
+            const reminders = getReminders().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            if (reminders.length === 0) {
+                container.innerHTML = '';
+                message.textContent = "Não tem lembretes ativos.";
+                return;
+            }
+            message.textContent = '';
+            container.innerHTML = reminders.map(r => `
+                <div class="reminder-item">
+                    <div class="reminder-details">
+                        <h4>Rota: ${r.route}</h4>
+                        <p>Horário: ${r.time} - ${new Date(r.timestamp).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' })}</p>
+                    </div>
+                    <button class="reminder-remove" onclick="removeReminder(${r.id})">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        // --- Partilha WhatsApp ---
+        function shareWhatsApp(route, time) {
+            const text = encodeURIComponent(`Olá! O próximo autocarro para a rota ${route} é às ${time}. Vemo-nos lá!`);
+            const url = `https://api.whatsapp.com/send?text=${text}`;
+            window.open(url, '_blank');
+        }
+
+        // --- Criação de ficheiro ICS para Calendário (corrigido e comentado) ---
+        function createICSFile(route, time, timestamp) {
+            // Verifica se o lembrete já existe para evitar duplicação
+            const reminders = getReminders();
+            if (reminders.some(r => r.time === time && r.route === route)) {
+                showModal(`O lembrete para a rota ${route} às ${time} já existe.`);
+                return;
+            }
+
+            const startDate = new Date(timestamp);
+            const endDate = new Date(timestamp);
+            endDate.setMinutes(endDate.getMinutes() + 5); // Evento de 5 minutos
+
+            const formatDateTime = (date) => {
+                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            };
+
+            const uid = 'bus-reminder-' + Date.now() + '@app-da-kika';
+
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Horários de Autocarros//PT
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatDateTime(new Date())}
+DTSTART:${formatDateTime(startDate)}
+DTEND:${formatDateTime(endDate)}
+SUMMARY:Autocarro Rota ${route}
+DESCRIPTION:Lembrete para o autocarro da rota ${route} às ${time}.
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:O autocarro da rota ${route} sai em 10 minutos.
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+            // Adiciona o lembrete à aba de lembretes (para manter o estado local)
+            setReminder(time, route, timestamp);
+
+            // DETETAR iOS para uma melhor experiência
+            const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+            if (isiOS) {
+                // No iOS, abrir uma nova janela com o data URI é mais fiável para despoletar
+                // o prompt "Adicionar ao Calendário" nativo.
+                const uri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+                window.open(uri);
+                showModal(`Aberto no seu calendário nativo.`);
+            } else {
+                // Para outros navegadores, o método de download é o mais fiável.
+                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `lembrete_autocarro_${route}.ics`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showModal(`O ficheiro do calendário foi descarregado. Por favor, abra-o para adicionar o evento ao seu calendário nativo.`);
+            }
         }
 
         // --- Horários ---
@@ -500,7 +618,6 @@
                 let nextBus = todayTimes.find(t => parseTimeToMinutes(t) >= nowMinutes);
                 let html = '<div class="schedule-info">';
                 if (nextBus) {
-                    // Próximo autocarro hoje
                     const nextBusMinutes = parseTimeToMinutes(nextBus);
                     const diff = nextBusMinutes - nowMinutes;
                     html += '<div class="next-bus">';
@@ -508,26 +625,44 @@
                     html += `<div class="next-time" style="display:flex; align-items:center; gap:10px;">`;
                     html += `<span>${nextBus}</span>`;
                     const nextBusDate = new Date(now);
-                    html += `<button onclick="scheduleReminder('${nextBus}', new Date('${now.toISOString()}'))"
-                        style="font-size: 14px; padding: 5px 10px; border-radius: 8px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
-                        🔔 Lembrar-me
-                    </button>`;
+                    nextBusDate.setHours(...nextBus.split(':'), 0, 0);
+                    html += `
+                        <div class="action-buttons">
+                            <button class="btn-reminder" onclick="setReminder('${nextBus}', '${route}', new Date('${nextBusDate.toISOString()}'))" title="Agendar Lembrete">
+                                <i class="fas fa-bell"></i>
+                            </button>
+                            <button class="btn-calendar" onclick="createICSFile('${route}', '${nextBus}', new Date('${nextBusDate.toISOString()}'))" title="Adicionar ao Calendário">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                             <button class="btn-whatsapp" onclick="shareWhatsApp('${route}', '${nextBus}')" title="Partilhar no WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                        </div>
+                    `;
                     html += `</div>`;
                     html += `<div class="time-remaining">Em ${diff} minuto${diff !== 1 ? 's' : ''}</div>`;
                     html += '</div>';
-                    const upcomingTimes = todayTimes.filter(t => parseTimeToMinutes(t) > nextBusMinutes).slice(0, 4);
+                    const upcomingTimes = todayTimes.filter(t => parseTimeToMinutes(t) > nextBusMinutes);
                     if (upcomingTimes.length > 0) {
                         html += '<div class="upcoming-times">';
                         html += '<h3>Próximos horários</h3>';
                         html += '<div class="time-list">';
                         upcomingTimes.forEach(t => {
-                            const upcomingDate = new Date(now);
+                            const futureDate = new Date(now);
+                            futureDate.setHours(...t.split(':'), 0, 0);
                             html += `<div class="time-item">
-                                ${t}
-                                <button onclick="scheduleReminder('${t}', new Date('${now.toISOString()}'))"
-                                    style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
-                                    🔔
-                                </button>
+                                <span>${t}</span>
+                                <div class="action-buttons">
+                                    <button class="btn-reminder" onclick="setReminder('${t}', '${route}', new Date('${futureDate.toISOString()}'))" title="Agendar Lembrete">
+                                        <i class="fas fa-bell"></i>
+                                    </button>
+                                    <button class="btn-calendar" onclick="createICSFile('${route}', '${t}', new Date('${futureDate.toISOString()}'))" title="Adicionar ao Calendário">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </button>
+                                    <button class="btn-whatsapp" onclick="shareWhatsApp('${route}', '${t}')" title="Partilhar no WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>
+                                </div>
                             </div>`;
                         });
                         html += '</div></div>';
@@ -556,12 +691,20 @@
                         tomorrowTimes.slice(0, 5).forEach(t => {
                             const futureDate = new Date(now);
                             futureDate.setDate(futureDate.getDate() + daysChecked + 1);
+                            futureDate.setHours(...t.split(':'), 0, 0);
                             html += `<div class="time-item tomorrow">
-                                ${t}
-                                <button onclick="scheduleReminder('${t}', new Date('${futureDate.toISOString()}'))"
-                                    style="margin-left: 10px; font-size: 12px; padding: 3px 6px; border-radius: 5px; border: none; background-color: #4caf50; color: white; cursor: pointer;">
-                                    🔔
-                                </button>
+                                <span>${t}</span>
+                                <div class="action-buttons">
+                                    <button class="btn-reminder" onclick="setReminder('${t}', '${route}', new Date('${futureDate.toISOString()}'))" title="Agendar Lembrete">
+                                        <i class="fas fa-bell"></i>
+                                    </button>
+                                    <button class="btn-calendar" onclick="createICSFile('${route}', '${t}', new Date('${futureDate.toISOString()}'))" title="Adicionar ao Calendário">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </button>
+                                    <button class="btn-whatsapp" onclick="shareWhatsApp('${route}', '${t}')" title="Partilhar no WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>
+                                </div>
                             </div>`;
                         });
                         html += '</div></div>';
@@ -590,24 +733,41 @@
                 if (selectedRoute) renderSchedule(selectedRoute);
             }, 60000);
 
-            // Verifica lembretes a cada minuto
+            // Verifica lembretes a cada minuto (funciona apenas com a página aberta)
             setInterval(() => {
-                const reminders = getReminders();
                 const now = new Date();
+                const reminders = getReminders();
                 reminders.forEach(r => {
-                    const busTime = new Date(r.date + "T" + r.time + ":00");
-                    const diffMs = busTime - now;
-                    const diffMin = Math.floor(diffMs / 60000);
-                    if (diffMin === 10 && Notification.permission === 'granted') {
-                        new Notification("🚌 Lembrete", {
-                            body: `O autocarro (${r.route}) passa às ${r.time}. Está quase!`,
-                        });
-                        removeReminder(r.route, r.time, r.date);
-                        updateReminderSummary();
+                    const reminderTime = new Date(r.timestamp);
+                    const diffMinutes = Math.round((reminderTime - now) / 60000);
+                    // Dispara a notificação 10 minutos antes
+                    if (diffMinutes === 10) {
+                         // Usar o OneSignal para enviar a notificação push
+                        if (window.OneSignal) {
+                            OneSignal.push(() => {
+                                OneSignal.getPermissionStatus(function(status) {
+                                    if (status.permission === 'granted') {
+                                        OneSignal.showNotification(
+                                            "Lembrete de Autocarro",
+                                            `O autocarro para a rota ${r.route} passa em 10 minutos (${r.time})!`,
+                                            'https://raw.githubusercontent.com/nc32370a/App-da-Kika/refs/heads/main/icon-512.png',
+                                            'https://example.com' // substitua por uma URL válida
+                                        );
+                                    } else {
+                                        // Fallback para notificação local se as permissões não forem concedidas
+                                        showModal(`Lembrete: O autocarro para a rota ${r.route} passa em 10 minutos (${r.time})!`);
+                                    }
+                                });
+                            });
+                        } else {
+                            showModal(`Lembrete: O autocarro para a rota ${r.route} passa em 10 minutos (${r.time})!`);
+                        }
                     }
                 });
+                cleanupExpiredReminders();
+                renderReminders();
             }, 60000);
-            setInterval(cleanupExpiredReminders, 60 * 1000);
+
 
             // --- Mapa Leaflet ---
             let mapInstance;
@@ -674,10 +834,17 @@
             });
             if (tabName === 'lembretes') {
                 cleanupExpiredReminders();
-                updateReminderSummary();
+                renderReminders();
             }
             if (tabName === 'mapa') {
                 setTimeout(window.initMap, 300); // inicializa o mapa ao abrir a tab
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('messageModal');
+            if (event.target === modal) {
+                closeModal();
             }
         }
     </script>
