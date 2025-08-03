@@ -14,7 +14,7 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <!-- Ícones para WhatsApp e Calendário -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -648,7 +648,7 @@ END:VCALENDAR`;
             if (window.appData && window.appData.paragens) {
                 window.appData.paragens.forEach(paragem => {
                     const iconColor = paragem.tipo === 'IDA' ? 'blue' : 'green';
-const iconHtml = `<div style="color: white; background-color: ${iconColor}; width: 30px; height: 30px; text-align: center; line-height: 30px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"><i class="fa-light fa-location-dot"></i>"></div>`;
+const iconHtml = `<div style="color: white; background-color: ${iconColor}; width: 30px; height: 30px; text-align: center; line-height: 30px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"><i class="fa-light fa-location-dot"></i></div>`;
 
 const icon = L.divIcon({
     className: 'custom-div-icon',
@@ -920,5 +920,6 @@ L.marker([paragem.lat, paragem.lng], { icon: icon })
 </body>
 
 </html>
+
 
 
