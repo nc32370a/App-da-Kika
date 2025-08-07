@@ -2022,7 +2022,7 @@ async function addReminder(itemData) {
 
             // Use fetch to call your Cloud Function
             // Note: This URL is a placeholder. You need to deploy your own Cloud Function.
-            const response = await fetch('https://us-central1-app-da-kika.cloudfunctions.net/scheduleNotification', {
+            const response = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(reminderPayload)
