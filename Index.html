@@ -1299,16 +1299,25 @@ body {
         new Notification(notificationTitle, notificationOptions);
     });
 
-    // OneSignal - Este código irá inicializar o OneSignal na sua aplicação
-    // SUBSTITUA o valor de 'app_id' com o seu OneSignal App ID
-    window.OneSignal = window.OneSignal || [];
+   // Substitua o seu código por este
+window.OneSignal = window.OneSignal || [];
+OneSignal.push(function() {
+    OneSignal.init({
+        app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
+        serviceWorkerUpdaterPath: 'OneSignalSDK.js'
+    });
+    
+    // As chamadas à API do OneSignal devem ser feitas aqui dentro,
+    // garantindo que o SDK está pronto.
+    
+    // Exemplo de como usar a nova forma para obter o UserId
     OneSignal.push(function() {
-        OneSignal.init({
-            app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-            // A sua configuração de service worker será tratada pelo nosso ficheiro personalizado
-            serviceWorkerUpdaterPath: 'OneSignalSDK.js' 
+        OneSignal.getUserId().then(function(userId) {
+            console.log("OneSignal User ID:", userId);
+            // Agora pode usar o userId aqui para agendar o seu lembrete
         });
     });
+});
 
 </script>
 
