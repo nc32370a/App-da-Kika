@@ -1301,23 +1301,6 @@ body {
 
    // Substitua o seu código por este
 window.OneSignal = window.OneSignal || [];
-OneSignal.push(function() {
-    OneSignal.init({
-        app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-        serviceWorkerUpdaterPath: 'OneSignalSDK.js'
-    });
-    
-    // As chamadas à API do OneSignal devem ser feitas aqui dentro,
-    // garantindo que o SDK está pronto.
-    
-    // Exemplo de como usar a nova forma para obter o UserId
-    OneSignal.push(function() {
-        OneSignal.getUserId().then(function(userId) {
-            console.log("OneSignal User ID:", userId);
-            // Agora pode usar o userId aqui para agendar o seu lembrete
-        });
-    });
-});
 
 </script>
 
@@ -2498,59 +2481,64 @@ async function addReminder(itemData) {
         return;
     }
 
-    // Usar a estrutura OneSignal.push para garantir que o SDK está pronto
-    OneSignal.push(async function() {
-        let userId = null;
-        try {
-            // Await a função OneSignal.getUserId() que retorna uma Promise
-            userId = await OneSignal.getUserId();
-        } catch (error) {
-            console.error('Erro ao obter OneSignal User ID:', error);
-            // Continua a execução mesmo que haja um erro ao obter o userId
-        }
-        
-        try {
-            if (userId) {
-                const reminderPayload = {
-                    playerId: userId,
-                    name: name,
-                    time: time,
-                    date: date,
-                    minutesBefore: 10
-                };
+    try {
+        const userId = await OneSignal.getUserId();
+        if (userId) {
+            const reminderPayload = {
+                playerId: userId,
+                name: name,
+                time: time,
+                date: date,
+                minutesBefore: 10
+            };
 
-                const response = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(reminderPayload)
-                });
-                const data = await response.json();
+            const response = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reminderPayload)
+            });
+            const data = await response.json();
 
-                if (data.success) {
-                    reminders.push({ ...itemData, type: 'onesignal', name: name });
-                    localStorage.setItem('busReminders', JSON.stringify(reminders));
-                    showModal('Lembrete agendado com sucesso!');
-                    renderReminders();
-                } else {
-                    throw new Error(data.message || 'Erro de servidor desconhecido');
-                }
-            } else {
-                reminders.push({ ...itemData, type: 'manual', name: name });
+            if (data.success) {
+                reminders.push({ ...itemData, type: 'onesignal', name: name });
                 localStorage.setItem('busReminders', JSON.stringify(reminders));
-                showModal('Lembrete adicionado localmente. Ative as notificações para lembretes automáticos.');
+                showModal('Lembrete agendado com sucesso!');
                 renderReminders();
-                // Tenta mostrar o prompt de subscrição se o userId não for encontrado
-                OneSignal.showNativePrompt();
+            } else {
+                throw new Error(data.message || 'Erro de servidor desconhecido');
             }
-        } catch (error) {
-            console.error('Erro ao agendar lembrete:', error);
+        } else {
             reminders.push({ ...itemData, type: 'manual', name: name });
             localStorage.setItem('busReminders', JSON.stringify(reminders));
-            showModal('Erro de comunicação com o servidor. Lembrete adicionado localmente.');
+            showModal('Lembrete adicionado localmente. Ative as notificações para lembretes automáticos.');
             renderReminders();
+            OneSignal.showNativePrompt();
+        }
+    } catch (error) {
+        console.error('Erro ao agendar lembrete:', error);
+        reminders.push({ ...itemData, type: 'manual', name: name });
+        localStorage.setItem('busReminders', JSON.stringify(reminders));
+        showModal('Erro de comunicação com o servidor. Lembrete adicionado localmente.');
+        renderReminders();
+    }
+}
+
+// Este bloco garante que a sua função addReminder é chamada com o OneSignal inicializado
+OneSignal.push(function() {
+    OneSignal.init({
+        app_id: "YOUR_ONESIGNAL_APP_ID", // Substitua pelo seu ID
+        serviceWorkerUpdaterPath: 'OneSignalSDK.js'
+    });
+
+    // Event listener para chamar a função addReminder de forma segura
+    document.addEventListener('click', async function(event) {
+        if (event.target.classList.contains('sua-classe-do-botao')) {
+            // Supondo que você tem uma forma de obter os dados do item
+            const itemData = { /* ... seus dados ... */ };
+            await addReminder(itemData);
         }
     });
-}
+});
 
 function removeReminder(index) {
     reminders.splice(index, 1);
