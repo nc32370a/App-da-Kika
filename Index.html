@@ -2526,7 +2526,7 @@ async function addReminder(itemData) {
 // Este bloco garante que a sua função addReminder é chamada com o OneSignal inicializado
 OneSignal.push(function() {
     OneSignal.init({
-        app_id: "YOUR_ONESIGNAL_APP_ID", // Substitua pelo seu ID
+        app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707", // Substitua pelo seu ID
         serviceWorkerUpdaterPath: 'OneSignalSDK.js'
     });
 
@@ -2539,7 +2539,6 @@ OneSignal.push(function() {
         }
     });
 });
-
 function removeReminder(index) {
     reminders.splice(index, 1);
     localStorage.setItem('busReminders', JSON.stringify(reminders));
