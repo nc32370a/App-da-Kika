@@ -1301,6 +1301,23 @@ body {
 
    // Substitua o seu código por este
 window.OneSignal = window.OneSignal || [];
+OneSignal.push(function() {
+    OneSignal.init({
+        app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
+        serviceWorkerUpdaterPath: 'OneSignalSDK.js'
+    });
+    
+    // As chamadas à API do OneSignal devem ser feitas aqui dentro,
+    // garantindo que o SDK está pronto.
+    
+    // Exemplo de como usar a nova forma para obter o UserId
+    OneSignal.push(function() {
+        OneSignal.getUserId().then(function(userId) {
+            console.log("OneSignal User ID:", userId);
+            // Agora pode usar o userId aqui para agendar o seu lembrete
+        });
+    });
+});
 
 </script>
 
@@ -1837,20 +1854,15 @@ window.OneSignal = window.OneSignal || [];
     <script>
         // Configuração do OneSignal (mantida)
         window.OneSignal = window.OneSignal || [];
-OneSignal.push(function() {
-    OneSignal.init({
-        app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-        serviceWorkerUpdaterPath: 'OneSignalSDK.js'
-    });
-    
-    // Adicione o Event Listener para os botões aqui.
-    document.querySelectorAll('.btn-task-reminder').forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const itemData = JSON.parse(event.target.dataset.itemData);
-            await addReminder(itemData);
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
+                safari_web_id: "SEU_SAFARI_WEB_ID",
+                serviceWorkerUpdaterPath: 'OneSignalSDKUpdateWorker.js',
+                serviceWorkerPath: 'OneSignalSDKWorker.js',
+            });
+            console.log('OneSignal SDK inicializado.');
         });
-    });
-});
 
 // =======================================================================
 // === Funções JavaScript Atualizadas e Corrigidas (v26)
@@ -2528,22 +2540,7 @@ async function addReminder(itemData) {
     }
 }
 
-// Este bloco garante que a sua função addReminder é chamada com o OneSignal inicializado
-OneSignal.push(function() {
-    OneSignal.init({
-        app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707", // Substitua pelo seu ID
-        serviceWorkerUpdaterPath: 'OneSignalSDK.js'
-    });
 
-    // Event listener para chamar a função addReminder de forma segura
-    document.addEventListener('click', async function(event) {
-        if (event.target.classList.contains('sua-classe-do-botao')) {
-            // Supondo que você tem uma forma de obter os dados do item
-            const itemData = { /* ... seus dados ... */ };
-            await addReminder(itemData);
-        }
-    });
-});
 function removeReminder(index) {
     reminders.splice(index, 1);
     localStorage.setItem('busReminders', JSON.stringify(reminders));
@@ -3240,7 +3237,7 @@ function renderTaskDetailsModalContent(task, isEditing) {
         <div class="task-actions centered" style="margin-top: 20px;">
             <button class="btn-primary" id="toggleEditButton" onclick="toggleEditMode('${task.id}')"><i class="fas fa-edit"></i> ${isEditing ? 'Guardar Alterações' : 'Alterar Tarefa'}</button>
             <button class="btn-task-complete" onclick="toggleTaskCompletion('${task.id}'); closeModal('taskDetailsModal');"><i class="fas fa-check"></i> ${task.isCompleted ? 'Marcar como incompleto' : 'Marcar como completo'}</button>
-            <button class="btn-task-reminder" "><i class="fas fa-bell"></i> Lembrete</button>
+            <button class="btn-task-reminder" onclick="addReminder({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}'}); closeModal('taskDetailsModal');"><i class="fas fa-bell"></i> Lembrete</button>
             <button class="btn-task-calendar" onclick="generateICS({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}', description: '${task.description}'}, true); closeModal('taskDetailsModal');"><i class="fas fa-calendar-plus"></i> ICS</button>
             <button class="btn-task-whatsapp" onclick="shareWhatsApp({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}'}); closeModal('taskDetailsModal');"><i class="fab fa-whatsapp"></i> WhatsApp</button>
             ${task.isTravel && task.lat && task.lng ? `<button class="btn-task-navigate" onclick="navigateToTask('${task.id}'); closeModal('taskDetailsModal');"><i class="fas fa-route"></i> Rota</button>` : ''}
