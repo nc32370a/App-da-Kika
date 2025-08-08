@@ -1,5 +1,5 @@
 {
-  "name": "Horários de Autocarros",
+  "name": "App da Kika",
   "short_name": "Autocarros",
   "start_url": ".",
   "display": "standalone",
@@ -19,6 +19,4 @@
   ],
   "gcm_sender_id": "875403627280"
 }
-
-
 
