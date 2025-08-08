@@ -19,9 +19,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF.js para leitor de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
     <style>
 /* ======================================================================= */
-/* === Estilos CSS Atualizados (v24) */
+/* === Estilos CSS Atualizados (v26) */
 /* ======================================================================= */
 
 /* Estilos existentes */
@@ -392,7 +395,7 @@ body {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
@@ -426,14 +429,14 @@ body {
     cursor: pointer;
 }
 /* Novos estilos para a tab PDF */
-#pdf .pdf-nav {
+#horariosPdf .pdf-nav, #pdfReader .pdf-nav {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
-#pdf .pdf-nav button {
+#horariosPdf .pdf-nav button, #pdfReader .pdf-nav button {
     padding: 10px 15px;
     border: 2px solid #e1e5e9;
     border-radius: 10px;
@@ -442,16 +445,16 @@ body {
     font-weight: 600;
     transition: all 0.3s;
 }
-#pdf .pdf-nav button:hover {
+#horariosPdf .pdf-nav button:hover, #pdfReader .pdf-nav button:hover {
     border-color: #4facfe;
     background-color: #e3f2fd;
 }
-#pdf .pdf-nav button.active {
+#horariosPdf .pdf-nav button.active, #pdfReader .pdf-nav button.active {
     background-color: #4facfe;
     color: white;
     border-color: #005bb5;
 }
-#pdf .pdf-image-container {
+#horariosPdf .pdf-image-container {
     text-align: center;
 }
 #pdf-image {
@@ -875,11 +878,11 @@ body {
 
 
 /* --- Estilos da Aba de Despesas --- */
-#expenses .tab-buttons button {
+#expenses .tab-buttons button, #calculator .tab-buttons button, #timer .tab-buttons button, #converter .tab-buttons button {
     background-color: #e3f2fd;
     color: #333;
 }
-#expenses .tab-buttons button.active {
+#expenses .tab-buttons button.active, #calculator .tab-buttons button.active, #timer .tab-buttons button.active, #converter .tab-buttons button.active {
     background-color: #4facfe;
     color: white;
 }
@@ -1022,31 +1025,202 @@ body {
 .expense-item .btn-delete-expense {
     background-color: #f44336; /* Vermelho para apagar */
 }
-/* Centralizar textos na aba "Horarios" */
-#horarios h3 {
+
+/* --- Estilos da Calculadora --- */
+#calculator {
+    background: #f0f2f5;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 0 auto;
+}
+.calculator-display {
+    width: 100%;
+    background: #222;
+    color: #fff;
+    text-align: right;
+    padding: 20px;
+    font-size: 2.5em;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+.calculator-buttons button {
+    padding: 20px;
+    font-size: 1.5em;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: background-color 0.2s;
+}
+.calculator-buttons button:hover {
+    background: #f0f0f0;
+}
+.calculator-buttons .operator {
+    background: #ff9f40;
+    color: white;
+}
+.calculator-buttons .function {
+    background: #a5a5a5;
+    color: white;
+}
+.calculator-buttons .clear {
+    background: #f44336;
+    color: white;
+    grid-column: span 2;
+}
+.calculator-buttons .equals {
+    background: #4caf50;
+    color: white;
+    grid-column: span 2;
+}
+
+/* --- Estilos do Temporizador/Cronómetro --- */
+.timer-container, .stopwatch-container, .converter-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
     text-align: center;
 }
-/* Centralizar textos na aba "To-Do List" */
-#toDoList h3,
-#toDoList h4 {
+.timer-display, .stopwatch-display {
+    font-size: 4em;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #333;
+}
+.timer-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.timer-inputs input {
+    width: 70px;
+    padding: 10px;
+    font-size: 1.2em;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.timer-controls button, .stopwatch-controls button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    font-size: 1em;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+.timer-controls .start, .stopwatch-controls .start { background-color: #4caf50; }
+.timer-controls .pause, .stopwatch-controls .pause { background-color: #ffc107; }
+.timer-controls .reset, .stopwatch-controls .reset { background-color: #f44336; }
+
+/* --- Estilos do Conversor --- */
+.converter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+.converter-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+}
+.converter-row input, .converter-row select {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1em;
+}
+.converter-result {
+    margin-top: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.currency-manager {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+.currency-rate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+
+/* --- Estilos do Leitor de PDF --- */
+#pdf-loader {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+#pdf-url-input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+#pdf-load-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+}
+#pdf-viewer-container {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    background: #eee;
+    margin-top: 10px;
+}
+#pdf-viewer {
+    max-width: 100%;
+}
+#pdf-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+#pdf-controls button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2196f3;
+    color: white;
+    cursor: pointer;
+}
+#pdf-page-info {
+    font-weight: bold;
+}
+
+/* Centralizar textos */
+#horarios h3, #toDoList h3, #toDoList h4, #notes h3, #expenses h3, #expenses h4, #calculator h3, #timer h3, #converter h3, #lembretes h3, #horariosPdf h3, #horariosPdf h4, #pdfReader h3 {
     text-align: center;
 }
 
-/* Centralizar textos na aba "Notas" */
-#notes h3 {
-    text-align: center;
-}
-
-/* Centralizar textos na aba "Despesas" */
-#expenses h3,
-#expenses h4 {
-    text-align: center;
-}
-
-/* Centralizar textos na caixa de navegação */
 .nav-title {
     text-align: center;
-    width: 100%; /* Garantir que o texto ocupa 100% da largura para ser centralizado */
+    width: 100%;
 }
 .search-container {
     display: flex;
@@ -1070,10 +1244,6 @@ body {
     font-size: 16px;
 }
     </style>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- Leaflet Routing Machine JS -->
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 </head>
@@ -1099,7 +1269,11 @@ body {
             <button id="btnMapa" onclick="showTab('mapa')"><i class="fa-solid fa-map-location-dot"></i> Mapa</button>
             <button id="btnPontosDeInteresse" onclick="showTab('pontosDeInteresse')"><i class="fa-solid fa-star"></i> Locais</button>
             <button id="btnLembretes" onclick="showTab('lembretes')"><i class="fa-solid fa-bell"></i> Lembretes</button>
-            <button id="btnPdf" onclick="showTab('pdf')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button id="btnCalculadora" onclick="showTab('calculator')"><i class="fa-solid fa-calculator"></i> Calculadora</button>
+            <button id="btnTemporizador" onclick="showTab('timer')"><i class="fa-solid fa-stopwatch-20"></i> Temporizador</button>
+            <button id="btnConversor" onclick="showTab('converter')"><i class="fa-solid fa-right-left"></i> Conversor</button>
+            <button id="btnHorariosPdf" onclick="showTab('horariosPdf')"><i class="fa-solid fa-file-pdf"></i> Horários PDF</button>
+            <button id="btnPdfReader" onclick="showTab('pdfReader')"><i class="fa-solid fa-book-open"></i> Leitor PDF</button>
         </div>
 
         <div class="tab-content">
@@ -1185,10 +1359,7 @@ body {
                     </div>
                 </div>
             </div>
-
-            <!-- ======================================================================= -->
-            <!-- === NOVA ABA DE NOTAS ================================================= -->
-            <!-- ======================================================================= -->
+            
             <div id="notes">
                 <div class="note-form">
                     <h3>Nova Nota</h3>
@@ -1204,9 +1375,6 @@ body {
                 </div>
             </div>
 
-            <!-- ======================================================================= -->
-            <!-- === NOVA ABA DE METEOROLOGIA ========================================== -->
-            <!-- ======================================================================= -->
             <div id="weather">
                 <h3>Previsão do Tempo</h3>
                 <div class="weather-search">
@@ -1219,9 +1387,6 @@ body {
                 </div>
             </div>
 
-            <!-- ======================================================================= -->
-            <!-- === NOVA ABA DE DESPESAS ============================================== -->
-            <!-- ======================================================================= -->
             <div id="expenses">
                 <div class="tab-buttons" style="margin-bottom: 20px;">
                     <button class="active" onclick="showExpenseSubTab('addExpenseTab')">Adicionar Despesa</button>
@@ -1278,8 +1443,8 @@ body {
                 </div>
             </div>
 
-
-            <div id="pdf">
+            <div id="horariosPdf">
+                <h3>Horários em PDF</h3>
                 <div class="pdf-nav" id="pdf-nav">
                     <!-- Os botões PDF serão renderizados aqui dinamicamente -->
                 </div>
@@ -1287,8 +1452,25 @@ body {
                     <img id="pdf-image" src="" alt="Horário em formato PDF">
                 </div>
             </div>
+            
+            <div id="pdfReader">
+                 <h3>Leitor de PDF</h3>
+                <div id="pdf-loader">
+                    <input type="text" id="pdf-url-input" placeholder="Cole o URL do PDF aqui...">
+                    <button id="pdf-load-btn" onclick="loadPdfFromUrl()">Carregar PDF</button>
+                </div>
+                <div id="pdf-viewer-container" style="display: none;">
+                    <div id="pdf-controls">
+                        <button id="pdf-prev"><i class="fas fa-arrow-left"></i> Anterior</button>
+                        <span id="pdf-page-info">Página <span id="pdf-page-num"></span> de <span id="pdf-page-count"></span></span>
+                        <button id="pdf-next">Seguinte <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <canvas id="pdf-viewer"></canvas>
+                </div>
+            </div>
 
             <div id="lembretes">
+                <h3>Meus Lembretes</h3>
                 <ul class="reminder-list" id="reminderList"></ul>
             </div>
 
@@ -1311,10 +1493,10 @@ body {
             </div>
 
             <div id="mapa">
-<div class="search-container">
-    <input type="text" id="search-input" placeholder="Pesquisar um local...">
-    <button id="search-button"><i class="fas fa-search"></i></button>
-</div>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Pesquisar um local...">
+                    <button id="search-button" onclick="searchMapLocation()"><i class="fas fa-search"></i></button>
+                </div>
                 <div id="map"></div>
                 <div id="navigationPanel" class="navigation-panel">
                     <div class="nav-header">
@@ -1342,6 +1524,197 @@ body {
                     </div>
                 </div>
             </div>
+            
+            <!-- ======================================================================= -->
+            <!-- === NOVAS ABAS ======================================================== -->
+            <!-- ======================================================================= -->
+            
+            <div id="calculator">
+                <h3>Calculadora Científica</h3>
+                <div class="calculator-container">
+                    <div id="calculatorDisplay" class="calculator-display">0</div>
+                    <div class="calculator-buttons">
+                        <button onclick="calculatorInput('sin(')" class="function">sin</button>
+                        <button onclick="calculatorInput('cos(')" class="function">cos</button>
+                        <button onclick="calculatorInput('tan(')" class="function">tan</button>
+                        <button onclick="calculatorInput('Math.log10(')" class="function">log</button>
+                        <button onclick="calculatorInput('Math.sqrt(')" class="function">√</button>
+                        <button onclick="calculatorInput('(')" class="operator">(</button>
+                        <button onclick="calculatorInput(')')" class="operator">)</button>
+                        <button onclick="calculatorInput('**')" class="operator">x^y</button>
+                        <button onclick="calculatorInput('Math.PI')" class="operator">π</button>
+                        <button onclick="calculatorInput('%')" class="operator">%</button> 
+                        <button onclick="calculatorInput('+')" class="operator">+</button>
+                        <button onclick="calculatorInput('-')" class="operator">-</button>
+                        <button onclick="calculatorInput('*')" class="operator">×</button>
+                        <button onclick="calculatorInput('/')" class="operator">÷</button>
+                        <button onclick="calculatorInput('.')" class="operator">.</button>
+                        <button onclick="calculatorInput('9')">9</button>
+                        <button onclick="calculatorInput('8')">8</button>
+                        <button onclick="calculatorInput('7')">7</button>
+                        <button onclick="calculatorInput('6')">6</button>
+                        <button onclick="calculatorInput('5')">5</button>
+                        <button onclick="calculatorInput('4')">4</button>
+                        <button onclick="calculatorInput('3')">3</button>
+                        <button onclick="calculatorInput('2')">2</button>
+                        <button onclick="calculatorInput('1')">1</button>
+                        <button onclick="calculatorInput('0')">0</button>
+                        <button onclick="calculateResult()" class="equals">=</button>
+                        <button onclick="calculatorClear()" class="clear">C</button>
+                        <button onclick="calculatorBackspace()" class="function">⌫</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="timer">
+                 <div class="tab-buttons" style="margin-bottom: 20px;">
+                    <button class="active" onclick="showTimerSubTab('timerTab')">Temporizador</button>
+                    <button onclick="showTimerSubTab('stopwatchTab')">Cronómetro</button>
+                </div>
+                <div id="timerTab" class="active">
+                    <h3>Temporizador</h3>
+                    <div class="timer-container">
+                        <div id="timerDisplay" class="timer-display">00:00:00</div>
+                        <div class="timer-inputs">
+                            <input type="number" id="timerHours" placeholder="HH" min="0" max="23">
+                            <input type="number" id="timerMinutes" placeholder="MM" min="0" max="59">
+                            <input type="number" id="timerSeconds" placeholder="SS" min="0" max="59">
+                        </div>
+                        <div class="timer-controls">
+                            <button class="start" onclick="startTimer()">Iniciar</button>
+                            <button class="pause" onclick="pauseTimer()">Pausar</button>
+                            <button class="reset" onclick="resetTimer()">Resetar</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="stopwatchTab" style="display: none;">
+                    <h3>Cronómetro</h3>
+                    <div class="stopwatch-container">
+                        <div id="stopwatchDisplay" class="stopwatch-display">00:00:00.000</div>
+                        <div class="stopwatch-controls">
+                            <button class="start" onclick="startStopwatch()">Iniciar</button>
+                            <button class="pause" onclick="pauseStopwatch()">Pausar</button>
+                            <button class="reset" onclick="resetStopwatch()">Resetar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="converter">
+                 <div class="tab-buttons" style="margin-bottom: 20px;">
+                    <button class="active" onclick="showConverterSubTab('lengthConverter')">Comprimento</button>
+                    <button onclick="showConverterSubTab('massConverter')">Massa</button>
+                    <button onclick="showConverterSubTab('tempConverter')">Temperatura</button>
+                    <button onclick="showConverterSubTab('currencyConverter')">Moeda</button>
+                </div>
+                <div id="lengthConverter" class="converter-container active">
+                    <h3>Conversor de Comprimento</h3>
+                    <div class="converter-form">
+                        <div class="converter-row">
+                            <input type="number" id="lengthInput" oninput="convertLength()">
+                            <select id="fromLengthUnit" onchange="convertLength()">
+                                <option value="m">Metros (m)</option>
+                                <option value="km">Quilómetros (km)</option>
+                                <option value="cm">Centímetros (cm)</option>
+                                <option value="mm">Milímetros (mm)</option>
+                                <option value="mi">Milhas (mi)</option>
+                                <option value="yd">Jardas (yd)</option>
+                                <option value="ft">Pés (ft)</option>
+                                <option value="in">Polegadas (in)</option>
+                            </select>
+                        </div>
+                        <i class="fas fa-exchange-alt"></i>
+                        <div class="converter-row">
+                            <input type="text" id="lengthOutput" readonly>
+                             <select id="toLengthUnit" onchange="convertLength()">
+                                <option value="km">Quilómetros (km)</option>
+                                <option value="m">Metros (m)</option>
+                                <option value="cm">Centímetros (cm)</option>
+                                <option value="mm">Milímetros (mm)</option>
+                                <option value="mi">Milhas (mi)</option>
+                                <option value="yd">Jardas (yd)</option>
+                                <option value="ft">Pés (ft)</option>
+                                <option value="in">Polegadas (in)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="massConverter" class="converter-container" style="display: none;">
+                    <h3>Conversor de Massa</h3>
+                    <div class="converter-form">
+                        <div class="converter-row">
+                            <input type="number" id="massInput" oninput="convertMass()">
+                            <select id="fromMassUnit" onchange="convertMass()">
+                                <option value="g">Gramas (g)</option>
+                                <option value="kg">Quilogramas (kg)</option>
+                                <option value="mg">Miligramas (mg)</option>
+                                <option value="t">Toneladas (t)</option>
+                                <option value="lb">Libras (lb)</option>
+                                <option value="oz">Onças (oz)</option>
+                            </select>
+                        </div>
+                        <i class="fas fa-exchange-alt"></i>
+                        <div class="converter-row">
+                            <input type="text" id="massOutput" readonly>
+                             <select id="toMassUnit" onchange="convertMass()">
+                                <option value="kg">Quilogramas (kg)</option>
+                                <option value="g">Gramas (g)</option>
+                                <option value="mg">Miligramas (mg)</option>
+                                <option value="t">Toneladas (t)</option>
+                                <option value="lb">Libras (lb)</option>
+                                <option value="oz">Onças (oz)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                 <div id="tempConverter" class="converter-container" style="display: none;">
+                    <h3>Conversor de Temperatura</h3>
+                    <div class="converter-form">
+                        <div class="converter-row">
+                            <input type="number" id="tempInput" oninput="convertTemp()">
+                            <select id="fromTempUnit" onchange="convertTemp()">
+                                <option value="C">Celsius (°C)</option>
+                                <option value="F">Fahrenheit (°F)</option>
+                                <option value="K">Kelvin (K)</option>
+                            </select>
+                        </div>
+                        <i class="fas fa-exchange-alt"></i>
+                        <div class="converter-row">
+                            <input type="text" id="tempOutput" readonly>
+                             <select id="toTempUnit" onchange="convertTemp()">
+                                <option value="F">Fahrenheit (°F)</option>
+                                <option value="C">Celsius (°C)</option>
+                                <option value="K">Kelvin (K)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="currencyConverter" class="converter-container" style="display: none;">
+                    <h3>Conversor de Moeda</h3>
+                     <div class="converter-form">
+                        <div class="converter-row">
+                            <input type="number" id="currencyInput" oninput="convertCurrency()">
+                            <select id="fromCurrency" onchange="convertCurrency()"></select>
+                        </div>
+                         <i class="fas fa-exchange-alt"></i>
+                        <div class="converter-row">
+                           <input type="text" id="currencyOutput" readonly>
+                           <select id="toCurrency" onchange="convertCurrency()"></select>
+                        </div>
+                    </div>
+                    <div class="currency-manager">
+                        <h4>Gerir Taxas de Câmbio (Base: EUR)</h4>
+                        <div id="currencyRatesList"></div>
+                        <div class="converter-row" style="margin-top: 10px;">
+                           <input type="text" id="newCurrencyCode" placeholder="Código (ex: USD)">
+                           <input type="number" id="newCurrencyRate" placeholder="Taxa para 1 EUR">
+                           <button onclick="addOrUpdateCurrencyRate()">Adicionar/Atualizar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </div>
 
@@ -1401,9 +1774,7 @@ body {
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- Leaflet Routing Machine JS -->
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
-    <!-- OneSignal SDK -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-
+    
     <!-- Seu script principal aqui -->
     <script>
         // Configuração do OneSignal (mantida)
@@ -1419,13 +1790,14 @@ body {
         });
 
 // =======================================================================
-// === Funções JavaScript Atualizadas e Corrigidas (v24)
+// === Funções JavaScript Atualizadas e Corrigidas (v26)
 // =======================================================================
 
 // Variáveis globais
 window.appData = null;
 let map = null;
 let userMarker = null;
+let searchMarker = null; // Marcador para o resultado da pesquisa
 let navigationActive = false;
 let currentRoute = null; // Armazena os dados da rota do OSRM
 let routeControl = null; // Armazena a camada da linha da rota (Polyline)
@@ -1497,7 +1869,6 @@ async function getCurrentLocationPromise() {
                 }
                 console.log('GPS falhou:', errorMessage, 'Tentando por rede...');
 
-                // Fallback para localização por rede
                 const networkOptions = { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 };
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -1517,7 +1888,7 @@ async function getCurrentLocationPromise() {
                             const viseuDefault = [40.6617747743044, -7.91556785877083];
                             currentLocationMethod = 'default';
                             showLocationStatus('default', 'Localização padrão');
-                            resolve(viseuDefault); // Resolve com localização padrão como último recurso
+                            resolve(viseuDefault); 
                         }
                     },
                     networkOptions
@@ -1589,7 +1960,7 @@ async function getUserLocation() {
                 setTimeout(closeModal, 3000);
             }, 1000);
         }
-        return location; // Retorna a localização obtida
+        return location;
     } catch (error) {
         console.error('Erro ao obter localização:', error);
         closeModal();
@@ -1597,12 +1968,12 @@ async function getUserLocation() {
         setTimeout(closeModal, 4000);
         const viseuDefault = [40.6617747743044, -7.91556785877083];
         updateUserLocation(viseuDefault);
-        return viseuDefault; // Retorna a localização padrão em caso de erro
+        return viseuDefault;
     }
 }
 
 function updateUserLocation(location) {
-    userLocation = L.latLng(location); // Garante que é um objeto LatLng
+    userLocation = L.latLng(location); 
     const userIcon = L.divIcon({
         className: 'custom-div-icon',
         html: '<div style="background-color: #007BFF; width: 1.5rem; height: 1.5rem; display: block; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 0 8px #007BFF;"></div>',
@@ -1631,7 +2002,6 @@ function speak(text) {
         console.error('speechSynthesis.speaking');
         return;
     }
-    // Remove tags HTML para a síntese de voz
     const cleanText = text.replace(/<[^>]*>?/gm, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'pt-PT';
@@ -1708,7 +2078,7 @@ async function calculateRoute(start, end, transportMode = 'driving') {
         const data = await response.json();
         if (!data.routes || data.routes.length === 0) throw new Error('Nenhuma rota encontrada');
         
-        currentRoute = data.routes[0]; // Armazena a rota completa
+        currentRoute = data.routes[0]; 
         
         routeInstructions = [];
         if (currentRoute.legs && currentRoute.legs[0] && currentRoute.legs[0].steps) {
@@ -1744,14 +2114,12 @@ async function calculateRoute(start, end, transportMode = 'driving') {
     }
 }
 
-// Função para mostrar o modal de seleção de meio de transporte
 function showTransportModeSelection(destLat, destLng, destName) {
     destinationLocation = L.latLng(destLat, destLng);
     destinationName = destName;
     document.getElementById('transportModeModal').style.display = 'block';
 }
 
-// Função para iniciar a navegação após a seleção do meio de transporte
 async function initiateNavigation(transportMode) {
     closeModal('transportModeModal');
 
@@ -1932,7 +2300,7 @@ function stopNavigation() {
     currentInstructionIndex = 0;
     routeInstructions = [];
     currentRoute = null;
-    synth.cancel(); // Para a navegação por voz
+    synth.cancel(); 
     console.log('Navegação parada');
 }
 
@@ -1943,7 +2311,7 @@ function checkOffRoute() {
     const closestPoint = L.GeometryUtil.closest(map, routeControl, userLatLng);
     const distance = userLatLng.distanceTo(closestPoint);
 
-    if (distance > 50) { // Se estiver a mais de 50 metros da rota
+    if (distance > 50) { 
         console.log("Fora da rota! A recalcular...");
         showModal("Desviou-se da rota. A recalcular...");
         recalculateRoute();
@@ -1959,23 +2327,22 @@ function updateRouteProgress() {
     const nextInstructionPoint = L.latLng(nextInstruction.location[1], nextInstruction.location[0]);
     const distanceToNextInstruction = userLocation.distanceTo(nextInstructionPoint);
 
-    if (distanceToNextInstruction < 20) { // A 20 metros da próxima instrução
+    if (distanceToNextInstruction < 20) { 
         currentInstructionIndex++;
         if (currentInstructionIndex < routeInstructions.length) {
             updateNavigationPanel();
             speak(routeInstructions[currentInstructionIndex].instruction);
         } else {
-            stopNavigation(); // Chegou ao fim
+            stopNavigation(); 
         }
     }
 
-    // Atualiza a linha da rota para mostrar o progresso
     const routeCoords = currentRoute.geometry.coordinates.map(coord => L.latLng(coord[1], coord[0]));
     const userPointOnRoute = L.GeometryUtil.closest(map, routeCoords, userLocation);
     const closestIndex = L.GeometryUtil.closestLayer(map, routeCoords.map((c, i) => ({latlng: c, i: i})), userPointOnRoute).layer.i;
 
     const remainingCoords = routeCoords.slice(closestIndex);
-    remainingCoords.unshift(userLocation); // Adiciona a localização atual ao início
+    remainingCoords.unshift(userLocation); 
     routeControl.setLatLngs(remainingCoords);
 }
 
@@ -1990,7 +2357,6 @@ function renderPdfButtons() {
         button.textContent = pdf.nome;
         button.onclick = () => {
             showPdf(pdf.id);
-            // Remove 'active' class from all buttons and add to the clicked one
             document.querySelectorAll('#pdf-nav button').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
         };
@@ -1998,7 +2364,6 @@ function renderPdfButtons() {
     });
     if (window.appData.pdfRotas.length > 0) {
         showPdf(window.appData.pdfRotas[0].id);
-        // Set the first button as active by default
         const firstButton = document.getElementById(`btnPdf-${window.appData.pdfRotas[0].id}`);
         if (firstButton) {
             firstButton.classList.add('active');
@@ -2031,7 +2396,6 @@ function renderReminders() {
     reminders.forEach((r, index) => {
         const item = document.createElement('li');
         item.className = 'reminder-item';
-        let iconClass = r.type === 'ics' ? 'fa-regular fa-calendar-plus' : 'fa-solid fa-bell';
         let typeText = r.type === 'ics' ? 'ICS' : 'Notificação';
 
         item.innerHTML = `
@@ -2049,7 +2413,6 @@ function checkIfReminderExists(name, time) {
     return reminders.some(r => (r.routeName === name || r.name === name || r.nome === name) && r.time === time);
 }
 
-// Função genérica para adicionar lembrete (pode ser para autocarro ou tarefa)
 async function addReminder(itemData) {
     const name = itemData.routeName || itemData.name || itemData.nome;
     const time = itemData.time;
@@ -2071,8 +2434,6 @@ async function addReminder(itemData) {
                 minutesBefore: 10
             };
 
-            // Use fetch to call your Cloud Function
-            // Note: This URL is a placeholder. You need to deploy your own Cloud Function.
             const response = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2086,15 +2447,14 @@ async function addReminder(itemData) {
                 showModal('Lembrete agendado com sucesso!');
                 renderReminders();
             } else {
-                showModal(`Erro ao agendar lembrete: ${data.message || 'Erro de servidor desconhecido'}`);
+                throw new Error(data.message || 'Erro de servidor desconhecido');
             }
         } else {
-            // Fallback for when OneSignal user ID is not available
             reminders.push({ ...itemData, type: 'manual', name: name });
             localStorage.setItem('busReminders', JSON.stringify(reminders));
             showModal('Lembrete adicionado localmente. Ative as notificações para lembretes automáticos.');
             renderReminders();
-            OneSignal.showNativePrompt(); // Prompt the user to enable notifications
+            OneSignal.showNativePrompt();
         }
     } catch (error) {
         console.error('Erro ao agendar lembrete:', error);
@@ -2110,27 +2470,25 @@ function removeReminder(index) {
     reminders.splice(index, 1);
     localStorage.setItem('busReminders', JSON.stringify(reminders));
     showModal('Lembrete removido. Se adicionou este lembrete ao seu calendário, lembre-se de o remover manualmente.');
-    renderReminders(); // Re-renderiza para atualizar a lista imediatamente
+    renderReminders();
 }
 
 function cleanupExpiredReminders() {
     const now = new Date();
-    const nowString = now.toTimeString().split(' ')[0].substring(0, 5); // Get current time in HH:MM format
+    const nowString = now.toTimeString().split(' ')[0].substring(0, 5); 
     reminders = reminders.filter(r => {
-        if (r.routeName) { // For bus schedules
+        if (r.routeName) { 
             return r.time > nowString;
         }
-        if (r.date && r.time) { // For tasks with date and time
+        if (r.date && r.time) { 
             const taskDateTime = new Date(`${r.date}T${r.time}`);
             return taskDateTime > now;
         }
-        return false; // Remove if no valid time/date or already passed
+        return false; 
     });
     localStorage.setItem('busReminders', JSON.stringify(reminders));
 }
 
-
-// Função para gerar ficheiro ICS
 function generateICS(itemData, isTask = false) {
     const name = itemData.routeName || itemData.name || itemData.nome;
     const time = itemData.time;
@@ -2152,27 +2510,21 @@ function generateICS(itemData, isTask = false) {
     let eventDate;
 
     if (date) {
-        // Se a data for fornecida (para tarefas), usa-a
         eventDate = new Date(`${date}T${time}`);
     } else {
-        // Se não houver data (para horários de autocarro), assume o dia atual
         eventDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
-        // Se a hora já passou hoje, agenda para amanhã
         if (eventDate < now) {
             eventDate.setDate(eventDate.getDate() + 1);
         }
     }
 
-    // Formatar datas para ICS (YYYYMMDDTHHMMSSZ)
     const formatICSDate = (d) => d.toISOString().replace(/[-:]|\.\d{3}/g, '');
 
     const start = formatICSDate(eventDate);
-    // Duração do evento: 30 minutos por padrão
     const end = formatICSDate(new Date(eventDate.getTime() + 30 * 60000));
 
     let alarms = '';
     if (isTask) {
-        // Notificação 1 dia antes
         const trigger1Day = new Date(eventDate.getTime() - (24 * 60 * 60 * 1000));
         alarms += `
 BEGIN:VALARM
@@ -2181,7 +2533,6 @@ DESCRIPTION:Lembrete: ${itemData.routeName ? `Autocarro - Rota ${name}` : `Taref
 TRIGGER;VALUE=DATE-TIME:${formatICSDate(trigger1Day)}
 END:VALARM`;
 
-        // Notificação 30 minutos antes
         alarms += `
 BEGIN:VALARM
 ACTION:DISPLAY
@@ -2189,7 +2540,6 @@ DESCRIPTION:Lembrete: ${itemData.routeName ? `Autocarro - Rota ${name}` : `Taref
 TRIGGER:-PT30M
 END:VALARM`;
     } else {
-        // Notificação padrão para horários de autocarro (10 minutos antes)
         alarms += `
 BEGIN:VALARM
 ACTION:DISPLAY
@@ -2223,7 +2573,6 @@ END:VCALENDAR`;
     URL.revokeObjectURL(url);
 }
 
-// Função para partilhar no WhatsApp
 function shareWhatsApp(itemData) {
     const name = itemData.routeName || itemData.name || itemData.nome;
     const time = itemData.time;
@@ -2247,29 +2596,24 @@ function showTab(tabId) {
     document.querySelectorAll('.tab-buttons button').forEach(button => button.classList.remove('active'));
 
     document.getElementById(tabId).classList.add('active');
-    // Ajuste aqui para corresponder aos IDs dos botões no HTML
+    
     let buttonIdMap = {
-        'horarios': 'btnHorarios',
-        'toDoList': 'btnToDoList',
-        'notes': 'btnNotas',
-        'weather': 'btnMeteorologia',
-        'expenses': 'btnDespesas',
-        'pdf': 'btnPdf',
-        'lembretes': 'btnLembretes',
-        'pontosDeInteresse': 'btnPontosDeInteresse',
-        'mapa': 'btnMapa'
+        'horarios': 'btnHorarios', 'toDoList': 'btnToDoList', 'notes': 'btnNotas',
+        'weather': 'btnMeteorologia', 'expenses': 'btnDespesas', 'horariosPdf': 'btnHorariosPdf',
+        'lembretes': 'btnLembretes', 'pontosDeInteresse': 'btnPontosDeInteresse', 'mapa': 'btnMapa',
+        'calculator': 'btnCalculadora', 'timer': 'btnTemporizador', 'converter': 'btnConversor',
+        'pdfReader': 'btnPdfReader'
     };
     const buttonElement = document.getElementById(buttonIdMap[tabId]);
     if (buttonElement) {
         buttonElement.classList.add('active');
     }
 
-    // Lógica específica para cada aba
     if (tabId === 'mapa') {
         if (map === null) {
             initMap();
         } else {
-            map.invalidateSize();
+            setTimeout(() => map.invalidateSize(), 100);
         }
         getUserLocation();
     } else if (tabId === 'lembretes') {
@@ -2281,23 +2625,24 @@ function showTab(tabId) {
     } else if (tabId === 'notes') {
         renderNotes();
     } else if (tabId === 'weather') {
-        // Ao mudar para a aba de meteorologia, tenta obter a localização atual automaticamente
         getWeatherByCurrentLocation();
     } else if (tabId === 'expenses') {
         showExpenseSubTab('addExpenseTab');
+    } else if (tabId === 'converter') {
+        showConverterSubTab('lengthConverter');
+        initCurrencyConverter();
     }
 }
 
-// Nova função para gerir as sub-abas da To-Do List
 function showToDoSubTab(subTabId) {
     document.querySelectorAll('.to-do-sub-content > div').forEach(subTab => subTab.classList.remove('active'));
     document.querySelectorAll('#toDoList .tab-buttons button').forEach(button => button.classList.remove('active'));
 
     document.getElementById(subTabId).classList.add('active');
-    // Ajuste o ID do botão para corresponder à convenção
+    
     let buttonId = subTabId;
     if (subTabId.endsWith('Tab')) {
-        buttonId = subTabId.slice(0, -3); // Remove 'Tab' do final
+        buttonId = subTabId.slice(0, -3); 
     }
     document.getElementById(`btn${buttonId.charAt(0).toUpperCase() + buttonId.slice(1)}Tab`).classList.add('active');
 
@@ -2312,6 +2657,7 @@ function showToDoSubTab(subTabId) {
 
 // --- Funções de Inicialização do Mapa ---
 function initMap() {
+    if (map) return; 
     const viseu = [40.6617747743044, -7.91556785877083];
     map = L.map('map').setView(viseu, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -2319,11 +2665,10 @@ function initMap() {
     }).addTo(map);
 
     if (window.appData && window.appData.paragens) {
-        console.log('initMap: Adicionando Paragens ao mapa.');
         window.appData.paragens.forEach(paragem => {
             const color = paragem.tipo === 'IDA' ? 'green' : 'red';
             const icon = createMapIcon(color);
-            const marker = L.marker([paragem.lat, paragem.lng], { icon: icon })
+            L.marker([paragem.lat, paragem.lng], { icon: icon })
                 .addTo(map)
                 .bindPopup(`
                     <div>
@@ -2334,38 +2679,13 @@ function initMap() {
                         </button>
                     </div>
                 `);
-            const navigateToAction = () => {
-                showTab('horarios');
-                const routeSelect = document.getElementById('routeSelect');
-                routeSelect.value = paragem.nome;
-                renderSchedule(paragem.nome);
-            };
-            const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            let clickTimer = null;
-            if (isMobile) {
-                marker.on('click', () => {
-                    if (clickTimer === null) {
-                        clickTimer = setTimeout(() => { marker.openPopup(); clickTimer = null; }, 300);
-                    } else {
-                        clearTimeout(clickTimer);
-                        clickTimer = null;
-                        navigateToAction();
-                    }
-                });
-            } else {
-                marker.on('mouseover', function() { this.openPopup(); });
-                marker.on('click', navigateToAction);
-            }
         });
     }
 
-    // Adiciona os Pontos de Interesse (agora lê 'nome' e 'descricao' do data.json)
     if (window.appData && window.appData.pontosDeInteresse) {
-        console.log('initMap: Adicionando Pontos de Interesse ao mapa.');
         window.appData.pontosDeInteresse.forEach(poi => {
-            console.log('initMap: Criando marcador para POI:', poi.id, 'Nome:', poi.nome, 'Descrição:', poi.descricao);
             const icon = createMapIcon('yellow');
-            const marker = L.marker([poi.lat, poi.lng], { icon: icon })
+            L.marker([poi.lat, poi.lng], { icon: icon })
                 .addTo(map)
                 .bindPopup(`
                     <div>
@@ -2376,39 +2696,51 @@ function initMap() {
                         </button>
                     </div>
                 `);
-            const navigateToAction = () => {
-                showTab('pontosDeInteresse');
-                const poiElement = document.getElementById(`poi-list-item-${poi.id}`);
-                if (poiElement) {
-                    poiElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    poiElement.style.transition = 'background-color 0.5s ease';
-                    poiElement.style.backgroundColor = '#e9d8f3';
-                    setTimeout(() => { poiElement.style.backgroundColor = ''; }, 2500);
-                }
-            };
-            const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            let clickTimer = null;
-            if (isMobile) {
-                 marker.on('click', () => {
-                    if (clickTimer === null) {
-                        clickTimer = setTimeout(() => { marker.openPopup(); clickTimer = null; }, 300);
-                    } else {
-                        clearTimeout(clickTimer);
-                        clickTimer = null;
-                        navigateToAction();
-                    }
-                });
-            } else {
-                marker.on('mouseover', function() { this.openPopup(); });
-                marker.on('click', navigateToAction);
-            }
         });
+    }
+}
+
+async function searchMapLocation() {
+    const query = document.getElementById('search-input').value;
+    if (!query) {
+        showModal("Por favor, insira um local para pesquisar.");
+        return;
+    }
+    showModal(`A pesquisar por "${query}"...`);
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`);
+        const data = await response.json();
+        closeModal();
+        if (data && data.length > 0) {
+            const { lat, lon, display_name } = data[0];
+            const latLng = [parseFloat(lat), parseFloat(lon)];
+            if(map) {
+                if (searchMarker) {
+                    map.removeLayer(searchMarker);
+                }
+                map.setView(latLng, 15);
+                searchMarker = L.marker(latLng).addTo(map)
+                    .bindPopup(`
+                        <b>${display_name}</b><br>
+                        <button onclick="showTransportModeSelection(${lat}, ${lon}, '${display_name.replace(/'/g, "\\'")}')"
+                                style="margin-top: 8px; padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fa-solid fa-route"></i> Navegar
+                        </button>
+                    `)
+                    .openPopup();
+            }
+        } else {
+            showModal("Local não encontrado.");
+        }
+    } catch (error) {
+        closeModal();
+        showModal("Erro ao pesquisar o local. Verifique a sua ligação.");
+        console.error("Erro na pesquisa do mapa:", error);
     }
 }
 
 function focusOnMapPoint(lat, lng, poiName) {
     showTab('mapa');
-    // Ensure map is initialized before setting view
     if (!map) initMap();
     setTimeout(() => {
         map.setView([lat, lng], 17);
@@ -2431,7 +2763,6 @@ function togglePoiSelection(poiDataEncoded) {
         selectedPoisForRoute.splice(index, 1);
     }
     localStorage.setItem('selectedPoisForRoute', JSON.stringify(selectedPoisForRoute));
-    console.log('Pontos de Interesse selecionados:', selectedPoisForRoute);
     renderPontosDeInteresse();
 }
 
@@ -2445,25 +2776,22 @@ function renderPontosDeInteresse() {
 
     if (!window.appData || !window.appData.pontosDeInteresse) {
         poiList.innerHTML = '<p style="text-align: center; color: #666;">Não foram encontrados pontos de interesse.</p>';
-        console.warn('renderPontosDeInteresse: Nenhuma lista de POIs para renderizar.');
         return;
     }
 
     const allPois = window.appData.pontosDeInteresse;
     const currentSearchQuery = document.getElementById('poiSearchInput').value.toLowerCase();
 
-    // Aplica o filtro de pesquisa primeiro
     let searchedPois = allPois.filter(poi => {
         return (poi.nome && poi.nome.toLowerCase().includes(currentSearchQuery)) ||
                (poi.descricao && poi.descricao.toLowerCase().includes(currentSearchQuery));
     });
 
-    // Aplica o filtro de seleção
     if (filterValue === 'selected') {
         filteredPois = searchedPois.filter(poi => selectedPoisForRoute.some(selected => selected.id === poi.id));
     } else if (filterValue === 'unselected') {
         filteredPois = searchedPois.filter(poi => !selectedPoisForRoute.some(selected => selected.id === poi.id));
-    } else { // 'all'
+    } else { 
         filteredPois = searchedPois;
     }
 
@@ -2541,9 +2869,8 @@ async function createRouteFromSelectedPois() {
 
     showModal('Calculando rota com múltiplos pontos...');
 
-    // OSRM aceita coordenadas no formato {longitude},{latitude};...
     const waypointsString = waypoints.map(wp => `${wp.lng},${wp.lat}`).join(';');
-    destinationLocation = waypoints[waypoints.length - 1]; // O último POI é o destino final
+    destinationLocation = waypoints[waypoints.length - 1]; 
 
     try {
         const url = `https://router.project-osrm.org/route/v1/driving/${waypointsString}?overview=full&geometries=geojson&steps=true`;
@@ -2601,25 +2928,21 @@ function updateTaskColorSelect() {
 
     let suggestedColor = '';
     switch (selectedPriority) {
-        case 'prioritaria': suggestedColor = '#f44336'; break; // Vermelho
-        case 'urgente': suggestedColor = '#ff9800'; break; // Laranja
-        case 'nao-urgente': suggestedColor = '#4caf50'; break; // Verde
-        case 'social': suggestedColor = '#2196f3'; break; // Azul
-        case 'viagem': suggestedColor = '#FFD600'; break; // Amarelo
+        case 'prioritaria': suggestedColor = '#f44336'; break; 
+        case 'urgente': suggestedColor = '#ff9800'; break; 
+        case 'nao-urgente': suggestedColor = '#4caf50'; break; 
+        case 'social': suggestedColor = '#2196f3'; break; 
+        case 'viagem': suggestedColor = '#FFD600'; break; 
     }
     colorSelect.value = suggestedColor;
 
-    // Atualiza a cor de fundo do select de cor
     colorSelect.style.backgroundColor = suggestedColor;
-    // Ajusta a cor do texto para contraste
     colorSelect.style.color = getContrastColor(suggestedColor);
 }
 
-// Função auxiliar para obter a cor de contraste (preto ou branco)
 function getContrastColor(hexcolor) {
-    // Se hexcolor for um nome de cor ou formato inválido, retorna preto como padrão
     if (!hexcolor || !hexcolor.startsWith('#') || hexcolor.length !== 7) {
-        return '#000000'; // Default to black
+        return '#000000'; 
     }
 
     const r = parseInt(hexcolor.substr(1, 2), 16);
@@ -2665,10 +2988,10 @@ function addTask() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     showModal('Tarefa adicionada com sucesso!');
     document.getElementById('taskForm').reset();
-    updateTaskColorSelect(); // Resetar a cor para a padrão da primeira prioridade
+    updateTaskColorSelect(); 
     renderTaskList();
     renderCalendar();
-    showToDoSubTab('taskListTab'); // Mudar para a aba de lista para confirmar
+    showToDoSubTab('taskListTab'); 
 }
 
 function renderTaskList() {
@@ -2684,10 +3007,8 @@ function renderTaskList() {
     }
 
     if (sortBy === 'priority') {
-        tasks.sort((a, b) => {
-            const priorityMap = { 'prioritaria': 3, 'urgente': 2, 'nao-urgente': 1, 'social': 0, 'viagem': 0 };
-            return priorityMap[b.priority] - priorityMap[a.priority];
-        });
+        const priorityMap = { 'prioritaria': 3, 'urgente': 2, 'nao-urgente': 1, 'social': 0, 'viagem': 0 };
+        tasks.sort((a, b) => priorityMap[b.priority] - priorityMap[a.priority]);
     } else if (sortBy === 'chronological') {
         tasks.sort((a, b) => new Date(`${a.date}T${a.time || '00:00'}`) - new Date(`${b.date}T${b.time || '00:00'}`));
     }
@@ -2813,9 +3134,8 @@ function showTaskDetails(taskId) {
     }
 
     const modal = document.getElementById('taskDetailsModal');
-    // Certifica-se de que a tarefa está no formato correto para o modal
-    modal.currentTask = { ...task }; // Cria uma cópia para evitar mutações diretas
-    modal.isEditing = false; // Estado inicial: não está em modo de edição
+    modal.currentTask = { ...task }; 
+    modal.isEditing = false; 
 
     renderTaskDetailsModalContent(modal.currentTask, modal.isEditing);
     modal.style.display = 'block';
@@ -2850,12 +3170,8 @@ function renderTaskDetailsModalContent(task, isEditing) {
         </div>
     `;
 
-    // Adiciona listener para atualizar a cor ao mudar a prioridade na edição, se estiver em modo de edição
     if (isEditing) {
         document.getElementById('editTaskPriority').addEventListener('change', () => {
-            const selectedPriority = document.getElementById('editTaskPriority').value;
-            // No modo de edição, a cor será atualizada quando o utilizador guardar, não visualmente aqui.
-            // A cor é determinada pela prioridade no saveEditedTask().
         });
     }
 }
@@ -2864,10 +3180,8 @@ function toggleEditMode(taskId) {
     const modal = document.getElementById('taskDetailsModal');
     
     if (modal.isEditing) {
-        // Se estava em modo de edição, tenta guardar as alterações
         saveEditedTask();
     } else {
-        // Se não estava em modo de edição, entra no modo de edição
         modal.isEditing = true;
         renderTaskDetailsModalContent(modal.currentTask, true);
     }
@@ -2883,7 +3197,6 @@ function saveEditedTask() {
         return;
     }
 
-    // Obter os novos valores dos campos de edição
     const newName = document.getElementById('editTaskName').value.trim();
     const newDescription = document.getElementById('editTaskDescription').value.trim();
     const newDate = document.getElementById('editTaskDate').value;
@@ -2892,7 +3205,6 @@ function saveEditedTask() {
 
     if (!newName || !newDate) {
         showModal('Por favor, preencha o nome e a data da tarefa.');
-        // Reverte para o modo de edição se a validação falhar
         modal.isEditing = true;
         renderTaskDetailsModalContent(task, true);
         return;
@@ -2902,34 +3214,30 @@ function saveEditedTask() {
     const taskIndex = tasks.findIndex(t => t.id === task.id);
 
     if (taskIndex !== -1) {
-        // Atualizar as propriedades da tarefa
         tasks[taskIndex].name = newName;
         tasks[taskIndex].description = newDescription;
         tasks[taskIndex].date = newDate;
         tasks[taskIndex].time = newTime;
         tasks[taskIndex].priority = newPriority;
 
-        // Atualizar a cor com base na nova prioridade
         switch (newPriority) {
             case 'prioritaria': tasks[taskIndex].color = '#f44336'; break;
             case 'urgente': tasks[taskIndex].color = '#ff9800'; break;
             case 'nao-urgente': tasks[taskIndex].color = '#4caf50'; break;
             case 'social': tasks[taskIndex].color = '#2196f3'; break;
             case 'viagem': tasks[taskIndex].color = '#FFD600'; break;
-            default: tasks[taskIndex].color = '#9e9e9e'; // Cor padrão se a prioridade não for reconhecida
+            default: tasks[taskIndex].color = '#9e9e9e'; 
         }
 
         localStorage.setItem('tasks', JSON.stringify(tasks));
         showModal('Tarefa atualizada com sucesso!');
-        // Após guardar, volta para o modo de visualização
         modal.isEditing = false;
-        modal.currentTask = tasks[taskIndex]; // Atualiza a tarefa no modal
-        renderTaskDetailsModalContent(tasks[taskIndex], false); // Passa a tarefa atualizada
-        renderTaskList(); // Re-renderiza para atualizar a lista imediatamente
-        renderCalendar(); // Re-renderiza o calendário
+        modal.currentTask = tasks[taskIndex]; 
+        renderTaskDetailsModalContent(tasks[taskIndex], false); 
+        renderTaskList();
+        renderCalendar(); 
     } else {
         showModal('Erro: Tarefa não encontrada para atualização.');
-        // Reverte para o modo de edição se a tarefa não for encontrada (improvável)
         modal.isEditing = true;
         renderTaskDetailsModalContent(task, true);
     }
@@ -2942,8 +3250,8 @@ function toggleTaskCompletion(taskId) {
         tasks[taskIndex].isCompleted = !tasks[taskIndex].isCompleted;
         localStorage.setItem('tasks', JSON.stringify(tasks));
         showModal(tasks[taskIndex].isCompleted ? 'Tarefa marcada como completa!' : 'Tarefa marcada como incompleta.');
-        renderTaskList(); // Re-renderiza para atualizar a lista imediatamente
-        renderCalendar(); // Re-renderiza o calendário
+        renderTaskList(); 
+        renderCalendar();
     }
 }
 
@@ -2952,8 +3260,8 @@ function deleteTask(taskId) {
     tasks = tasks.filter(task => task.id !== taskId);
     localStorage.setItem('tasks', JSON.stringify(tasks));
     showModal('Tarefa eliminada.');
-    renderTaskList(); // Re-renderiza para atualizar a lista imediatamente
-    renderCalendar(); // Re-renderiza o calendário
+    renderTaskList(); 
+    renderCalendar(); 
 }
 
 function navigateToTask(taskId) {
@@ -3101,18 +3409,16 @@ function saveNote() {
     }
 
     if (noteToEditId) {
-        // Se noteToEditId não for null, estamos a editar
         const noteIndex = notes.findIndex(note => note.id === noteToEditId);
         if (noteIndex !== -1) {
             notes[noteIndex].title = title;
             notes[noteIndex].content = content;
         }
-        noteToEditId = null; // Resetar a variável de edição
+        noteToEditId = null; 
         document.getElementById('noteTitleInput').value = '';
         document.getElementById('noteContentInput').value = '';
         document.querySelector('.note-form button').textContent = 'Guardar Nota';
     } else {
-        // Estamos a guardar uma nova nota
         const newNote = {
             id: Date.now(),
             title: title,
@@ -3188,14 +3494,11 @@ function addNoteAsTask(noteId) {
     const note = notes.find(n => n.id === noteId);
 
     if (note) {
-        // Preenche o formulário de tarefas com os dados da nota
         document.getElementById('taskNameInput').value = note.title;
         document.getElementById('taskDescriptionInput').value = note.content;
         
-        // Define a data de hoje por defeito
         document.getElementById('taskDateInput').valueAsDate = new Date();
 
-        // Muda para a aba To-Do List e para a sub-aba de formulário
         showTab('toDoList');
         showToDoSubTab('taskFormTab');
 
@@ -3242,7 +3545,6 @@ function setWeatherUIState(state, message = '') {
 async function getWeather(lat, lon, cityName) {
     setWeatherUIState('loading', 'A obter previsão do tempo...');
     try {
-        // CORREÇÃO: Adicionado 'daily' para previsão de 7 dias
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=7`;
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Erro na API de meteorologia: ${response.statusText}`);
@@ -3709,6 +4011,383 @@ function renderExpenseChart(expenses) {
     });
 }
 
+// --- Funções da Calculadora ---
+const calculatorDisplay = document.getElementById('calculatorDisplay');
+let currentExpression = '0';
+
+function calculatorInput(value) {
+    if (currentExpression === '0' && value !== '.') {
+        currentExpression = '';
+    }
+    if (value === 'Math.PI') {
+        currentExpression += 'π';
+    } else {
+        currentExpression += value;
+    }
+    updateCalculatorDisplay();
+}
+
+function calculatorClear() {
+    currentExpression = '0';
+    updateCalculatorDisplay();
+}
+
+function calculatorBackspace() {
+    currentExpression = currentExpression.slice(0, -1);
+    if (currentExpression === '') {
+        currentExpression = '0';
+    }
+    updateCalculatorDisplay();
+}
+
+function calculateResult() {
+    try {
+        let evalExpression = currentExpression.replace(/π/g, 'Math.PI');
+        evalExpression = evalExpression.replace(/sin\(/g, 'Math.sin(Math.PI / 180 *');
+        evalExpression = evalExpression.replace(/cos\(/g, 'Math.cos(Math.PI / 180 *');
+        evalExpression = evalExpression.replace(/tan\(/g, 'Math.tan(Math.PI / 180 *');
+        
+        const result = eval(evalExpression);
+        currentExpression = result.toString();
+        updateCalculatorDisplay();
+    } catch (error) {
+        currentExpression = 'Erro';
+        updateCalculatorDisplay();
+        currentExpression = '0';
+    }
+}
+
+function updateCalculatorDisplay() {
+    calculatorDisplay.textContent = currentExpression;
+}
+
+// --- Funções do Temporizador/Cronómetro ---
+let timerInterval;
+let stopwatchInterval;
+let timerSecondsRemaining = 0;
+let stopwatchTime = 0;
+let timerAudio = new Audio('https://www.soundjay.com/buttons/beep-07.wav');
+
+function showTimerSubTab(tabId) {
+    document.querySelectorAll('#timer .timer-container, #timer .stopwatch-container').forEach(tab => {
+        tab.style.display = 'none';
+    });
+     document.querySelectorAll('#timer .tab-buttons button').forEach(button => {
+        button.classList.remove('active');
+    });
+
+    if (tabId === 'timerTab') {
+        document.querySelector('#timer .timer-container').style.display = 'block';
+    } else {
+        document.querySelector('#timer .stopwatch-container').style.display = 'block';
+    }
+   
+    const button = document.querySelector(`#timer .tab-buttons button[onclick*="${tabId}"]`);
+    if(button) button.classList.add('active');
+}
+
+
+function startTimer() {
+    if (timerSecondsRemaining <= 0) {
+        const hours = parseInt(document.getElementById('timerHours').value) || 0;
+        const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+        const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+        timerSecondsRemaining = (hours * 3600) + (minutes * 60) + seconds;
+    }
+    if (timerSecondsRemaining > 0) {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+}
+
+function pauseTimer() {
+    clearInterval(timerInterval);
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    timerSecondsRemaining = 0;
+    updateTimerDisplay();
+    document.getElementById('timerHours').value = '';
+    document.getElementById('timerMinutes').value = '';
+    document.getElementById('timerSeconds').value = '';
+}
+
+function updateTimer() {
+    if (timerSecondsRemaining > 0) {
+        timerSecondsRemaining--;
+        updateTimerDisplay();
+    } else {
+        clearInterval(timerInterval);
+        timerAudio.play();
+        showModal("O tempo acabou!");
+    }
+}
+
+function updateTimerDisplay() {
+    const hours = Math.floor(timerSecondsRemaining / 3600);
+    const minutes = Math.floor((timerSecondsRemaining % 3600) / 60);
+    const seconds = timerSecondsRemaining % 60;
+    document.getElementById('timerDisplay').textContent = 
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function startStopwatch() {
+    clearInterval(stopwatchInterval);
+    const startTime = Date.now() - stopwatchTime;
+    stopwatchInterval = setInterval(() => {
+        stopwatchTime = Date.now() - startTime;
+        updateStopwatchDisplay();
+    }, 10);
+}
+
+function pauseStopwatch() {
+    clearInterval(stopwatchInterval);
+}
+
+function resetStopwatch() {
+    clearInterval(stopwatchInterval);
+    stopwatchTime = 0;
+    updateStopwatchDisplay();
+}
+
+function updateStopwatchDisplay() {
+    const totalSeconds = Math.floor(stopwatchTime / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const milliseconds = String(stopwatchTime % 1000).padStart(3, '0');
+    document.getElementById('stopwatchDisplay').textContent = 
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${milliseconds}`;
+}
+
+// --- Funções do Conversor ---
+function showConverterSubTab(tabId) {
+    document.querySelectorAll('#converter > div[id$="Converter"]').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    document.querySelectorAll('#converter .tab-buttons button').forEach(button => {
+        button.classList.remove('active');
+    });
+    document.getElementById(tabId).style.display = 'block';
+    const button = document.querySelector(`#converter .tab-buttons button[onclick*="${tabId}"]`);
+    if(button) button.classList.add('active');
+}
+
+function convertLength() {
+    const input = parseFloat(document.getElementById('lengthInput').value);
+    const fromUnit = document.getElementById('fromLengthUnit').value;
+    const toUnit = document.getElementById('toLengthUnit').value;
+    if (isNaN(input)) {
+        document.getElementById('lengthOutput').value = '';
+        return;
+    }
+
+    const toMeters = {
+        'm': 1, 'km': 1000, 'cm': 0.01, 'mm': 0.001,
+        'mi': 1609.34, 'yd': 0.9144, 'ft': 0.3048, 'in': 0.0254
+    };
+
+    const meters = input * toMeters[fromUnit];
+    const result = meters / toMeters[toUnit];
+    document.getElementById('lengthOutput').value = result.toFixed(5);
+}
+
+function convertMass() {
+    const input = parseFloat(document.getElementById('massInput').value);
+    const fromUnit = document.getElementById('fromMassUnit').value;
+    const toUnit = document.getElementById('toMassUnit').value;
+    if (isNaN(input)) {
+        document.getElementById('massOutput').value = '';
+        return;
+    }
+    const toGrams = {
+        'g': 1, 'kg': 1000, 'mg': 0.001, 't': 1000000,
+        'lb': 453.592, 'oz': 28.3495
+    };
+    const grams = input * toGrams[fromUnit];
+    const result = grams / toGrams[toUnit];
+    document.getElementById('massOutput').value = result.toFixed(5);
+}
+
+function convertTemp() {
+    const input = parseFloat(document.getElementById('tempInput').value);
+    const fromUnit = document.getElementById('fromTempUnit').value;
+    const toUnit = document.getElementById('toTempUnit').value;
+    if (isNaN(input)) {
+        document.getElementById('tempOutput').value = '';
+        return;
+    }
+    let celsius;
+    if (fromUnit === 'C') celsius = input;
+    else if (fromUnit === 'F') celsius = (input - 32) * 5 / 9;
+    else if (fromUnit === 'K') celsius = input - 273.15;
+
+    let result;
+    if (toUnit === 'C') result = celsius;
+    else if (toUnit === 'F') result = (celsius * 9 / 5) + 32;
+    else if (toUnit === 'K') result = celsius + 273.15;
+
+    document.getElementById('tempOutput').value = result.toFixed(2);
+}
+
+let currencyRates = {
+    'EUR': 1,
+    'USD': 1.08,
+    'GBP': 0.85,
+    'JPY': 162.45
+};
+
+function initCurrencyConverter() {
+    const savedRates = localStorage.getItem('currencyRates');
+    if (savedRates) {
+        currencyRates = JSON.parse(savedRates);
+    }
+    populateCurrencySelects();
+    renderCurrencyRates();
+}
+
+function populateCurrencySelects() {
+    const fromSelect = document.getElementById('fromCurrency');
+    const toSelect = document.getElementById('toCurrency');
+    fromSelect.innerHTML = '';
+    toSelect.innerHTML = '';
+    for (const currency in currencyRates) {
+        fromSelect.innerHTML += `<option value="${currency}">${currency}</option>`;
+        toSelect.innerHTML += `<option value="${currency}">${currency}</option>`;
+    }
+    fromSelect.value = 'EUR';
+    toSelect.value = 'USD';
+}
+
+function convertCurrency() {
+    const input = parseFloat(document.getElementById('currencyInput').value);
+    const fromCurrency = document.getElementById('fromCurrency').value;
+    const toCurrency = document.getElementById('toCurrency').value;
+
+    if (isNaN(input)) {
+        document.getElementById('currencyOutput').value = '';
+        return;
+    }
+
+    const valueInEur = input / currencyRates[fromCurrency];
+    const result = valueInEur * currencyRates[toCurrency];
+    document.getElementById('currencyOutput').value = result.toFixed(2);
+}
+
+function renderCurrencyRates() {
+    const list = document.getElementById('currencyRatesList');
+    list.innerHTML = '';
+    for (const currency in currencyRates) {
+        if (currency === 'EUR') continue;
+        const item = document.createElement('div');
+        item.className = 'currency-rate-item';
+        item.innerHTML = `
+            <span>1 EUR = ${currencyRates[currency]} ${currency}</span>
+            <button onclick="deleteCurrencyRate('${currency}')" style="background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+        `;
+        list.appendChild(item);
+    }
+}
+
+function addOrUpdateCurrencyRate() {
+    const code = document.getElementById('newCurrencyCode').value.toUpperCase();
+    const rate = parseFloat(document.getElementById('newCurrencyRate').value);
+    if (code && !isNaN(rate) && rate > 0) {
+        currencyRates[code] = rate;
+        localStorage.setItem('currencyRates', JSON.stringify(currencyRates));
+        initCurrencyConverter();
+        document.getElementById('newCurrencyCode').value = '';
+        document.getElementById('newCurrencyRate').value = '';
+    } else {
+        showModal("Por favor, insira um código de moeda e uma taxa válidos.");
+    }
+}
+
+function deleteCurrencyRate(currency) {
+    if (currencyRates[currency]) {
+        delete currencyRates[currency];
+        localStorage.setItem('currencyRates', JSON.stringify(currencyRates));
+        initCurrencyConverter();
+    }
+}
+
+// --- Funções do Leitor de PDF ---
+let pdfDoc = null,
+    pageNum = 1,
+    pageIsRendering = false,
+    pageNumIsPending = null;
+
+const pdfCanvas = document.getElementById('pdf-viewer'),
+      pdfCtx = pdfCanvas.getContext('2d');
+
+async function loadPdfFromUrl() {
+    const url = document.getElementById('pdf-url-input').value;
+    if (!url) {
+        showModal("Por favor, insira um URL de um ficheiro PDF.");
+        return;
+    }
+    showModal("A carregar o PDF...");
+    try {
+        const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+        const loadingTask = pdfjsLib.getDocument(proxyUrl);
+        pdfDoc = await loadingTask.promise;
+        closeModal();
+        document.getElementById('pdf-viewer-container').style.display = 'block';
+        document.getElementById('pdf-page-count').textContent = pdfDoc.numPages;
+        renderPdfPage(pageNum);
+    } catch (error) {
+        closeModal();
+        showModal(`Erro ao carregar o PDF: ${error.message}. Tente outro link.`);
+        console.error('Erro ao carregar PDF:', error);
+    }
+}
+
+const renderPdfPage = num => {
+    pageIsRendering = true;
+    pdfDoc.getPage(num).then(page => {
+        const viewport = page.getViewport({ scale: 1.5 });
+        pdfCanvas.height = viewport.height;
+        pdfCanvas.width = viewport.width;
+        const renderCtx = {
+            canvasContext: pdfCtx,
+            viewport
+        };
+        page.render(renderCtx).promise.then(() => {
+            pageIsRendering = false;
+            if (pageNumIsPending !== null) {
+                renderPdfPage(pageNumIsPending);
+                pageNumIsPending = null;
+            }
+        });
+        document.getElementById('pdf-page-num').textContent = num;
+    });
+};
+
+const queueRenderPage = num => {
+    if (pageIsRendering) {
+        pageNumIsPending = num;
+    } else {
+        renderPdfPage(num);
+    }
+};
+
+const showPrevPage = () => {
+    if (pageNum <= 1) return;
+    pageNum--;
+    queueRenderPage(pageNum);
+};
+
+const showNextPage = () => {
+    if (pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    queueRenderPage(pageNum);
+};
+
+document.getElementById('pdf-prev').addEventListener('click', showPrevPage);
+document.getElementById('pdf-next').addEventListener('click', showNextPage);
+
+
 // --- Event Listener DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', () => {
     updateCurrentTime();
@@ -3755,76 +4434,14 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPdfButtons();
             renderReminders();
             renderPontosDeInteresse();
+            loadNotes();
+            initCurrencyConverter();
         })
         .catch(error => {
             console.error('Erro geral ao carregar os dados:', error);
             showModal('Erro ao carregar os dados. Por favor, tente novamente mais tarde.');
- loadNotes();
         });
 });
     </script>
-
-<!-- === Melhorias adicionadas manualmente (navegação por voz e horários) === -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleVoiceButton = document.createElement('button');
-  toggleVoiceButton.textContent = 'Voz: On';
-  toggleVoiceButton.className = 'nav-recalculate';
-  toggleVoiceButton.style.marginLeft = '10px';
-
-  let voiceEnabled = true;
-  toggleVoiceButton.addEventListener('click', () => {
-    voiceEnabled = !voiceEnabled;
-    toggleVoiceButton.textContent = `Voz: ${voiceEnabled ? 'On' : 'Off'}`;
-  });
-
-  const navControls = document.querySelector('.nav-controls');
-  if (navControls) navControls.appendChild(toggleVoiceButton);
-
-  window.speak = function(text) {
-    if (!voiceEnabled || synth.speaking) return;
-    const cleanText = text.replace(/<[^>]*>?/gm, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'pt-PT';
-    synth.speak(utterance);
-  };
-});
-
-function setupAutoUpdateHorarios() {
-  setInterval(() => {
-    if (document.getElementById('horarios')?.classList.contains('active')) {
-      renderNextBus();
-    }
-  }, 60000);
-}
-document.addEventListener('DOMContentLoaded', setupAutoUpdateHorarios);
-
-function renderNextBus() {
-  const now = new Date();
-  const horarios = getHorariosForSelectedRoute();
-  const proximo = horarios.find(h => new Date(h.timestamp) > now);
-  const container = document.getElementById('scheduleResult');
-
-  if (!proximo) {
-    container.innerHTML = '<div class="no-more-buses">Sem mais autocarros hoje.</div>';
-    return;
-  }
-
-  const time = new Date(proximo.timestamp);
-  const horas = time.getHours().toString().padStart(2, '0');
-  const minutos = time.getMinutes().toString().padStart(2, '0');
-  const tempoRestante = Math.floor((time - now) / 60000);
-
-  container.innerHTML = `
-    <div class="schedule-info">
-      <div class="next-bus">
-        <h2>Próximo Autocarro</h2>
-        <div class="next-time">${horas}:${minutos}</div>
-        <div class="time-remaining">em ${tempoRestante} minutos</div>
-      </div>
-    </div>`;
-}
-</script>
-
 </body>
 </html>
