@@ -30,31 +30,32 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #FFD600;
     min-height: 100vh;
-    padding: 20px;
+    padding: 0;
+    border-radius: 0 !important;
 }
 .container {
-    max-width: 500px;
-    margin: 0 auto;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
     background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    overflow: hidden;
+    border-radius: 0 !important;
+    box-shadow: none;
+    overflow: auto;
 }
-.banner {
-    background-image: url('https://raw.githubusercontent.com/nc32370a/App-da-Kika/refs/heads/main/banner.PNG');
-    background-size: cover;
-    background-position: center;
-    padding: 20px;
-    margin: 0px 0px 25px 0px;
+.app-header {
+    background-color: #005bb5; /* A cor azul dos botões */
     color: white;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    padding: 35px;
+    margin: 0 0px 20px 0px;
     text-align: center;
-    height: 150px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.app-header h1 {
+    margin: 20;
+    font-size: 45px;
 }
 .current-time { font-size: 18px; opacity: 0.9; }
 .tab-buttons {
@@ -492,7 +493,7 @@ body {
     background: #9e9e9e;
 }
 @media (max-width: 480px) {
-    .container { margin: 10px; border-radius: 15px; }
+    .container { margin: 0; border-radius: 0; }
     .banner { padding: 15px; height: 120px; }
     .header { padding: 20px 15px; }
     .tab-buttons { margin: 0 10px 20px 10px; gap: 5px; }
@@ -1021,7 +1022,53 @@ body {
 .expense-item .btn-delete-expense {
     background-color: #f44336; /* Vermelho para apagar */
 }
+/* Centralizar textos na aba "Horarios" */
+#horarios h3 {
+    text-align: center;
+}
+/* Centralizar textos na aba "To-Do List" */
+#toDoList h3,
+#toDoList h4 {
+    text-align: center;
+}
 
+/* Centralizar textos na aba "Notas" */
+#notes h3 {
+    text-align: center;
+}
+
+/* Centralizar textos na aba "Despesas" */
+#expenses h3,
+#expenses h4 {
+    text-align: center;
+}
+
+/* Centralizar textos na caixa de navegação */
+.nav-title {
+    text-align: center;
+    width: 100%; /* Garantir que o texto ocupa 100% da largura para ser centralizado */
+}
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+#search-input {
+    flex-grow: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+#search-button {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2196F3;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
     </style>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -1038,21 +1085,21 @@ body {
     </div>
 
     <div class="container">
-        <div class="banner">
-            <h1 style="font-size: 2.5rem; margin-bottom: 5px;">App da Kika</h1>
+        <div class="app-header">
+            <h1>App da Kika</h1>
             <div class="current-time" id="currentTime"></div>
         </div>
 
         <div class="tab-buttons">
             <button id="btnHorarios" class="active" onclick="showTab('horarios')"><i class="fa-solid fa-bus"></i> Horários</button>
+            <button id="btnMeteorologia" onclick="showTab('weather')"><i class="fa-solid fa-cloud-sun"></i> Meteorologia</button>
             <button id="btnToDoList" onclick="showTab('toDoList')"><i class="fa-solid fa-list-check"></i> To-Do List</button>
             <button id="btnNotas" onclick="showTab('notes')"><i class="fa-solid fa-note-sticky"></i> Notas</button>
-            <button id="btnMeteorologia" onclick="showTab('weather')"><i class="fa-solid fa-cloud-sun"></i> Meteorologia</button>
             <button id="btnDespesas" onclick="showTab('expenses')"><i class="fa-solid fa-wallet"></i> Despesas</button>
-            <button id="btnPdf" onclick="showTab('pdf')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-            <button id="btnLembretes" onclick="showTab('lembretes')"><i class="fa-solid fa-bell"></i> Lembretes</button>
-            <button id="btnPontosDeInteresse" onclick="showTab('pontosDeInteresse')"><i class="fa-solid fa-star"></i> Locais</button>
             <button id="btnMapa" onclick="showTab('mapa')"><i class="fa-solid fa-map-location-dot"></i> Mapa</button>
+            <button id="btnPontosDeInteresse" onclick="showTab('pontosDeInteresse')"><i class="fa-solid fa-star"></i> Locais</button>
+            <button id="btnLembretes" onclick="showTab('lembretes')"><i class="fa-solid fa-bell"></i> Lembretes</button>
+            <button id="btnPdf" onclick="showTab('pdf')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
         </div>
 
         <div class="tab-content">
@@ -1264,6 +1311,10 @@ body {
             </div>
 
             <div id="mapa">
+<div class="search-container">
+    <input type="text" id="search-input" placeholder="Pesquisar um local...">
+    <button id="search-button"><i class="fas fa-search"></i></button>
+</div>
                 <div id="map"></div>
                 <div id="navigationPanel" class="navigation-panel">
                     <div class="nav-header">
