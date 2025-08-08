@@ -1844,7 +1844,7 @@ OneSignal.push(function() {
     });
     
     // Adicione o Event Listener para os botões aqui.
-    document.querySelectorAll('.btn-agendar-lembrete').forEach(button => {
+    document.querySelectorAll('.btn-task-reminder').forEach(button => {
         button.addEventListener('click', async (event) => {
             const itemData = JSON.parse(event.target.dataset.itemData);
             await addReminder(itemData);
