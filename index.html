@@ -16,7 +16,7 @@
     <!-- Leaflet Routing Machine CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <!-- Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- PDF.js para leitor de PDF -->
@@ -57,13 +57,13 @@ body {
     z-index: 1000;
 }
 .app-header h1 {
-    margin: 20;
+    margin: 0;
     font-size: 45px;
 }
 .current-time { font-size: 18px; opacity: 0.9; }
 .tab-buttons {
     display: flex;
-    margin: 0 20px 20px 20px;
+    margin: 0 10px 20px 10px;
     gap: 10px;
     flex-wrap: wrap; /* Permite que os botões quebrem para a próxima linha se não houver espaço */
     justify-content: center;
@@ -756,6 +756,23 @@ body {
     border: 1px solid #ddd;
     margin-bottom: 10px;
 }
+.file-input-container {
+    margin-bottom: 10px;
+}
+
+.file-input-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.file-input-container input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
 .note-form button {
     width: 100%;
     padding: 12px;
@@ -775,6 +792,17 @@ body {
 }
 .note-item h4 {
     margin-bottom: 5px;
+}
+.note-attachment {
+    margin: 5px 0;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 .note-item p {
     white-space: pre-wrap; /* Mantém a formatação do texto */
@@ -1365,6 +1393,10 @@ body {
                     <h3>Nova Nota</h3>
                     <input type="text" id="noteTitleInput" placeholder="Título da Nota">
                     <textarea id="noteContentInput" rows="5" placeholder="Escreva a sua nota aqui..."></textarea>
+                    <div class="file-input-container">
+                        <label for="noteFileInput">Anexar arquivo:</label>
+                        <input type="file" id="noteFileInput" accept="image/*,.pdf,.doc,.docx,.txt">
+                    </div>
                     <button onclick="saveNote()">Guardar Nota</button>
                 </div>
                 <div class="notes-list-container">
@@ -2658,12 +2690,39 @@ function showToDoSubTab(subTabId) {
 // --- Funções de Inicialização do Mapa ---
 function initMap() {
     if (map) return; 
-    const viseu = [40.6617747743044, -7.91556785877083];
-    map = L.map('map').setView(viseu, 13);
+    
+    // Tentar obter a localização atual do usuário
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                // Se conseguir a localização, centraliza o mapa nela
+                const userLocation = [position.coords.latitude, position.coords.longitude];
+                map = L.map('map').setView(userLocation, 13);
+                // Adiciona um marcador na localização do usuário
+                L.marker(userLocation).addTo(map)
+                    .bindPopup("Sua localização atual")
+                    .openPopup();
+                initMapLayers();
+            },
+            function(error) {
+                // Se não conseguir a localização, usa Viseu como padrão
+                console.error("Erro ao obter localização:", error);
+                const viseu = [40.6617747743044, -7.91556785877083];
+                map = L.map('map').setView(viseu, 13);
+                initMapLayers();
+            }
+        );
+    } else {
+        // Se geolocalização não for suportada, usa Viseu como padrão
+        const viseu = [40.6617747743044, -7.91556785877083];
+        map = L.map('map').setView(viseu, 13);
+        initMapLayers();
+    }
+}
+
+function initMapLayers() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
     if (window.appData && window.appData.paragens) {
         window.appData.paragens.forEach(paragem => {
             const color = paragem.tipo === 'IDA' ? 'green' : 'red';
@@ -3402,33 +3461,54 @@ function updateCurrentTime() {
 function saveNote() {
     const title = document.getElementById('noteTitleInput').value;
     const content = document.getElementById('noteContentInput').value;
-
+    const fileInput = document.getElementById('noteFileInput');
+    
     if (title.trim() === '' || content.trim() === '') {
         alert('Por favor, preencha o título e o conteúdo da nota.');
         return;
     }
-
+    
+    // Processar arquivo anexado (se houver)
+    let attachment = null;
+    if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        attachment = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            // Armazenar apenas o nome do arquivo, já que não podemos armazenar o arquivo inteiro no localStorage
+            // Em uma implementação real, usaríamos um serviço de armazenamento ou IndexedDB
+        };
+    }
+    
     if (noteToEditId) {
         const noteIndex = notes.findIndex(note => note.id === noteToEditId);
         if (noteIndex !== -1) {
             notes[noteIndex].title = title;
             notes[noteIndex].content = content;
+            if (attachment) {
+                notes[noteIndex].attachment = attachment;
+            }
         }
         noteToEditId = null; 
         document.getElementById('noteTitleInput').value = '';
         document.getElementById('noteContentInput').value = '';
+        if (fileInput) fileInput.value = '';
         document.querySelector('.note-form button').textContent = 'Guardar Nota';
     } else {
         const newNote = {
             id: Date.now(),
             title: title,
-            content: content
+            content: content,
+            attachment: attachment,
+            createdAt: new Date().toISOString()
         };
         notes.push(newNote);
         document.getElementById('noteTitleInput').value = '';
         document.getElementById('noteContentInput').value = '';
+        if (fileInput) fileInput.value = '';
     }
-
+    
     localStorage.setItem('notes', JSON.stringify(notes));
     renderNotes();
 }
@@ -3443,9 +3523,22 @@ function renderNotes() {
     notes.forEach(note => {
         const noteItem = document.createElement('div');
         noteItem.className = 'note-item';
-        noteItem.innerHTML = `
+        
+        // Conteúdo básico da nota
+        let noteContent = `
             <h4>${note.title}</h4>
-            <p>${note.content}</p>
+            <p>${note.content}</p>`;
+            
+        // Adicionar informação do anexo, se existir
+        if (note.attachment) {
+            noteContent += `
+            <div class="note-attachment">
+                <i class="fa-solid fa-paperclip"></i> ${note.attachment.name} (${Math.round(note.attachment.size/1024)} KB)
+            </div>`;
+        }
+        
+        // Adicionar ações da nota
+        noteContent += `
             <div class="note-actions">
                 <button class="btn-note-edit" onclick="editNote(this)">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -4329,7 +4422,10 @@ async function loadPdfFromUrl() {
     }
     showModal("A carregar o PDF...");
     try {
-        const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+        // Usar um proxy CORS para evitar problemas de CORS
+        const proxyUrl = url.startsWith('http') ? 
+            `https://corsproxy.io/?${encodeURIComponent(url)}` : url;
+        
         const loadingTask = pdfjsLib.getDocument(proxyUrl);
         pdfDoc = await loadingTask.promise;
         closeModal();
