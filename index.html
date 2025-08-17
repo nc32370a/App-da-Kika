@@ -2624,26 +2624,42 @@ function shareWhatsApp(itemData) {
 
 // --- Funções de Gestão de Abas ---
 function showTab(tabId) {
-    document.querySelectorAll('.tab-content > div').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-buttons button').forEach(button => button.classList.remove('active'));
-
-    document.getElementById(tabId).classList.add('active');
+    console.log("showTab chamado com tabId:", tabId);
     
+    // Remover classe active de todas as abas e botões
+    document.querySelectorAll(".tab-content > div").forEach(tab => {
+        tab.classList.remove("active");
+        console.log("Removida classe active de:", tab.id);
+    });
+    
+    document.querySelectorAll(".tab-buttons button").forEach(button => {
+        button.classList.remove("active");
+    });
+    
+    // Adicionar classe active à aba selecionada
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) {
+        selectedTab.classList.add("active");
+        console.log("Adicionada classe active a:", tabId);
+    } else {
+        console.error("Aba não encontrada:", tabId);
+    }
+    
+    // Adicionar classe active ao botão correspondente
     let buttonIdMap = {
-        'horarios': 'btnHorarios', 'toDoList': 'btnToDoList', 'notes': 'btnNotas',
-        'weather': 'btnMeteorologia', 'expenses': 'btnDespesas', 'horariosPdf': 'btnHorariosPdf',
-        'lembretes': 'btnLembretes', 'pontosDeInteresse': 'btnPontosDeInteresse', 'mapa': 'btnMapa',
-        'calculator': 'btnCalculadora', 'timer': 'btnTemporizador', 'converter': 'btnConversor',
-        'pdfReader': 'btnPdfReader'
+        "horarios": "btnHorarios", "toDoList": "btnToDoList", "notes": "btnNotas",
+        "weather": "btnMeteorologia", "expenses": "btnDespesas", "horariosPdf": "btnHorariosPdf",
+        "lembretes": "btnLembretes", "pontosDeInteresse": "btnPontosDeInteresse", "mapa": "btnMapa",
+        "calculator": "btnCalculadora", "timer": "btnTemporizador", "converter": "btnConversor",
+        "pdfReader": "btnPdfReader"
     };
+    
     const buttonElement = document.getElementById(buttonIdMap[tabId]);
     if (buttonElement) {
-        buttonElement.classList.add('active');
+        buttonElement.classList.add("active");
+    } else {
+        console.warn("Botão não encontrado para a aba:", tabId);
     }
-
-    if (tabId === 'mapa') {
-        if (map === null) {
-            initMap();
         } else {
             setTimeout(() => map.invalidateSize(), 100);
         }
@@ -3318,17 +3334,33 @@ function deleteTask(taskId) {
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     tasks = tasks.filter(task => task.id !== taskId);
     localStorage.setItem('tasks', JSON.stringify(tasks));
-    showModal('Tarefa eliminada.');
-    renderTaskList(); 
-    renderCalendar(); 
-}
+function renderSchedule(routeName) {
+    console.log("renderSchedule chamado para rota:", routeName);
+    const resultDiv = document.getElementById("scheduleResult");
+    if (!resultDiv) {
+        console.error("Elemento scheduleResult não encontrado!");
+        return;
+    }
 
-function navigateToTask(taskId) {
-    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    const task = tasks.find(t => t.id === taskId);
-    if (task && task.isTravel && task.lat && task.lng) {
-        showTransportModeSelection(task.lat, task.lng, task.name);
-    } else {
+    resultDiv.innerHTML = "";
+    
+    if (!window.appData || !window.appData.scheduleData) {
+        console.error("Dados de horários não disponíveis!");
+        resultDiv.innerHTML = "<p class="no-more-buses">Dados de horários não disponíveis.</p>";
+        return;
+    }
+
+    const schedule = window.appData.scheduleData[routeName];
+    if (!schedule) {
+        console.error("Horário não encontrado para a rota:", routeName);
+        resultDiv.innerHTML = "<p class="no-more-buses">Horário não encontrado para a rota selecionada.</p>";
+        return;
+    }
+
+    console.log("Dados de horário encontrados:", schedule);
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const currentTime = today.getHours() * 60 + today.getMinutes();
         showModal('Tarefa não é uma viagem ou não tem coordenadas válidas.');
     }
 }
@@ -4468,20 +4500,24 @@ const queueRenderPage = num => {
     }
 };
 
-const showPrevPage = () => {
-    if (pageNum <= 1) return;
-    pageNum--;
-    queueRenderPage(pageNum);
-};
+// --- Event Listener DOMContentLoaded ---
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOMContentLoaded iniciado");
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 60000);
 
-const showNextPage = () => {
-    if (pageNum >= pdfDoc.numPages) return;
-    pageNum++;
-    queueRenderPage(pageNum);
-};
+    document.getElementById("taskPrioritySelect").addEventListener("change", updateTaskColorSelect);
+    updateTaskColorSelect();
 
-document.getElementById('pdf-prev').addEventListener('click', showPrevPage);
-document.getElementById('pdf-next').addEventListener('click', showNextPage);
+    // Garantir que a primeira aba esteja ativa por padrão
+    showTab("horarios");
+    console.log("showTab("horarios") chamado no DOMContentLoaded");
+
+    fetch("data.json")
+        .then(response => {
+            console.log("Resposta do fetch data.json:", response.status);
+            if (!response.ok) {
+                console.error("Network response was not ok:", response.statusText);
 
 
 // --- Event Listener DOMContentLoaded ---
@@ -4489,25 +4525,33 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCurrentTime();
     setInterval(updateCurrentTime, 60000);
 
-    document.getElementById('taskPrioritySelect').addEventListener('change', updateTaskColorSelect);
-    updateTaskColorSelect();
-
-    fetch('data.json')
-        .then(response => {
-            if (!response.ok) {
-                console.error('Network response was not ok:', response.statusText);
-                throw new Error('Erro ao carregar o ficheiro data.json: ' + response.statusText);
+            console.log("Dados carregados:", data);
+            const routeSelect = document.getElementById("routeSelect");
+            if (!routeSelect) {
+                console.error("Elemento routeSelect não encontrado!");
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            window.appData = data;
-            console.log('Dados carregados com sucesso:', window.appData);
 
-            if (window.appData.pontosDeInteresse && window.appData.pontosDeInteresse.length > 0) {
-                console.log('Pontos de Interesse carregados:', window.appData.pontosDeInteresse);
-            } else {
-                console.warn('Nenhum ponto de interesse encontrado em data.json ou a propriedade está vazia/ausente.');
+            if (data.scheduleData) {
+                console.log("Rotas disponíveis:", Object.keys(data.scheduleData));
+                Object.keys(data.scheduleData).forEach(routeName => {
+                    const option = document.createElement("option");
+                    option.value = routeName;
+                    option.textContent = routeName.replace(/-/g, " ");
+                    routeSelect.appendChild(option);
+                });
+
+                routeSelect.addEventListener("change", (event) => {
+                    console.log("Rota selecionada:", event.target.value);
+                    renderSchedule(event.target.value);
+                });
+
+                if (Object.keys(data.scheduleData).length > 0) {
+                    const firstRoute = Object.keys(data.scheduleData)[0];
+                    console.log("Definindo primeira rota:", firstRoute);
+                    routeSelect.value = firstRoute;
+                    renderSchedule(firstRoute);
+                }
             }
 
             const routeSelect = document.getElementById('routeSelect');
