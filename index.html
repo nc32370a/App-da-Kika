@@ -1273,6 +1273,7 @@ body {
 }
     </style>
     <!-- OneSignal SDK -->
+    <script src="fix_tabs.js"></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 </head>
 <body>
@@ -4497,57 +4498,6 @@ const queueRenderPage = num => {
         pageNumIsPending = num;
     } else {
         renderPdfPage(num);
-    }
-};
-
-// --- Event Listener DOMContentLoaded ---
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOMContentLoaded iniciado");
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 60000);
-
-    document.getElementById("taskPrioritySelect").addEventListener("change", updateTaskColorSelect);
-    updateTaskColorSelect();
-
-    // Garantir que a primeira aba esteja ativa por padrão
-    showTab("horarios");
-    console.log("showTab("horarios") chamado no DOMContentLoaded");
-
-    fetch("data.json")
-        .then(response => {
-            console.log("Resposta do fetch data.json:", response.status);
-            if (!response.ok) {
-                console.error("Network response was not ok:", response.statusText);
-
-
-// --- Event Listener DOMContentLoaded ---
-document.addEventListener('DOMContentLoaded', () => {
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 60000);
-
-            console.log("Dados carregados:", data);
-            const routeSelect = document.getElementById("routeSelect");
-            if (!routeSelect) {
-                console.error("Elemento routeSelect não encontrado!");
-                return;
-            }
-
-            if (data.scheduleData) {
-                console.log("Rotas disponíveis:", Object.keys(data.scheduleData));
-                Object.keys(data.scheduleData).forEach(routeName => {
-                    const option = document.createElement("option");
-                    option.value = routeName;
-                    option.textContent = routeName.replace(/-/g, " ");
-                    routeSelect.appendChild(option);
-                });
-
-                routeSelect.addEventListener("change", (event) => {
-                    console.log("Rota selecionada:", event.target.value);
-                    renderSchedule(event.target.value);
-                });
-
-                if (Object.keys(data.scheduleData).length > 0) {
-                    const firstRoute = Object.keys(data.scheduleData)[0];
                     console.log("Definindo primeira rota:", firstRoute);
                     routeSelect.value = firstRoute;
                     renderSchedule(firstRoute);
