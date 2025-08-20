@@ -15,13 +15,12 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <!-- Leaflet Routing Machine CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.geometryutil/0.10.0/leaflet.geometryutil.min.js" integrity="sha512-CaQB5gG8zJd0u6t4CMxJxjM+z+2o3mQp2R8Q6o3xqXvF9XfVNc3G6fZsA9c7Gz0sV6Y4D8eX3cXvYI3lJBn8gQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- PDF.js para leitor de PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <style>
 /* ======================================================================= */
 /* === Estilos CSS Atualizados (v26) */
@@ -244,19 +243,55 @@ body {
     font-size: 14px;
     color: #666;
 }
+/* === Botão vermelho com caixote (Eliminar) === */
+.btn-delete,
 .reminder-remove {
-    background: #e91e63;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: #dc3545; /* Vermelho */
+  border: none;
+  border-radius: 4px;       /* cantos arredondados */
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  padding: 0;
 }
+.btn-delete,
+.reminder-remove {
+    color: #fff; /* ícone branco */
+  font-size: 18px;
+}
+.btn-delete:hover,
 .reminder-remove:hover {
-    background: #c2185b;
+  background-color: #b02a37; /* vermelho mais escuro */
+  transform: scale(1.05);
+}
+
+/* === Botão azul Adicionar/Atualizar === */
+.btn-add-update {
+  background-color: #007bff; /* Azul */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* espaço entre ícone e texto */
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.btn-add-update img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.btn-add-update:hover {
+  background-color: #0069d9;
+  transform: translateY(-1px);
 }
 .navigation-panel {
     position: static;
@@ -1164,57 +1199,10 @@ body {
     margin-bottom: 5px;
 }
 
-/* --- Estilos do Leitor de PDF --- */
-#pdf-loader {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-#pdf-url-input {
-    flex-grow: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-#pdf-load-btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    background-color: #4caf50;
-    color: white;
-    cursor: pointer;
-}
-#pdf-viewer-container {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 10px;
-    background: #eee;
-    margin-top: 10px;
-}
-#pdf-viewer {
-    max-width: 100%;
-}
-#pdf-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-top: 10px;
-}
-#pdf-controls button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 8px;
-    background-color: #2196f3;
-    color: white;
-    cursor: pointer;
-}
-#pdf-page-info {
-    font-weight: bold;
-}
+
 
 /* Centralizar textos */
-#horarios h3, #toDoList h3, #toDoList h4, #notes h3, #expenses h3, #expenses h4, #calculator h3, #timer h3, #converter h3, #lembretes h3, #horariosPdf h3, #horariosPdf h4, #pdfReader h3 {
+#horarios h3, #toDoList h3, #toDoList h4, #notes h3, #expenses h3, #expenses h4, #calculator h3, #timer h3, #converter h3, #lembretes h3, #horariosPdf h3, #horariosPdf h4 {
     text-align: center;
 }
 
@@ -1243,84 +1231,231 @@ body {
     cursor: pointer;
     font-size: 16px;
 }
-    </style>
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+/* --- Tradutor --- */
+.translator-container {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 15px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.translator-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.translator-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.translator-label span {
+  font-size: 12px;
+  color: #555;
+  font-weight: 600;
+}
+#translatorFrom, #translatorTo {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  min-width: 160px;
+}
+#translatorInput {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  resize: vertical;
+}
+.translator-btn {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #4facfe;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+.translator-result {
+  margin-top: 15px;
+  padding: 15px;
+  background: #e3f2fd;
+  border-radius: 12px;
+  min-height: 48px;
+}
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
+/* --- Temporizador de intervalos (pomodoro) --- */
+.interval-timer {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+.interval-settings {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.interval-settings label {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  gap: 8px;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.interval-settings input {
+  width: 100px;
+  font-size: 1.2rem;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+}
+.interval-display {
+  text-align: center;
+  margin: 10px 0 12px 0;
+}
+#intervalStatus {
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+.timer-display.small {
+  font-size: 2.5em;
+}
 
-<script>
-    // Configuração do seu projeto Firebase
-    // SUBSTITUA os valores abaixo com a sua própria configuração do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyCg0UbyGcxEwhd_GlQNggj4e9pAkisLXHA",
-        authDomain: "app-da-kika.firebaseapp.com",
-        projectId: "app-da-kika",
-        storageBucket: "app-da-kika.firebasestorage.app",
-        messagingSenderId: "875403627280",
-        appId: "Y1:875403627280:web:b9b5c11c4ae981eaa7b395"
-    };
+/* --- Calendário Escolar --- */
+.school-calendar-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.school-calendar-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(5, 1fr);
+  border: 1px solid #e1e5e9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.school-calendar-grid .sc-header {
+  background: #e3f2fd;
+  padding: 8px;
+  font-weight: 700;
+  text-align: center;
+  border-bottom: 1px solid #d6e9ff;
+}
+.school-calendar-grid .sc-hour {
+  background: #fafafa;
+  border-right: 1px solid #eee;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 20px;
+  text-align: center;
+}
+.school-calendar-grid .sc-cell {
+  min-height: 56px;
+  padding: 8px;
+  border-left: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 400;
+  font-size: 25px;
+  text-align: center;
+  outline: none;
+}
+.school-calendar-grid .sc-cell:focus {
+  background: #fffceb;
+  box-shadow: inset 0 0 0 2px #ffd54f;
+  border-color: #ffecb3;
+}
 
-    // Inicializa o Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const messaging = firebase.messaging();
+/* Print do Calendário Escolar */
+@media print {
+  body.print-school-calendar .app-header,
+  body.print-school-calendar .tab-buttons,
+  body.print-school-calendar .tab-content > div:not(#schoolCalendar),
+  body.print-school-calendar #schoolCalendarHint,
+  body.print-school-calendar .school-calendar-controls {
+    display: none !important;
+  }
+  body.print-school-calendar #schoolCalendar {
+    display: block !important;
+  }
+  .school-calendar-grid .sc-cell {
+    min-height: 40px;
+  }
+ }
+#exportSchoolCalendarPDF {
+  background-color: #2196f3;
+  color: white;
+  padding: 10px 18px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+#exportSchoolCalendarPDF:hover {
+  background-color: #1976d2;
+  transform: scale(1.05);
+}
+#exportSchoolCalendarPDF:active {
+  transform: scale(0.98);
+}
+#mapa { position: relative; }
+.map-fab {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1001;
+}
+#recenterBtn {
+  width: 48px; height: 48px;
+  border: none; border-radius: 50%;
+  background: #2196F3; color: #fff; cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+#recenterBtn:hover { background: #1976D2; }
 
-    // Lida com o pedido de permissão e obtém o token
-    // Esta função pede permissão ao utilizador para enviar notificações
-    function getToken() {
-        if ('serviceWorker' in navigator) {
-            messaging.requestPermission()
-                .then(() => {
-                    return messaging.getToken();
-                })
-                .then((token) => {
-                    console.log('FCM Token:', token);
-                    // Aqui pode enviar este token para o seu servidor
-                    // para associá-lo ao utilizador.
-                })
-                .catch((err) => {
-                    console.log('Não foi possível obter o token:', err);
-                });
-        }
-    }
+/* Estilo unificado para todos os botões de controlo (aplica sempre, fora do @media print) */
+.timer-controls button,
+.stopwatch-controls button,
+.interval-controls button {
+  padding: 10px 20px;
+  margin: 0 5px;
+  font-size: 1em;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
 
-    // Chama a função para obter o token quando a página carrega
-    getToken();
+.timer-controls .start,
+.stopwatch-controls .start,
+.interval-controls .start { background-color: #4caf50; }
 
-    // Lida com a receção de mensagens push enquanto a app está aberta
-    messaging.onMessage((payload) => {
-        console.log('Mensagem recebida em foreground:', payload);
-        // Exiba a notificação na tela
-        const notificationTitle = payload.notification.title;
-        const notificationOptions = {
-            body: payload.notification.body,
-            icon: '/firebase-logo.png' // Substitua pelo seu ícone
-        };
-        new Notification(notificationTitle, notificationOptions);
-    });
+.timer-controls .pause,
+.stopwatch-controls .pause,
+.interval-controls .pause { background-color: #ffc107; }
 
-   // Substitua o seu código por este
-window.OneSignal = window.OneSignal || [];
-OneSignal.push(function() {
-    OneSignal.init({
-        app_id: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-        serviceWorkerUpdaterPath: 'OneSignalSDK.js'
-    });
-    
-    // As chamadas à API do OneSignal devem ser feitas aqui dentro,
-    // garantindo que o SDK está pronto.
-    
-    // Exemplo de como usar a nova forma para obter o UserId
-    OneSignal.push(function() {
-        OneSignal.getUserId().then(function(userId) {
-            console.log("OneSignal User ID:", userId);
-            // Agora pode usar o userId aqui para agendar o seu lembrete
-        });
-    });
-});
+.timer-controls .reset,
+.stopwatch-controls .reset,
+.interval-controls .reset { background-color: #f44336; }
 
-</script>
 
+</style>
 </head>
 <body>
     <!-- Indicador de status de localização -->
@@ -1337,18 +1472,19 @@ OneSignal.push(function() {
 
         <div class="tab-buttons">
             <button id="btnHorarios" class="active" onclick="showTab('horarios')"><i class="fa-solid fa-bus"></i> Horários</button>
+            <button id="btnSchoolCalendar" onclick="showTab('schoolCalendar')"><i class="fa-solid fa-calendar-days"></i> Calendário Escolar</button>
             <button id="btnMeteorologia" onclick="showTab('weather')"><i class="fa-solid fa-cloud-sun"></i> Meteorologia</button>
             <button id="btnToDoList" onclick="showTab('toDoList')"><i class="fa-solid fa-list-check"></i> To-Do List</button>
             <button id="btnNotas" onclick="showTab('notes')"><i class="fa-solid fa-note-sticky"></i> Notas</button>
             <button id="btnDespesas" onclick="showTab('expenses')"><i class="fa-solid fa-wallet"></i> Despesas</button>
-            <button id="btnMapa" onclick="showTab('mapa')"><i class="fa-solid fa-map-location-dot"></i> Mapa</button>
-            <button id="btnPontosDeInteresse" onclick="showTab('pontosDeInteresse')"><i class="fa-solid fa-star"></i> Locais</button>
-            <button id="btnLembretes" onclick="showTab('lembretes')"><i class="fa-solid fa-bell"></i> Lembretes</button>
             <button id="btnCalculadora" onclick="showTab('calculator')"><i class="fa-solid fa-calculator"></i> Calculadora</button>
             <button id="btnTemporizador" onclick="showTab('timer')"><i class="fa-solid fa-stopwatch-20"></i> Temporizador</button>
             <button id="btnConversor" onclick="showTab('converter')"><i class="fa-solid fa-right-left"></i> Conversor</button>
+            <button id="btnTranslator" onclick="showTab('translator')"><i class="fa-solid fa-language"></i> Tradutor</button>
+            <button id="btnLembretes" onclick="showTab('lembretes')"><i class="fa-solid fa-bell"></i> Lembretes</button>
             <button id="btnHorariosPdf" onclick="showTab('horariosPdf')"><i class="fa-solid fa-file-pdf"></i> Horários PDF</button>
-            <button id="btnPdfReader" onclick="showTab('pdfReader')"><i class="fa-solid fa-book-open"></i> Leitor PDF</button>
+            <button id="btnMapa" onclick="showTab('mapa')"><i class="fa-solid fa-map-location-dot"></i> Mapa</button>
+            <button id="btnPontosDeInteresse" onclick="showTab('pontosDeInteresse')"><i class="fa-solid fa-star"></i> Locais</button>
         </div>
 
         <div class="tab-content">
@@ -1527,22 +1663,56 @@ OneSignal.push(function() {
                     <img id="pdf-image" src="" alt="Horário em formato PDF">
                 </div>
             </div>
-            
-            <div id="pdfReader">
-                 <h3>Leitor de PDF</h3>
-                <div id="pdf-loader">
-                    <input type="text" id="pdf-url-input" placeholder="Cole o URL do PDF aqui...">
-                    <button id="pdf-load-btn" onclick="loadPdfFromUrl()">Carregar PDF</button>
-                </div>
-                <div id="pdf-viewer-container" style="display: none;">
-                    <div id="pdf-controls">
-                        <button id="pdf-prev"><i class="fas fa-arrow-left"></i> Anterior</button>
-                        <span id="pdf-page-info">Página <span id="pdf-page-num"></span> de <span id="pdf-page-count"></span></span>
-                        <button id="pdf-next">Seguinte <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                    <canvas id="pdf-viewer"></canvas>
-                </div>
-            </div>
+
+<div id="translator">
+  <h3>Tradutor</h3>
+  <div class="translator-container">
+    <div class="translator-row">
+      <label class="translator-label">
+        <span>Origem</span>
+        <select id="translatorFrom">
+          <option value="auto">Auto-detectar</option>
+          <option value="pt-PT">Português</option>
+          <option value="en-GB">Inglês</option>
+          <option value="es-ES">Espanhol</option>
+          <option value="fr-FR">Francês</option>
+          <option value="de-DE">Alemão</option>
+        </select>
+      </label>
+      <i class="fas fa-arrow-right"></i>
+      <label class="translator-label">
+        <span>Destino</span>
+        <select id="translatorTo">
+          <option value="pt-PT">Português</option>
+          <option value="en-GB" selected>Inglês</option>
+          <option value="es-ES">Espanhol</option>
+          <option value="fr-FR">Francês</option>
+          <option value="de-DE">Alemão</option>
+        </select>
+      </label>
+    </div>
+
+    <textarea id="translatorInput" rows="5" placeholder="Escreva o texto a traduzir..."></textarea>
+
+    <button class="translator-btn" onclick="translateText()">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Traduzir
+    </button>
+
+    <div id="translatorResult" class="translator-result" aria-live="polite"></div>
+  </div>
+</div>
+<div id="schoolCalendar">
+  <h3>Calendário Escolar</h3>
+  <div class="school-calendar-controls">
+    <button id="exportSchoolCalendarPDF" onclick="exportSchoolCalendarToPDF()">
+  <i class="fa-solid fa-file-arrow-down"></i> Exportar para PDF
+</button>
+  </div>
+  <div id="schoolCalendarGrid" class="school-calendar-grid"></div>
+  <p class="no-items" id="schoolCalendarHint">
+    Toque em qualquer célula para escrever. Os dados são guardados automaticamente.
+  </p>
+</div>
 
             <div id="lembretes">
                 <h3>Meus Lembretes</h3>
@@ -1573,6 +1743,11 @@ OneSignal.push(function() {
                     <button id="search-button" onclick="searchMapLocation()"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="map"></div>
+<div class="map-fab">
+  <button id="recenterBtn" title="Recentra no meu local" onclick="recenterMap()">
+    <i class="fa-solid fa-location-crosshairs"></i>
+  </button>
+</div>
                 <div id="navigationPanel" class="navigation-panel">
                     <div class="nav-header">
                         <div class="nav-title">Navegação</div>
@@ -1642,38 +1817,69 @@ OneSignal.push(function() {
             </div>
 
             <div id="timer">
-                 <div class="tab-buttons" style="margin-bottom: 20px;">
-                    <button class="active" onclick="showTimerSubTab('timerTab')">Temporizador</button>
-                    <button onclick="showTimerSubTab('stopwatchTab')">Cronómetro</button>
-                </div>
-                <div id="timerTab" class="active">
-                    <h3>Temporizador</h3>
-                    <div class="timer-container">
-                        <div id="timerDisplay" class="timer-display">00:00:00</div>
-                        <div class="timer-inputs">
-                            <input type="number" id="timerHours" placeholder="HH" min="0" max="23">
-                            <input type="number" id="timerMinutes" placeholder="MM" min="0" max="59">
-                            <input type="number" id="timerSeconds" placeholder="SS" min="0" max="59">
-                        </div>
-                        <div class="timer-controls">
-                            <button class="start" onclick="startTimer()">Iniciar</button>
-                            <button class="pause" onclick="pauseTimer()">Pausar</button>
-                            <button class="reset" onclick="resetTimer()">Resetar</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="stopwatchTab" style="display: none;">
-                    <h3>Cronómetro</h3>
-                    <div class="stopwatch-container">
-                        <div id="stopwatchDisplay" class="stopwatch-display">00:00:00.000</div>
-                        <div class="stopwatch-controls">
-                            <button class="start" onclick="startStopwatch()">Iniciar</button>
-                            <button class="pause" onclick="pauseStopwatch()">Pausar</button>
-                            <button class="reset" onclick="resetStopwatch()">Resetar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="tab-buttons" style="margin-bottom: 20px;">
+    <button class="active" onclick="showTimerSubTab('pomodoroTab')">Pomodoro</button>
+    <button onclick="showTimerSubTab('timerTab')">Temporizador</button>
+    <button onclick="showTimerSubTab('stopwatchTab')">Cronómetro</button>
+  </div>
+
+  <!-- POMODORO -->
+  <div id="pomodoroTab" class="active">
+    <h3>Pomodoro</h3>
+    <div class="timer-container">
+      <div class="interval-timer">
+        <h4>Sessões de trabalho/descanso</h4>
+        <div class="interval-settings">
+          <label><span>Trabalho (min):</span><input type="number" id="workMinutes" min="1" value="25"></label>
+          <label><span>Descanso (min):</span><input type="number" id="restMinutes" min="1" value="5"></label>
+          <label><span>Ciclos:</span><input type="number" id="intervalCycles" min="1" value="4"></label>
+        </div>
+
+        <div class="interval-display">
+          <div id="intervalStatus">Pronto</div>
+          <div id="intervalTime" class="timer-display small">25:00</div>
+        </div>
+
+        <div class="interval-controls">
+          <button class="start" onclick="startIntervalTimer()"><i class="fa-solid fa-play"></i> Iniciar</button>
+          <button class="pause" onclick="pauseIntervalTimer()"><i class="fa-solid fa-pause"></i> Pausar</button>
+          <button class="reset" onclick="resetIntervalTimer()"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPORIZADOR SIMPLES -->
+  <div id="timerTab" style="display:none;">
+    <h3>Temporizador</h3>
+    <div class="timer-container">
+      <div id="timerDisplay" class="timer-display">00:00:00</div>
+      <div class="timer-inputs">
+        <input type="number" id="timerHours" placeholder="HH" min="0" max="23">
+        <input type="number" id="timerMinutes" placeholder="MM" min="0" max="59">
+        <input type="number" id="timerSeconds" placeholder="SS" min="0" max="59">
+      </div>
+      <div class="timer-controls">
+        <button class="start" onclick="startTimer()">Iniciar</button>
+        <button class="pause" onclick="pauseTimer()">Pausar</button>
+        <button class="reset" onclick="resetTimer()">Resetar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRONÓMETRO -->
+  <div id="stopwatchTab" style="display:none;">
+    <h3>Cronómetro</h3>
+    <div class="stopwatch-container">
+      <div id="stopwatchDisplay" class="stopwatch-display">00:00:00.000</div>
+      <div class="stopwatch-controls">
+        <button class="start" onclick="startStopwatch()">Iniciar</button>
+        <button class="pause" onclick="pauseStopwatch()">Pausar</button>
+        <button class="reset" onclick="resetStopwatch()">Resetar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
             <div id="converter">
                  <div class="tab-buttons" style="margin-bottom: 20px;">
@@ -1783,7 +1989,7 @@ OneSignal.push(function() {
                         <div class="converter-row" style="margin-top: 10px;">
                            <input type="text" id="newCurrencyCode" placeholder="Código (ex: USD)">
                            <input type="number" id="newCurrencyRate" placeholder="Taxa para 1 EUR">
-                           <button onclick="addOrUpdateCurrencyRate()">Adicionar/Atualizar</button>
+                           <button class="btn-add-update" onclick="addOrUpdateCurrencyRate()">Adicionar/Atualizar</button>
                         </div>
                     </div>
                 </div>
@@ -1850,19 +2056,26 @@ OneSignal.push(function() {
     <!-- Leaflet Routing Machine JS -->
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
     
-    <!-- Seu script principal aqui -->
-    <script>
-        // Configuração do OneSignal (mantida)
-        window.OneSignal = window.OneSignal || [];
-        OneSignal.push(function() {
-            OneSignal.init({
-                appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-                safari_web_id: "SEU_SAFARI_WEB_ID",
-                serviceWorkerUpdaterPath: 'OneSignalSDKUpdateWorker.js',
-                serviceWorkerPath: 'OneSignalSDKWorker.js',
-            });
-            console.log('OneSignal SDK inicializado.');
-        });
+ 
+  <script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
+      serviceWorkerPath: "/OneSignalSDKWorker.js",
+      serviceWorkerUpdaterPath: "/OneSignalSDKUpdaterWorker.js",
+      allowLocalhostAsSecureOrigin: true
+      // safariWebId: "web.onesignal.auto.SEUSAFARIID" // se usares Safari
+    });
+    // Pede permissão (se ainda não foi pedida)
+    await OneSignal.Notifications.requestPermission();
+
+    // Helper disponível no window para garantir que o SDK está pronto
+    window.getOneSignalId = async () => {
+      try { return await OneSignal.User.getId(); } catch { return null; }
+    };
+  });
+
 
 // =======================================================================
 // === Funções JavaScript Atualizadas e Corrigidas (v26)
@@ -2068,6 +2281,13 @@ function updateUserLocation(location) {
         checkOffRoute();
         updateRouteProgress();
     }
+try {
+  const mapaTab = document.getElementById('mapa');
+  if (map && mapaTab && mapaTab.classList.contains('active') && !navigationActive) {
+    map.setView(userLocation, map.getZoom() || 17);
+  }
+} catch (e) {}
+
     console.log('Localização do usuário atualizada:', userLocation);
 }
 
@@ -2111,6 +2331,17 @@ function getInstructionIcon(step) {
             return 'fa-arrow-up';
         default: return 'fa-arrow-up';
     }
+}
+function recenterMap() {
+  if (!map) initMap();
+  if (userLocation) {
+    map.setView(userLocation, Math.max(map.getZoom() || 15, 15));
+  } else {
+    getUserLocation().then((loc) => {
+      const ll = Array.isArray(loc) ? L.latLng(loc[0], loc[1]) : L.latLng(loc);
+      map.setView(ll, 15);
+    });
+  }
 }
 
 function getInstructionText(step) {
@@ -2478,7 +2709,8 @@ function renderReminders() {
                 <h4>Lembrete (${typeText}) para a rota: ${r.routeName || r.name || r.nome}</h4>
                 <p>Horário: ${r.time} - Ativado ${r.minutesBefore || 10} minutos antes</p>
             </div>
-            <button class="reminder-remove" onclick="removeReminder(${index})">&times;</button>
+            <button class="reminder-remove" onclick="removeReminder(${index})"><i class="fa-solid fa-trash-can"></i>
+</button>
         `;
         list.appendChild(item);
     });
@@ -2489,55 +2721,58 @@ function checkIfReminderExists(name, time) {
 }
 
 async function addReminder(itemData) {
-    const name = itemData.routeName || itemData.name || itemData.nome;
-    const time = itemData.time;
-    const date = itemData.date;
+  const name = itemData.routeName || itemData.name || itemData.nome;
+  const time = itemData.time;
+  const date = itemData.date;
 
-    if (checkIfReminderExists(name, time)) {
-        showModal('Já existe um lembrete ou um ficheiro ICS para este horário/tarefa. Por favor, remova o existente para adicionar um novo.');
-        return;
-    }
+  if (checkIfReminderExists(name, time)) {
+    showModal('Já existe um lembrete ou um ficheiro ICS para este horário/tarefa. Por favor, remova o existente para adicionar um novo.');
+    return;
+  }
 
-    try {
-        const userId = await OneSignal.getUserId();
-        if (userId) {
-            const reminderPayload = {
-                playerId: userId,
-                name: name,
-                time: time,
-                date: date,
-                minutesBefore: 10
-            };
+  try {
+    const userId = await (window.getOneSignalId ? window.getOneSignalId() : null);
 
-            const response = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reminderPayload)
-            });
-            const data = await response.json();
+    if (userId) {
+      const reminderPayload = {
+        playerId: userId,
+        name, time, date,
+        minutesBefore: 10
+      };
 
-            if (data.success) {
-                reminders.push({ ...itemData, type: 'onesignal', name: name });
-                localStorage.setItem('busReminders', JSON.stringify(reminders));
-                showModal('Lembrete agendado com sucesso!');
-                renderReminders();
-            } else {
-                throw new Error(data.message || 'Erro de servidor desconhecido');
-            }
-        } else {
-            reminders.push({ ...itemData, type: 'manual', name: name });
-            localStorage.setItem('busReminders', JSON.stringify(reminders));
-            showModal('Lembrete adicionado localmente. Ative as notificações para lembretes automáticos.');
-            renderReminders();
-            OneSignal.showNativePrompt();
-        }
-    } catch (error) {
-        console.error('Erro ao agendar lembrete:', error);
-        reminders.push({ ...itemData, type: 'manual', name: name });
+      const response = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reminderPayload)
+      });
+
+      // Garante que lidas com não-200
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      if (data.success) {
+        reminders.push({ ...itemData, type: 'onesignal', name });
         localStorage.setItem('busReminders', JSON.stringify(reminders));
-        showModal('Erro de comunicação com o servidor. Lembrete adicionado localmente.');
+        showModal('Lembrete agendado com sucesso!');
         renderReminders();
+      } else {
+        throw new Error(data.message || 'Resposta inesperada do servidor');
+      }
+    } else {
+      // Sem OneSignal ID: fallback local e prompt de permissão
+      reminders.push({ ...itemData, type: 'manual', name });
+      localStorage.setItem('busReminders', JSON.stringify(reminders));
+      showModal('Lembrete adicionado localmente. Ative as notificações para lembretes automáticos.');
+      renderReminders();
+      if (window.OneSignal) OneSignal.Notifications.requestPermission();
     }
+  } catch (error) {
+    console.error('Erro ao agendar lembrete:', error);
+    reminders.push({ ...itemData, type: 'manual', name });
+    localStorage.setItem('busReminders', JSON.stringify(reminders));
+    showModal('Erro de comunicação com o servidor. Lembrete adicionado localmente.');
+    renderReminders();
+  }
 }
 
 
@@ -2677,13 +2912,12 @@ function showTab(tabId) {
         'weather': 'btnMeteorologia', 'expenses': 'btnDespesas', 'horariosPdf': 'btnHorariosPdf',
         'lembretes': 'btnLembretes', 'pontosDeInteresse': 'btnPontosDeInteresse', 'mapa': 'btnMapa',
         'calculator': 'btnCalculadora', 'timer': 'btnTemporizador', 'converter': 'btnConversor',
-        'pdfReader': 'btnPdfReader'
+        'translator': 'btnTranslator', 'schoolCalendar': 'btnSchoolCalendar'
     };
     const buttonElement = document.getElementById(buttonIdMap[tabId]);
     if (buttonElement) {
         buttonElement.classList.add('active');
     }
-
     if (tabId === 'mapa') {
         if (map === null) {
             initMap();
@@ -2707,6 +2941,13 @@ function showTab(tabId) {
         showConverterSubTab('lengthConverter');
         initCurrencyConverter();
     }
+else if (tabId === 'schoolCalendar') {
+  // Garante que a grelha é renderizada
+  if (typeof loadSchoolCalendar === 'function') loadSchoolCalendar();
+} else if (tabId === 'timer') {
+  // Garante que o pomodoro mostra os valores iniciais
+  if (typeof loadIntervalSettings === 'function') loadIntervalSettings();
+}
 }
 
 function showToDoSubTab(subTabId) {
@@ -3563,6 +3804,13 @@ function editNote(button) {
     document.querySelector('.note-form button').textContent = 'Atualizar Nota';
     document.getElementById('notes').scrollIntoView({ behavior: 'smooth' });
 }
+function addNoteToToDoList(button) {
+  const noteItem = button.closest('.note-item');
+  const noteId = parseInt(noteItem.dataset.noteId);
+  if (!isNaN(noteId)) {
+    addNoteAsTask(noteId);
+  }
+}
 
 function addNoteAsTask(noteId) {
     let notes = JSON.parse(localStorage.getItem('notes')) || [];
@@ -4138,28 +4386,26 @@ function updateCalculatorDisplay() {
 
 // --- Funções do Temporizador/Cronómetro ---
 let timerInterval;
-let stopwatchInterval;
 let timerSecondsRemaining = 0;
-let stopwatchTime = 0;
 let timerAudio = new Audio('https://www.soundjay.com/buttons/beep-07.wav');
 
 function showTimerSubTab(tabId) {
-    document.querySelectorAll('#timer .timer-container, #timer .stopwatch-container').forEach(tab => {
-        tab.style.display = 'none';
-    });
-     document.querySelectorAll('#timer .tab-buttons button').forEach(button => {
-        button.classList.remove('active');
-    });
+  // Esconde todas
+  document.getElementById('pomodoroTab').style.display = 'none';
+  document.getElementById('timerTab').style.display = 'none';
+  document.getElementById('stopwatchTab').style.display = 'none';
 
-    if (tabId === 'timerTab') {
-        document.querySelector('#timer .timer-container').style.display = 'block';
-    } else {
-        document.querySelector('#timer .stopwatch-container').style.display = 'block';
-    }
-   
-    const button = document.querySelector(`#timer .tab-buttons button[onclick*="${tabId}"]`);
-    if(button) button.classList.add('active');
+  // Remove classe active dos botões
+  document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active'));
+
+  // Mostra a aba selecionada
+  document.getElementById(tabId).style.display = 'block';
+
+  // Ativa botão correspondente
+  event.target.classList.add('active');
 }
+
+
 
 
 function startTimer() {
@@ -4207,34 +4453,6 @@ function updateTimerDisplay() {
         `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-function startStopwatch() {
-    clearInterval(stopwatchInterval);
-    const startTime = Date.now() - stopwatchTime;
-    stopwatchInterval = setInterval(() => {
-        stopwatchTime = Date.now() - startTime;
-        updateStopwatchDisplay();
-    }, 10);
-}
-
-function pauseStopwatch() {
-    clearInterval(stopwatchInterval);
-}
-
-function resetStopwatch() {
-    clearInterval(stopwatchInterval);
-    stopwatchTime = 0;
-    updateStopwatchDisplay();
-}
-
-function updateStopwatchDisplay() {
-    const totalSeconds = Math.floor(stopwatchTime / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    const milliseconds = String(stopwatchTime % 1000).padStart(3, '0');
-    document.getElementById('stopwatchDisplay').textContent = 
-        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${milliseconds}`;
-}
 
 // --- Funções do Conversor ---
 function showConverterSubTab(tabId) {
@@ -4260,7 +4478,7 @@ function convertLength() {
 
     const toMeters = {
         'm': 1, 'km': 1000, 'cm': 0.01, 'mm': 0.001,
-        'mi': 1609.34, 'yd': 0.9144, 'ft': 0.3048, 'in': 0.0254
+        'mi': 1609.344, 'yd': 0.9144, 'ft': 0.3048, 'in': 0.0254
     };
 
     const meters = input * toMeters[fromUnit];
@@ -4278,7 +4496,7 @@ function convertMass() {
     }
     const toGrams = {
         'g': 1, 'kg': 1000, 'mg': 0.001, 't': 1000000,
-        'lb': 453.592, 'oz': 28.3495
+        'lb': 453.59237, 'oz': 28.349523125
     };
     const grams = input * toGrams[fromUnit];
     const result = grams / toGrams[toUnit];
@@ -4359,7 +4577,9 @@ function renderCurrencyRates() {
         item.className = 'currency-rate-item';
         item.innerHTML = `
             <span>1 EUR = ${currencyRates[currency]} ${currency}</span>
-            <button onclick="deleteCurrencyRate('${currency}')" style="background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+            <button class="btn-delete" onclick="deleteCurrencyRate('${currency}')">
+  <i class="fa-solid fa-trash-can"></i>
+</button>
         `;
         list.appendChild(item);
     }
@@ -4386,82 +4606,6 @@ function deleteCurrencyRate(currency) {
         initCurrencyConverter();
     }
 }
-
-// --- Funções do Leitor de PDF ---
-let pdfDoc = null,
-    pageNum = 1,
-    pageIsRendering = false,
-    pageNumIsPending = null;
-
-const pdfCanvas = document.getElementById('pdf-viewer'),
-      pdfCtx = pdfCanvas.getContext('2d');
-
-async function loadPdfFromUrl() {
-    const url = document.getElementById('pdf-url-input').value;
-    if (!url) {
-        showModal("Por favor, insira um URL de um ficheiro PDF.");
-        return;
-    }
-    showModal("A carregar o PDF...");
-    try {
-        const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
-        const loadingTask = pdfjsLib.getDocument(proxyUrl);
-        pdfDoc = await loadingTask.promise;
-        closeModal();
-        document.getElementById('pdf-viewer-container').style.display = 'block';
-        document.getElementById('pdf-page-count').textContent = pdfDoc.numPages;
-        renderPdfPage(pageNum);
-    } catch (error) {
-        closeModal();
-        showModal(`Erro ao carregar o PDF: ${error.message}. Tente outro link.`);
-        console.error('Erro ao carregar PDF:', error);
-    }
-}
-
-const renderPdfPage = num => {
-    pageIsRendering = true;
-    pdfDoc.getPage(num).then(page => {
-        const viewport = page.getViewport({ scale: 1.5 });
-        pdfCanvas.height = viewport.height;
-        pdfCanvas.width = viewport.width;
-        const renderCtx = {
-            canvasContext: pdfCtx,
-            viewport
-        };
-        page.render(renderCtx).promise.then(() => {
-            pageIsRendering = false;
-            if (pageNumIsPending !== null) {
-                renderPdfPage(pageNumIsPending);
-                pageNumIsPending = null;
-            }
-        });
-        document.getElementById('pdf-page-num').textContent = num;
-    });
-};
-
-const queueRenderPage = num => {
-    if (pageIsRendering) {
-        pageNumIsPending = num;
-    } else {
-        renderPdfPage(num);
-    }
-};
-
-const showPrevPage = () => {
-    if (pageNum <= 1) return;
-    pageNum--;
-    queueRenderPage(pageNum);
-};
-
-const showNextPage = () => {
-    if (pageNum >= pdfDoc.numPages) return;
-    pageNum++;
-    queueRenderPage(pageNum);
-};
-
-document.getElementById('pdf-prev').addEventListener('click', showPrevPage);
-document.getElementById('pdf-next').addEventListener('click', showNextPage);
-
 
 // --- Event Listener DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -4518,5 +4662,441 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 });
     </script>
+<script>
+// =============================
+// Patches e novas funcionalidades (seguros)
+// =============================
+(() => {
+  // Garantir que só corre depois de tudo definido
+  document.addEventListener('DOMContentLoaded', () => {
+    // -------------------------------------------------
+    // 1) Cronómetro: atualização precisa por milissegundo
+    // -------------------------------------------------
+    // Reutiliza window.stopwatchTime e updateStopwatchDisplay existentes
+    let scRaf = null;
+    let scRunning = false;
+    let scStart = 0;
+
+    function scLoop() {
+      if (!scRunning) return;
+      window.stopwatchTime = performance.now() - scStart;
+      if (typeof updateStopwatchDisplay === 'function') {
+        updateStopwatchDisplay();
+      }
+      scRaf = requestAnimationFrame(scLoop);
+    }
+
+    // Substitui as funções globais chamadas pelos botões (onclick)
+    window.startStopwatch = function () {
+      if (scRunning) return;
+      scRunning = true;
+      scStart = performance.now() - (window.stopwatchTime || 0);
+      scRaf = requestAnimationFrame(scLoop);
+    };
+
+    window.pauseStopwatch = function () {
+      scRunning = false;
+      if (scRaf) cancelAnimationFrame(scRaf);
+      scRaf = null;
+    };
+
+    window.resetStopwatch = function () {
+      window.pauseStopwatch();
+      window.stopwatchTime = 0;
+      if (typeof updateStopwatchDisplay === 'function') {
+        updateStopwatchDisplay();
+      }
+    };
+
+    // -------------------------------------------------
+    // 2) Temporizador de intervalos (trabalho/descanso)
+    // -------------------------------------------------
+    let itId = null;
+    let itRunning = false;
+    let itRemaining = 0;
+    let itIsWork = true;
+    let itCycle = 0;
+    let itTotal = 0;
+    const itBeep = new Audio('https://www.soundjay.com/buttons/beep-07.wav');
+
+    const elStatus = document.getElementById('intervalStatus');
+    const elTime = document.getElementById('intervalTime');
+    const elWork = document.getElementById('workMinutes');
+    const elRest = document.getElementById('restMinutes');
+    const elCycles = document.getElementById('intervalCycles');
+
+    function getIntervalSettings() {
+      const work = Math.max(1, parseInt(elWork?.value || '25')) * 60 * 1000;
+      const rest = Math.max(1, parseInt(elRest?.value || '5')) * 60 * 1000;
+      const cycles = Math.max(1, parseInt(elCycles?.value || '4'));
+      return { work, rest, cycles };
+    }
+
+    function fmt(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+    }
+
+    function updateIntervalUI() {
+      if (!elStatus || !elTime) return;
+      const mode = itIsWork ? 'Trabalho' : 'Descanso';
+      elStatus.textContent = `${mode} • Ciclo ${itCycle}/${itTotal}`;
+      elTime.textContent = fmt(itRemaining);
+    }
+
+    function saveIntervalSettings() {
+      if (!elWork || !elRest || !elCycles) return;
+      localStorage.setItem('intervalTimerSettings', JSON.stringify({
+        workMinutes: elWork.value,
+        restMinutes: elRest.value,
+        intervalCycles: elCycles.value
+      }));
+    }
+
+    function loadIntervalSettings() {
+      if (!elWork || !elRest || !elCycles) return;
+      try {
+        const saved = JSON.parse(localStorage.getItem('intervalTimerSettings') || '{}');
+        if (saved.workMinutes) elWork.value = saved.workMinutes;
+        if (saved.restMinutes) elRest.value = saved.restMinutes;
+        if (saved.intervalCycles) elCycles.value = saved.intervalCycles;
+      } catch {}
+      const { work, cycles } = getIntervalSettings();
+      itRemaining = work;
+      itTotal = cycles;
+      itCycle = 0;
+      itIsWork = true;
+      updateIntervalUI();
+    }
+
+    function stopIntervalInternal() {
+      itRunning = false;
+      if (itId) clearInterval(itId);
+      itId = null;
+    }
+
+    window.startIntervalTimer = function () {
+      if (!elStatus || !elTime) return; // UI não existe (outra aba), ignorar
+      if (itRunning) return;
+
+      const { work, rest, cycles } = getIntervalSettings();
+      saveIntervalSettings();
+
+      if (itCycle === 0 && itRemaining === 0) {
+        itRemaining = work;
+        itTotal = cycles;
+        itIsWork = true;
+      }
+      if (itCycle === 0) itCycle = 1;
+
+      itRunning = true;
+      let last = Date.now();
+
+      itId = setInterval(() => {
+        const now = Date.now();
+        const dt = now - last;
+        last = now;
+
+        itRemaining -= dt;
+        if (itRemaining <= 0) {
+          // beep e trocar fase
+          try { itBeep.currentTime = 0; itBeep.play(); } catch {}
+          if (itIsWork) {
+            itIsWork = false;
+            itRemaining = rest;
+          } else {
+            itIsWork = true;
+            itCycle++;
+            if (itCycle > itTotal) {
+              stopIntervalInternal();
+              elStatus.textContent = 'Concluído 🎉';
+              elTime.textContent = '00:00';
+              return;
+            }
+            itRemaining = work;
+          }
+        }
+        updateIntervalUI();
+      }, 250);
+    };
+
+    window.pauseIntervalTimer = function () {
+      stopIntervalInternal();
+    };
+
+    window.resetIntervalTimer = function () {
+      stopIntervalInternal();
+      const { work, cycles } = getIntervalSettings();
+      itRemaining = work;
+      itTotal = cycles;
+      itCycle = 0;
+      itIsWork = true;
+      updateIntervalUI();
+    };
+
+    // Reagir a alterações dos inputs (quando existem)
+    [elWork, elRest, elCycles].forEach(el => {
+      if (!el) return;
+      el.addEventListener('input', () => {
+        saveIntervalSettings();
+        if (!itRunning) {
+          const { work, cycles } = getIntervalSettings();
+          itRemaining = work;
+          itTotal = cycles;
+          itCycle = 0;
+          itIsWork = true;
+          updateIntervalUI();
+        }
+      });
+    });
+
+    // Inicializar estado dos intervalos (se a UI existir)
+    if (elStatus && elTime) loadIntervalSettings();
+
+    // -------------------------------------------------
+    // 3) Tradutor (MyMemory)
+    // -------------------------------------------------
+    window.translateText = async function () {
+      const fromSel = document.getElementById('translatorFrom');
+      const toSel = document.getElementById('translatorTo');
+      const inputEl = document.getElementById('translatorInput');
+      const resultEl = document.getElementById('translatorResult');
+
+      if (!fromSel || !toSel || !inputEl || !resultEl) return;
+
+      const from = fromSel.value;
+      const to = toSel.value;
+      const text = inputEl.value.trim();
+
+      if (!text) {
+        showModal('Por favor, escreva algum texto para traduzir.');
+        return;
+      }
+      if (from !== 'auto' && from === to) {
+        resultEl.textContent = text;
+        return;
+      }
+
+      resultEl.textContent = 'A traduzir...';
+      try {
+        const langpair = `${from}|${to}`;
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const translated = data?.responseData?.translatedText;
+        if (!translated) throw new Error('Resposta inválida da API de tradução.');
+        resultEl.textContent = translated;
+        localStorage.setItem('translatorPrefs', JSON.stringify({ from, to }));
+      } catch (err) {
+        console.error('Erro de tradução:', err);
+        resultEl.textContent = 'Não foi possível traduzir agora. Verifique a ligação e tente novamente.';
+      }
+    };
+
+    // Restaurar preferências do tradutor se a UI existir
+    (() => {
+      const fromSel = document.getElementById('translatorFrom');
+      const toSel = document.getElementById('translatorTo');
+      try {
+        const prefs = JSON.parse(localStorage.getItem('translatorPrefs') || '{}');
+        if (fromSel && prefs.from) fromSel.value = prefs.from;
+        if (toSel && prefs.to) toSel.value = prefs.to;
+      } catch {}
+    })();
+
+    // -------------------------------------------------
+    // 4) Calendário Escolar
+    // -------------------------------------------------
+  // -------------------------------------------------
+// Calendário Escolar com horas editáveis
+// -------------------------------------------------
+const SC_DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta'];
+let scData = {};
+let scHourLabels = []; // array de rótulos, ex.: ['08:00','09:00',...]
+
+function scHeader(text) {
+  const el = document.createElement('div');
+  el.className = 'sc-header';
+  el.textContent = text;
+  return el;
+}
+function scHourCell(label) {
+  const el = document.createElement('div');
+  el.className = 'sc-hour';
+  el.setAttribute('contenteditable', 'true');
+  el.dataset.label = label;
+  el.textContent = label;
+  el.addEventListener('blur', onHourLabelEdit);
+  return el;
+}
+function scDebounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null, args), ms); };
+}
+
+function getDefaultHourLabels() {
+  // default 08:00–20:00, de hora a hora
+  const labels = [];
+  for (let h = 8; h <= 20; h++) labels.push(`${String(h).padStart(2,'0')}:00`);
+  return labels;
+}
+
+function loadSchoolCalendar() {
+  try {
+    scData = JSON.parse(localStorage.getItem('schoolCalendarData') || '{}');
+  } catch { scData = {}; }
+
+  try {
+    scHourLabels = JSON.parse(localStorage.getItem('schoolCalendarHourLabels') || '[]');
+  } catch { scHourLabels = []; }
+
+  if (!Array.isArray(scHourLabels) || scHourLabels.length === 0) {
+    scHourLabels = getDefaultHourLabels();
+  }
+  buildSchoolCalendarGrid();
+}
+
+function saveSchoolCalendar() {
+  const grid = document.getElementById('schoolCalendarGrid');
+  if (!grid) return;
+  const cells = grid.querySelectorAll('.sc-cell');
+  const data = {};
+  cells.forEach(cell => {
+    const key = cell.dataset.key;
+    data[key] = cell.textContent || '';
+  });
+  scData = data;
+  localStorage.setItem('schoolCalendarData', JSON.stringify(scData));
+  localStorage.setItem('schoolCalendarHourLabels', JSON.stringify(scHourLabels));
+}
+
+const saveSchoolCalendarDebounced = scDebounce(saveSchoolCalendar, 300);
+
+function buildSchoolCalendarGrid() {
+  const grid = document.getElementById('schoolCalendarGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  // Cabeçalho
+  grid.appendChild(scHeader(''));
+  SC_DAYS.forEach(d => grid.appendChild(scHeader(d)));
+
+  // Linhas segundo as labels atuais
+  scHourLabels.forEach(label => {
+    grid.appendChild(scHourCell(label));
+    SC_DAYS.forEach(day => {
+      const key = `${day}_${label}`;
+      const cell = document.createElement('div');
+      cell.className = 'sc-cell';
+      cell.setAttribute('contenteditable', 'true');
+      cell.dataset.key = key;
+      cell.textContent = scData[key] || '';
+      cell.addEventListener('input', saveSchoolCalendarDebounced);
+      grid.appendChild(cell);
+    });
+  });
+}
+
+function onHourLabelEdit(e) {
+  const el = e.currentTarget;
+  const oldLabel = el.dataset.label;
+  let newLabel = (el.textContent || '').trim();
+
+  // Validação simples HH:MM
+  if (!/^\d{2}:\d{2}$/.test(newLabel)) {
+    el.textContent = oldLabel; // reverter
+    return;
+  }
+
+  if (newLabel === oldLabel) return;
+
+  // Se já existir essa label, evita duplicar e reverte
+  if (scHourLabels.includes(newLabel)) {
+    el.textContent = oldLabel;
+    return;
+  }
+
+  // Migrar dados para as novas chaves
+  SC_DAYS.forEach(day => {
+    const oldKey = `${day}_${oldLabel}`;
+    const newKey = `${day}_${newLabel}`;
+    if (Object.prototype.hasOwnProperty.call(scData, oldKey)) {
+      scData[newKey] = scData[oldKey];
+      delete scData[oldKey];
+    } else {
+      scData[newKey] = scData[newKey] || '';
+    }
+  });
+
+  // Atualizar labels e persistir
+  scHourLabels = scHourLabels.map(lbl => lbl === oldLabel ? newLabel : lbl);
+  localStorage.setItem('schoolCalendarHourLabels', JSON.stringify(scHourLabels));
+  localStorage.setItem('schoolCalendarData', JSON.stringify(scData));
+
+  // Reconstruir grelha com as novas labels
+  buildSchoolCalendarGrid();
+}
+
+window.exportSchoolCalendarToPDF = function () {
+  document.body.classList.add('print-school-calendar');
+  window.print();
+  setTimeout(() => document.body.classList.remove('print-school-calendar'), 250);
+};
+
+// Integrar com o showTab original para carregar sempre a grelha
+const _originalShowTab = window.showTab;
+window.showTab = function(tabId) {
+  if (typeof _originalShowTab === 'function') _originalShowTab(tabId);
+  if (tabId === 'translator') {
+    const b = document.getElementById('btnTranslator'); if (b) b.classList.add('active');
+  } else if (tabId === 'schoolCalendar') {
+    const b = document.getElementById('btnSchoolCalendar'); if (b) b.classList.add('active');
+    loadSchoolCalendar();
+  }
+};
+
+    // -------------------------------------------------
+    // 5) Mapa: centrar quando obtém a localização atual
+    // -------------------------------------------------
+    // Patch à função existente sem perder funcionalidades
+    const originalUpdateUserLocation = window.updateUserLocation;
+    window.updateUserLocation = function (location) {
+      if (typeof originalUpdateUserLocation === 'function') {
+        originalUpdateUserLocation(location);
+      }
+      try {
+        const mapaTab = document.getElementById('mapa');
+        if (window.map && mapaTab && mapaTab.classList.contains('active') && !window.navigationActive) {
+          const ll = Array.isArray(location) ? L.latLng(location) : location; // aceita [lat,lng] ou L.LatLng
+          window.map.setView(ll, window.map.getZoom() || 17);
+        }
+      } catch (e) {
+        console.warn('Falha ao recentrar o mapa:', e);
+      }
+    };
+  });
+})();
+</script>
+<script>
+function updateStopwatchDisplay() {
+  const display = document.getElementById('stopwatchDisplay');
+  if (!display) return;
+  const elapsed = Math.max(0, Math.floor(window.stopwatchTime || 0));
+  const ms = elapsed % 1000;
+  const totalSeconds = Math.floor(elapsed / 1000);
+  const seconds = totalSeconds % 60;
+  const minutes = Math.floor(totalSeconds / 60) % 60;
+  const hours = Math.floor(totalSeconds / 3600);
+  display.textContent =
+    String(hours).padStart(2, '0') + ':' +
+    String(minutes).padStart(2, '0') + ':' +
+    String(seconds).padStart(2, '0') + '.' +
+    String(ms).padStart(3, '0');
+}
+document.addEventListener('DOMContentLoaded', updateStopwatchDisplay);
+</script>
 </body>
 </html>
