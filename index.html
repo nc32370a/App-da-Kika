@@ -910,6 +910,19 @@ body {
 .forecast-day .temps .min {
     opacity: 0.7;
 }
+.weather-hourly {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px 0;
+}
+.forecast-hour {
+    flex: 0 0 60px;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 8px;
+}
 
 
 /* --- Estilos da Aba de Despesas --- */
@@ -1576,6 +1589,12 @@ body {
                     <h3>Nova Nota</h3>
                     <input type="text" id="noteTitleInput" placeholder="Título da Nota">
                     <textarea id="noteContentInput" rows="5" placeholder="Escreva a sua nota aqui..."></textarea>
+<select id="noteCategorySelect" style="padding: 10px; border-radius: 10px; border: 1px solid #ddd;"color: #ffffff;">
+    <option value="#2196f3">Trabalho</option>
+    <option value="#4caf50">Pessoal</option>
+    <option value="#ff9800">Urgente</option>
+    <option value="#f44336">Importante</option>
+</select>
                     <button onclick="saveNote()">Guardar Nota</button>
                 </div>
                 <div class="notes-list-container">
@@ -3253,7 +3272,7 @@ function updateTaskColorSelect() {
     colorSelect.value = suggestedColor;
 
     colorSelect.style.backgroundColor = suggestedColor;
-    colorSelect.style.color = getContrastColor(suggestedColor);
+    colorSelect.style.color = '#ffffff';
 }
 
 function getContrastColor(hexcolor) {
@@ -3718,6 +3737,7 @@ function updateCurrentTime() {
 function saveNote() {
     const title = document.getElementById('noteTitleInput').value;
     const content = document.getElementById('noteContentInput').value;
+    const color = document.getElementById('noteCategorySelect').value;
 
     if (title.trim() === '' || content.trim() === '') {
         alert('Por favor, preencha o título e o conteúdo da nota.');
@@ -3729,17 +3749,26 @@ function saveNote() {
         if (noteIndex !== -1) {
             notes[noteIndex].title = title;
             notes[noteIndex].content = content;
-        }
+            notes[noteIndex].color = color;
+        } else {
+  notes.push({
+    id: Date.now(),
+    title,
+    content,
+    color
+  });
+}
         noteToEditId = null; 
         document.getElementById('noteTitleInput').value = '';
         document.getElementById('noteContentInput').value = '';
         document.querySelector('.note-form button').textContent = 'Guardar Nota';
     } else {
         const newNote = {
-            id: Date.now(),
-            title: title,
-            content: content
-        };
+    id: Date.now(),
+    title: title,
+    content: content,
+    color: color
+};
         notes.push(newNote);
         document.getElementById('noteTitleInput').value = '';
         document.getElementById('noteContentInput').value = '';
@@ -3760,8 +3789,10 @@ function renderNotes() {
         const noteItem = document.createElement('div');
         noteItem.className = 'note-item';
         noteItem.innerHTML = `
-            <h4>${note.title}</h4>
-            <p>${note.content}</p>
+    <h4 style="border-left: 5px solid ${note.color || '#ccc'}; padding-left: 5px;">
+        ${note.title}
+    </h4>
+    <p>${note.content}</p>
             <div class="note-actions">
                 <button class="btn-note-edit" onclick="editNote(this)">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -3803,6 +3834,8 @@ function editNote(button) {
     document.getElementById('noteContentInput').value = note.content;
     document.querySelector('.note-form button').textContent = 'Atualizar Nota';
     document.getElementById('notes').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('noteCategorySelect').value = note.color || '#ccc';
+
 }
 function addNoteToToDoList(button) {
   const noteItem = button.closest('.note-item');
@@ -3828,6 +3861,20 @@ function addNoteAsTask(noteId) {
         showModal(`A nota "${note.title}" foi pré-preenchida. Complete os detalhes e adicione a tarefa.`);
     }
 }
+const categorySelect = document.getElementById('noteCategorySelect');
+
+categorySelect.addEventListener('change', function () {
+  const selectedColor = this.value;
+  this.style.backgroundColor = selectedColor;
+  this.style.color = '#ffffff'; // Para garantir legibilidade
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const initialColor = categorySelect.value;
+  categorySelect.style.backgroundColor = initialColor;
+  categorySelect.style.color = '#ffffff'; // Texto sempre branco
+});
+
 
 // --- Funções da Aba de Meteorologia (Refatoradas) ---
 const weatherIconMap = {
@@ -3869,6 +3916,8 @@ async function getWeather(lat, lon, cityName) {
     setWeatherUIState('loading', 'A obter previsão do tempo...');
     try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=7`;
+
+
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Erro na API de meteorologia: ${response.statusText}`);
         
