@@ -1080,7 +1080,7 @@ body {
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    max-width: 500px;
+    max-width: 350px;
     margin: 0 auto;
 }
 .calculator-display {
@@ -1096,11 +1096,11 @@ body {
 }
 .calculator-buttons {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 .calculator-buttons button {
-    padding: 20px;
+    padding: 10px;
     font-size: 1.5em;
     border-radius: 10px;
     border: none;
@@ -1139,7 +1139,7 @@ body {
 
 .calculator-grid button {
   font-size: 1.2em;
-  padding: 15px;
+  padding: 10px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
@@ -1386,7 +1386,7 @@ body {
   grid-template-columns: 80px repeat(5, 1fr);
   border: 1px solid #e1e5e9;
   border-radius: 10px;
-  overflow: hidden;
+  overflow: hidden;.min-width: 700px; /* largura suficiente para 80px + 5 dias visíveis */
 }
 .school-calendar-grid .sc-header {
   background: #e3f2fd;
@@ -1888,6 +1888,9 @@ body {
   <p class="no-items" id="schoolCalendarHint">
     Toque em qualquer célula para escrever. Os dados são guardados automaticamente.
   </p>
+<div class="school-calendar-container">
+  <div id="schoolCalendarGrid" class="school-calendar-grid"></div>
+</div>
 </div>
 
             <div id="lembretes">
@@ -1960,21 +1963,22 @@ body {
                 <div class="calculator-container">
                     <div id="calculatorDisplay" class="calculator-display">0</div>
                     <div class="calculator-buttons">
+                        <button onclick="calculatorBackspace()" class="function">⌫</button>
                         <button onclick="calculatorInput('sin(')" class="function">sin</button>
                         <button onclick="calculatorInput('cos(')" class="function">cos</button>
                         <button onclick="calculatorInput('tan(')" class="function">tan</button>
                         <button onclick="calculatorInput('Math.log10(')" class="function">log</button>
                         <button onclick="calculatorInput('Math.sqrt(')" class="function">√</button>
+                        <button onclick="calculatorInput('Math.PI')" class="function">π</button>
+                        <button onclick="calculatorInput('**')" class="function">x^y</button>
+                        <button onclick="calculatorInput('.')" class="operator">.</button>
                         <button onclick="calculatorInput('(')" class="operator">(</button>
                         <button onclick="calculatorInput(')')" class="operator">)</button>
-                        <button onclick="calculatorInput('**')" class="operator">x^y</button>
-                        <button onclick="calculatorInput('Math.PI')" class="operator">π</button>
                         <button onclick="calculatorInput('%')" class="operator">%</button> 
                         <button onclick="calculatorInput('+')" class="operator">+</button>
                         <button onclick="calculatorInput('-')" class="operator">-</button>
                         <button onclick="calculatorInput('*')" class="operator">×</button>
                         <button onclick="calculatorInput('/')" class="operator">÷</button>
-                        <button onclick="calculatorInput('.')" class="operator">.</button>
                         <button onclick="calculatorInput('9')">9</button>
                         <button onclick="calculatorInput('8')">8</button>
                         <button onclick="calculatorInput('7')">7</button>
@@ -1987,7 +1991,6 @@ body {
                         <button onclick="calculatorInput('0')">0</button>
                         <button onclick="calculateResult()" class="equals">=</button>
                         <button onclick="calculatorClear()" class="clear">C</button>
-                        <button onclick="calculatorBackspace()" class="function">⌫</button>
                     </div>
                 </div>
             </div>
