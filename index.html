@@ -2178,8 +2178,9 @@ body {
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-      serviceWorkerPath: "/OneSignalSDKWorker.js",
-      serviceWorkerUpdaterPath: "/OneSignalSDKUpdaterWorker.js",
+      serviceWorkerPath: "App-da-Kika/OneSignalSDKWorker.js",
+      serviceWorkerUpdaterPath: "App-da-Kika/OneSignalSDKUpdaterWorker.js",
+      serviceWorkerParam: { scope: "/App-da-Kika/" }
       allowLocalhostAsSecureOrigin: true
       // safariWebId: "web.onesignal.auto.SEUSAFARIID" // se usares Safari
     });
