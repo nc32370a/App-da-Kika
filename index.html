@@ -1159,6 +1159,21 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
 }
+#timer .tab-buttons button {
+  background-color: #e3f2fd;       /* Azul claro de base */
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+#timer .tab-buttons button.active {
+  background-color: #4facfe;       /* Azul vivo, igual ao To‑Do List */
+  color: white;
+}
 .timer-controls button, .stopwatch-controls button {
     padding: 10px 20px;
     margin: 0 5px;
@@ -1441,6 +1456,88 @@ body {
   font-size: 18px;
 }
 #recenterBtn:hover { background: #1976D2; }
+/* === MOBILE RESPONSIVO === */
+@media (max-width: 480px) {
+  /* Conversor de Moeda */
+  #currencyConverter .converter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #currencyConverter .converter-row input,
+  #currencyConverter .converter-row select,
+  #currencyConverter .converter-row button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  #currencyConverter .btn-add-update {
+    justify-content: center;
+  }
+
+  /* Calculadora Científica */
+  #calculator {
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .calculator-buttons {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .calculator-buttons button {
+    font-size: 1.2em;
+    padding: 16px;
+  }
+
+  .calculator-display {
+    font-size: 2em;
+    padding: 15px;
+  }
+
+  /* Cronómetro e Temporizador */
+  .stopwatch-display,
+  .timer-display {
+    font-size: 2.5em;
+    word-break: break-word;
+  }
+
+  .stopwatch-controls button,
+  .timer-controls button {
+    flex: 1;
+    margin: 5px 0;
+    width: 100%;
+  }
+}
+
+/* === NOTAS === */
+.note-form select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+/* === CALENDÁRIO ESCOLAR === */
+.school-calendar-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(5, 1fr); /* Inclui sexta-feira */
+  gap: 1px;
+}
+
+.school-calendar-grid .sc-cell {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  font-size: 1.8em;
+  padding: 5px;
+  box-sizing: border-box;
+}
 
 /* Estilo unificado para todos os botões de controlo (aplica sempre, fora do @media print) */
 .timer-controls button,
@@ -1454,7 +1551,6 @@ body {
   color: white;
   cursor: pointer;
 }
-
 .timer-controls .start,
 .stopwatch-controls .start,
 .interval-controls .start { background-color: #4caf50; }
@@ -1590,8 +1686,8 @@ body {
                     <input type="text" id="noteTitleInput" placeholder="Título da Nota">
                     <textarea id="noteContentInput" rows="5" placeholder="Escreva a sua nota aqui..."></textarea>
 <select id="noteCategorySelect" style="padding: 10px; border-radius: 10px; border: 1px solid #ddd;"color: #ffffff;">
-    <option value="#2196f3">Trabalho</option>
     <option value="#4caf50">Pessoal</option>
+    <option value="#2196f3">Trabalho</option>
     <option value="#ff9800">Urgente</option>
     <option value="#f44336">Importante</option>
 </select>
@@ -2920,23 +3016,40 @@ function shareWhatsApp(itemData) {
 
 
 // --- Funções de Gestão de Abas ---
+// --- Funções de Gestão de Abas ---
 function showTab(tabId) {
+    // Remove 'active' de todos os conteúdos e botões principais
     document.querySelectorAll('.tab-content > div').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-buttons button').forEach(button => button.classList.remove('active'));
 
+    // Ativa o conteúdo da aba clicada
     document.getElementById(tabId).classList.add('active');
-    
-    let buttonIdMap = {
-        'horarios': 'btnHorarios', 'toDoList': 'btnToDoList', 'notes': 'btnNotas',
-        'weather': 'btnMeteorologia', 'expenses': 'btnDespesas', 'horariosPdf': 'btnHorariosPdf',
-        'lembretes': 'btnLembretes', 'pontosDeInteresse': 'btnPontosDeInteresse', 'mapa': 'btnMapa',
-        'calculator': 'btnCalculadora', 'timer': 'btnTemporizador', 'converter': 'btnConversor',
-        'translator': 'btnTranslator', 'schoolCalendar': 'btnSchoolCalendar'
+
+    // Mapa entre IDs de conteúdo e IDs de botões principais
+    const buttonIdMap = {
+        'horarios': 'btnHorarios',
+        'toDoList': 'btnToDoList',
+        'notes': 'btnNotas',
+        'weather': 'btnMeteorologia',
+        'expenses': 'btnDespesas',
+        'horariosPdf': 'btnHorariosPdf',
+        'lembretes': 'btnLembretes',
+        'pontosDeInteresse': 'btnPontosDeInteresse',
+        'mapa': 'btnMapa',
+        'calculator': 'btnCalculadora',
+        'timer': 'btnTemporizador',
+        'converter': 'btnConversor',
+        'translator': 'btnTranslator',
+        'schoolCalendar': 'btnSchoolCalendar'
     };
+
+    // Marca o botão principal como ativo
     const buttonElement = document.getElementById(buttonIdMap[tabId]);
     if (buttonElement) {
         buttonElement.classList.add('active');
     }
+
+    // Ações específicas por aba
     if (tabId === 'mapa') {
         if (map === null) {
             initMap();
@@ -2944,30 +3057,41 @@ function showTab(tabId) {
             setTimeout(() => map.invalidateSize(), 100);
         }
         getUserLocation();
+
     } else if (tabId === 'lembretes') {
         renderReminders();
+
     } else if (tabId === 'pontosDeInteresse') {
         renderPontosDeInteresse();
+
     } else if (tabId === 'toDoList') {
         showToDoSubTab('taskFormTab');
+
     } else if (tabId === 'notes') {
         renderNotes();
+
     } else if (tabId === 'weather') {
         getWeatherByCurrentLocation();
+
     } else if (tabId === 'expenses') {
         showExpenseSubTab('addExpenseTab');
+
     } else if (tabId === 'converter') {
         showConverterSubTab('lengthConverter');
         initCurrencyConverter();
+
+    } else if (tabId === 'timer') {
+        if (typeof loadIntervalSettings === 'function') loadIntervalSettings();
+        
+        // Mostra logo a sub‑aba Pomodoro e marca-a como ativa
+        showTimerSubTab('pomodoroTab');
     }
-else if (tabId === 'schoolCalendar') {
-  // Garante que a grelha é renderizada
-  if (typeof loadSchoolCalendar === 'function') loadSchoolCalendar();
-} else if (tabId === 'timer') {
-  // Garante que o pomodoro mostra os valores iniciais
-  if (typeof loadIntervalSettings === 'function') loadIntervalSettings();
+
+    else if (tabId === 'schoolCalendar') {
+        if (typeof loadSchoolCalendar === 'function') loadSchoolCalendar();
+    }
 }
-}
+
 
 function showToDoSubTab(subTabId) {
     document.querySelectorAll('.to-do-sub-content > div').forEach(subTab => subTab.classList.remove('active'));
@@ -4439,22 +4563,31 @@ let timerSecondsRemaining = 0;
 let timerAudio = new Audio('https://www.soundjay.com/buttons/beep-07.wav');
 
 function showTimerSubTab(tabId) {
-  // Esconde todas
-  document.getElementById('pomodoroTab').style.display = 'none';
-  document.getElementById('timerTab').style.display = 'none';
-  document.getElementById('stopwatchTab').style.display = 'none';
+  const subTabs = ['pomodoroTab', 'timerTab', 'stopwatchTab'];
 
-  // Remove classe active dos botões
-  document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active'));
+  // Alterna visibilidade das sub‑abas
+  subTabs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = id === tabId ? 'block' : 'none';
+    }
+  });
 
-  // Mostra a aba selecionada
-  document.getElementById(tabId).style.display = 'block';
+  // Mantém o botão principal "Temporizador" ativo
+  document.getElementById('btnTemporizador')?.classList.add('active');
 
-  // Ativa botão correspondente
-  event.target.classList.add('active');
+  // Atualiza estado dos botões de sub‑aba
+  document.querySelectorAll('#timer .tab-buttons button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
 }
 
-
+// Liga eventos para troca de sub‑aba
+document.querySelectorAll('#timer .tab-buttons button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    showTimerSubTab(btn.dataset.tab);
+  });
+});
 
 
 function startTimer() {
