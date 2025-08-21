@@ -1130,6 +1130,21 @@ body {
     color: white;
     grid-column: span 2;
 }
+.calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+.calculator-grid button {
+  font-size: 1.2em;
+  padding: 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
 
 /* --- Estilos do Temporizador/Cronómetro --- */
 .timer-container, .stopwatch-container, .converter-container {
@@ -1403,6 +1418,24 @@ body {
   box-shadow: inset 0 0 0 2px #ffd54f;
   border-color: #ffecb3;
 }
+.school-calendar-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.school-calendar-table {
+  min-width: 600px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.school-calendar-table th,
+.school-calendar-table td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
 
 /* Print do Calendário Escolar */
 @media print {
@@ -1538,6 +1571,34 @@ body {
   padding: 5px;
   box-sizing: border-box;
 }
+@media (max-width: 480px) {
+  .converter-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .converter-row input,
+  .converter-row select {
+    width: 100%;
+    font-size: 1em;
+  }
+
+  .converter-row .swap-button {
+    align-self: center;
+    margin: 10px 0;
+  }
+
+  .converter-container {
+    padding: 10px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+}
+
 
 /* Estilo unificado para todos os botões de controlo (aplica sempre, fora do @media print) */
 .timer-controls button,
@@ -1976,9 +2037,9 @@ body {
         <input type="number" id="timerSeconds" placeholder="SS" min="0" max="59">
       </div>
       <div class="timer-controls">
-        <button class="start" onclick="startTimer()">Iniciar</button>
-        <button class="pause" onclick="pauseTimer()">Pausar</button>
-        <button class="reset" onclick="resetTimer()">Resetar</button>
+         <button class="start" onclick="startIntervalTimer()"><i class="fa-solid fa-play"></i> Iniciar</button>
+          <button class="pause" onclick="pauseIntervalTimer()"><i class="fa-solid fa-pause"></i> Pausar</button>
+          <button class="reset" onclick="resetIntervalTimer()"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
       </div>
     </div>
   </div>
@@ -1989,9 +2050,9 @@ body {
     <div class="stopwatch-container">
       <div id="stopwatchDisplay" class="stopwatch-display">00:00:00.000</div>
       <div class="stopwatch-controls">
-        <button class="start" onclick="startStopwatch()">Iniciar</button>
-        <button class="pause" onclick="pauseStopwatch()">Pausar</button>
-        <button class="reset" onclick="resetStopwatch()">Resetar</button>
+         <button class="start" onclick="startIntervalTimer()"><i class="fa-solid fa-play"></i> Iniciar</button>
+          <button class="pause" onclick="pauseIntervalTimer()"><i class="fa-solid fa-pause"></i> Pausar</button>
+          <button class="reset" onclick="resetIntervalTimer()"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
       </div>
     </div>
   </div>
