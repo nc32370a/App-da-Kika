@@ -1931,12 +1931,13 @@ body {
                 </div>
             </div>
 
-            <div id="timer">
+           <div id="timer">
   <div class="tab-buttons" style="margin-bottom: 20px;">
-    <button class="active" onclick="showTimerSubTab('pomodoroTab')">Pomodoro</button>
-    <button onclick="showTimerSubTab('timerTab')">Temporizador</button>
-    <button onclick="showTimerSubTab('stopwatchTab')">Cronómetro</button>
+    <button data-tab="pomodoroTab">Pomodoro</button>
+    <button data-tab="timerTab">Temporizador</button>
+    <button data-tab="stopwatchTab">Cronómetro</button>
   </div>
+
 
   <!-- POMODORO -->
   <div id="pomodoroTab" class="active">
@@ -3016,7 +3017,6 @@ function shareWhatsApp(itemData) {
 
 
 // --- Funções de Gestão de Abas ---
-// --- Funções de Gestão de Abas ---
 function showTab(tabId) {
     // Remove 'active' de todos os conteúdos e botões principais
     document.querySelectorAll('.tab-content > div').forEach(tab => tab.classList.remove('active'));
@@ -3080,12 +3080,13 @@ function showTab(tabId) {
         showConverterSubTab('lengthConverter');
         initCurrencyConverter();
 
-    } else if (tabId === 'timer') {
-        if (typeof loadIntervalSettings === 'function') loadIntervalSettings();
-        
-        // Mostra logo a sub‑aba Pomodoro e marca-a como ativa
-        showTimerSubTab('pomodoroTab');
-    }
+   } else if (tabId === 'timer') {
+    if (typeof loadIntervalSettings === 'function') loadIntervalSettings();
+
+    // Mostra sub-aba Pomodoro e marca botão
+    showTimerSubTab('pomodoroTab');
+}
+
 
     else if (tabId === 'schoolCalendar') {
         if (typeof loadSchoolCalendar === 'function') loadSchoolCalendar();
@@ -4565,30 +4566,27 @@ let timerAudio = new Audio('https://www.soundjay.com/buttons/beep-07.wav');
 function showTimerSubTab(tabId) {
   const subTabs = ['pomodoroTab', 'timerTab', 'stopwatchTab'];
 
-  // Alterna visibilidade das sub‑abas
+  // Alterna visibilidade dos conteúdos
   subTabs.forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.style.display = id === tabId ? 'block' : 'none';
-    }
+    if (el) el.style.display = id === tabId ? 'block' : 'none';
   });
 
-  // Mantém o botão principal "Temporizador" ativo
+  // Mantém o botão principal ativo
   document.getElementById('btnTemporizador')?.classList.add('active');
 
-  // Atualiza estado dos botões de sub‑aba
+  // Marca botão da sub‑aba correta
   document.querySelectorAll('#timer .tab-buttons button').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tabId);
   });
 }
 
-// Liga eventos para troca de sub‑aba
+// Liga eventos aos botões das sub‑abas
 document.querySelectorAll('#timer .tab-buttons button').forEach(btn => {
   btn.addEventListener('click', () => {
     showTimerSubTab(btn.dataset.tab);
   });
 });
-
 
 function startTimer() {
     if (timerSecondsRemaining <= 0) {
