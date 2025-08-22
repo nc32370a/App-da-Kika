@@ -1386,7 +1386,8 @@ body {
   grid-template-columns: 80px repeat(5, 1fr);
   border: 1px solid #e1e5e9;
   border-radius: 10px;
-  overflow: hidden;.min-width: 700px; /* largura suficiente para 80px + 5 dias visíveis */
+  overflow: hidden;
+  min-width: 700px; /* largura suficiente para 80px + 5 dias visíveis */
 }
 .school-calendar-grid .sc-header {
   background: #e3f2fd;
@@ -1404,14 +1405,15 @@ body {
   text-align: center;
 }
 .school-calendar-grid .sc-cell {
-  min-height: 56px;
-  padding: 8px;
-  border-left: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
-  font-weight: 400;
-  font-size: 25px;
-  text-align: center;
-  outline: none;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  font-size: 1.8em;
+  padding: 5px;
+  box-sizing: border-box;
 }
 .school-calendar-grid .sc-cell:focus {
   background: #fffceb;
@@ -1553,24 +1555,6 @@ body {
   margin-bottom: 10px;
 }
 
-/* === CALENDÁRIO ESCOLAR === */
-.school-calendar-grid {
-  display: grid;
-  grid-template-columns: 80px repeat(5, 1fr); /* Inclui sexta-feira */
-  gap: 1px;
-}
-
-.school-calendar-grid .sc-cell {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  font-size: 1.8em;
-  padding: 5px;
-  box-sizing: border-box;
-}
 @media (max-width: 480px) {
   .converter-row {
     display: flex;
@@ -1598,7 +1582,18 @@ body {
     width: 100%;
   }
 }
-
+@media (max-width: 480px) {
+  .timer-controls button,
+  .stopwatch-controls button,
+  .interval-controls button {
+    flex: 1;
+    margin: 5px 0;
+    width: 100%;
+    font-size: 1em;
+    padding: 10px 20px;
+    border-radius: 8px;
+  }
+}
 
 /* Estilo unificado para todos os botões de controlo (aplica sempre, fora do @media print) */
 .timer-controls button,
@@ -1873,10 +1868,17 @@ body {
     <button class="translator-btn" onclick="translateText()">
       <i class="fa-solid fa-wand-magic-sparkles"></i> Traduzir
     </button>
+    <button class="translator-btn" onclick="resetTranslatorFields()">
+    <i class="fa-solid fa-eraser"></i> Limpar
+    </button>
+    <button class="translator-btn" onclick="copyTranslatedText()">
+    <i class="fa-solid fa-copy"></i> Copiar Tradução
+    </button>
 
     <div id="translatorResult" class="translator-result" aria-live="polite"></div>
   </div>
 </div>
+
 <div id="schoolCalendar">
   <h3>Calendário Escolar</h3>
   <div class="school-calendar-controls">
@@ -2238,22 +2240,32 @@ body {
     
  
   <script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
+ // --- Inicialização OneSignal ---
+ window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-      serviceWorkerPath: "App-da-Kika/OneSignalSDKWorker.js",
-      serviceWorkerUpdaterPath: "App-da-Kika/OneSignalSDKUpdaterWorker.js",
-      allowLocalhostAsSecureOrigin: true
-      // safariWebId: "web.onesignal.auto.SEUSAFARIID" // se usares Safari
+      safari_web_id: "web.onesignal.auto.2900aeea-27da-4bc5-9f95-2e3d9a76781c",
+      notifyButton: { enable: true },
+      allowLocalhostAsSecureOrigin: true,
     });
-    // Pede permissão (se ainda não foi pedida)
-    await OneSignal.Notifications.requestPermission();
 
-    // Helper disponível no window para garantir que o SDK está pronto
-    window.getOneSignalId = async () => {
-      try { return await OneSignal.User.getId(); } catch { return null; }
-    };
+    console.log('OneSignal inicializado');
+
+    // Quando a subscrição estiver disponível, guardamos globalmente
+    async function aguardaId() {
+      for (let i = 0; i < 5; i++) {
+        const id = OneSignal?.User?.pushSubscription?.id;
+        if (id) {
+          window.oneSignalUserId = id; // global
+          console.log('UserID obtido:', id);
+          return;
+        }
+        await new Promise(r => setTimeout(r, 500));
+      }
+      console.warn('Não foi possível obter UserID');
+    }
+    aguardaId();
   });
 
 
@@ -5102,62 +5114,88 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------
     // 3) Tradutor (MyMemory)
     // -------------------------------------------------
-    window.translateText = async function () {
-      const fromSel = document.getElementById('translatorFrom');
-      const toSel = document.getElementById('translatorTo');
-      const inputEl = document.getElementById('translatorInput');
-      const resultEl = document.getElementById('translatorResult');
+     window.translateText = async function () {
+  const fromSel = document.getElementById('translatorFrom');
+  const toSel = document.getElementById('translatorTo');
+  const inputEl = document.getElementById('translatorInput');
+  const resultEl = document.getElementById('translatorResult');
 
-      if (!fromSel || !toSel || !inputEl || !resultEl) return;
+  if (!fromSel || !toSel || !inputEl || !resultEl) return;
 
-      const from = fromSel.value;
-      const to = toSel.value;
-      const text = inputEl.value.trim();
+  const from = fromSel.value;
+  const to = toSel.value;
+  const text = inputEl.value.trim();
 
-      if (!text) {
-        showModal('Por favor, escreva algum texto para traduzir.');
-        return;
-      }
-      if (from !== 'auto' && from === to) {
-        resultEl.textContent = text;
-        return;
-      }
+  if (!text) {
+    safeShowModal('Por favor, escreva algum texto para traduzir.');
+    return;
+  }
+  if (from !== 'auto' && from === to) {
+    resultEl.textContent = text;
+    return;
+  }
 
-      resultEl.textContent = 'A traduzir...';
-      try {
-        const langpair = `${from}|${to}`;
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`;
-        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const translated = data?.responseData?.translatedText;
-        if (!translated) throw new Error('Resposta inválida da API de tradução.');
-        resultEl.textContent = translated;
-        localStorage.setItem('translatorPrefs', JSON.stringify({ from, to }));
-      } catch (err) {
-        console.error('Erro de tradução:', err);
-        resultEl.textContent = 'Não foi possível traduzir agora. Verifique a ligação e tente novamente.';
-      }
-    };
+  resultEl.textContent = 'A traduzir...';
+  try {
+    const langpair = `${from}|${to}`;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const translated = data?.responseData?.translatedText;
+    if (!translated) throw new Error('Resposta inválida da API de tradução.');
+    resultEl.textContent = translated;
+    localStorage.setItem('translatorPrefs', JSON.stringify({ from, to }));
+  } catch (err) {
+    console.error('Erro de tradução:', err);
+    resultEl.textContent = 'Não foi possível traduzir agora. Verifique a ligação e tente novamente.';
+  }
+};
 
-    // Restaurar preferências do tradutor se a UI existir
-    (() => {
-      const fromSel = document.getElementById('translatorFrom');
-      const toSel = document.getElementById('translatorTo');
-      try {
-        const prefs = JSON.parse(localStorage.getItem('translatorPrefs') || '{}');
-        if (fromSel && prefs.from) fromSel.value = prefs.from;
-        if (toSel && prefs.to) toSel.value = prefs.to;
-      } catch {}
-    })();
+// Botão para limpar
+window.resetTranslatorFields = function () {
+  document.getElementById('translatorInput').value = '';
+  document.getElementById('translatorResult').textContent = '';
+};
 
+// Botão para copiar
+window.copyTranslatedText = function () {
+  const text = document.getElementById('translatorResult').textContent;
+  if (!text) {
+    safeShowModal('Não há texto traduzido para copiar.');
+    return;
+  }
+  navigator.clipboard.writeText(text)
+    .then(() => safeShowModal('Tradução copiada para a área de transferência.'))
+    .catch(() => safeShowModal('Não foi possível copiar o texto.'));
+};
+
+// Função segura para mostrar mensagens
+function safeShowModal(msg) {
+  if (typeof showModal === 'function') {
+    showModal(msg);
+  } else {
+    alert(msg);
+  }
+}
+
+// Restaurar preferências
+(() => {
+  const fromSel = document.getElementById('translatorFrom');
+  const toSel = document.getElementById('translatorTo');
+  try {
+    const prefs = JSON.parse(localStorage.getItem('translatorPrefs') || '{}');
+    if (fromSel && prefs.from) fromSel.value = prefs.from;
+    if (toSel && prefs.to) toSel.value = prefs.to;
+  } catch {}
+})();
     // -------------------------------------------------
     // 4) Calendário Escolar
     // -------------------------------------------------
   // -------------------------------------------------
 // Calendário Escolar com horas editáveis
 // -------------------------------------------------
-const SC_DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta'];
+const SC_DAYS = ['2ª Feira','3ª Feira','4ª Feira','5ª Feira','6ª Feira'];
 let scData = {};
 let scHourLabels = []; // array de rótulos, ex.: ['08:00','09:00',...]
 
