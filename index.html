@@ -2916,13 +2916,17 @@ function checkIfReminderExists(name, time) {
 async function addReminder(itemData) {
   const name = itemData.routeName || itemData.name || itemData.nome;
   const time = itemData.time;
-  const date = itemData.date;
+  const date = itemData.date || new Date().toISOString().slice(0, 10); // hoje se não vier data
 
   if (checkIfReminderExists(name, time)) {
-    showModal('Já existe um lembrete ou um ficheiro ICS para este horário/tarefa. Por favor, remova o existente para adicionar um novo.');
+    showModal('Já existe um lembrete para este horário/tarefa.');
     return;
   }
 
+  // Guarda já no array e no storage
+  reminders.push({ ...itemData, name, date });
+  localStorage.setItem('busReminders', JSON.stringify(reminders));
+  renderReminders();
   try {
     const userId = await (window.getOneSignalId ? window.getOneSignalId() : null);
 
@@ -2962,7 +2966,59 @@ async function addReminder(itemData) {
   } catch (error) {
     console.error('Erro ao agendar lembrete:', error);
     reminders.push({ ...itemData, type: 'manual', name });
+    localStorage.setItem('busReminders', JSON.stringify(reminders));async function addReminder(itemData) {
+  const name = itemData.routeName || itemData.name || itemData.nome;
+  const time = itemData.time;
+  const date = itemData.date;
+
+  // Evitar duplicados
+  if (checkIfReminderExists(name, time)) {
+    showModal('Já existe um lembrete ou ficheiro ICS para este horário/tarefa.');
+    return;
+  }
+
+  try {
+    const playerId = await (window.getOneSignalId ? window.getOneSignalId() : null);
+    console.log("📌 Player ID:", playerId);
+
+    if (playerId) {
+      const payload = { playerId, name, time, date, minutesBefore: 10 };
+      console.log("📦 Payload:", payload);
+
+      const res = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      console.log("📬 Resposta do servidor:", data);
+
+      if (data.success) {
+        reminders.push({ ...itemData, type: 'onesignal', name });
+        localStorage.setItem('busReminders', JSON.stringify(reminders));
+        showModal('Lembrete agendado com sucesso!');
+        renderReminders();
+      } else {
+        throw new Error(data.message || 'Erro inesperado no agendamento');
+      }
+    } else {
+      // Fallback local
+      reminders.push({ ...itemData, type: 'manual', name });
+      localStorage.setItem('busReminders', JSON.stringify(reminders));
+      showModal('Lembrete adicionado localmente (ative notificações para agendar automaticamente).');
+      renderReminders();
+      if (window.OneSignal) OneSignal.Notifications.requestPermission();
+    }
+  } catch (err) {
+    console.error("💥 Erro no addReminder:", err);
+    reminders.push({ ...itemData, type: 'manual', name });
     localStorage.setItem('busReminders', JSON.stringify(reminders));
+    showModal('Erro ao comunicar com o servidor. Lembrete guardado localmente.');
+    renderReminders();
+  }
+}
+
     showModal('Erro de comunicação com o servidor. Lembrete adicionado localmente.');
     renderReminders();
   }
@@ -2977,20 +3033,30 @@ function removeReminder(index) {
 }
 
 function cleanupExpiredReminders() {
-    const now = new Date();
-    const nowString = now.toTimeString().split(' ')[0].substring(0, 5); 
-    reminders = reminders.filter(r => {
-        if (r.routeName) { 
-            return r.time > nowString;
-        }
-        if (r.date && r.time) { 
-            const taskDateTime = new Date(`${r.date}T${r.time}`);
-            return taskDateTime > now;
-        }
-        return false; 
-    });
-    localStorage.setItem('busReminders', JSON.stringify(reminders));
+  const now = new Date();
+
+  reminders = reminders.filter(r => {
+    if (!r.date || !r.time) return true; // mantém se faltar info
+    const reminderTime = new Date(`${r.date}T${r.time}`);
+    return reminderTime.getTime() > now.getTime() - 60 * 1000; 
+  });
+
+  localStorage.setItem('busReminders', JSON.stringify(reminders));
 }
+
+// Integrar no showTab para limpar ao abrir
+const _origShowTab = window.showTab;
+window.showTab = function(tabId) {
+  if (typeof _origShowTab === 'function') _origShowTab(tabId);
+  if (tabId === 'lembretes') {
+    cleanupExpiredReminders();
+    renderReminders();
+  }
+};
+
+// Limpeza automática a cada minuto
+setInterval(cleanupExpiredReminders, 60 * 1000);
+
 
 function generateICS(itemData, isTask = false) {
     const name = itemData.routeName || itemData.name || itemData.nome;
