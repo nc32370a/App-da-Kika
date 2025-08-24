@@ -21,7 +21,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2xre/j9yR0c2zJ3sF46QeE5a/qQ6P3o9fF6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <style>
 /* ======================================================================= */
 /* === Estilos CSS Atualizados (v26) */
@@ -182,12 +181,10 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    padding: 5px 8px;
+    padding: 8px 10px;
     color: white;
     transition: background-color 0.2s;
-}
-.action-buttons .btn-reminder {
-    background-color: #ff9800; /* Laranja */
+    font-size: 14px;
 }
 .action-buttons .btn-whatsapp {
     background-color: #25D366; /* Verde WhatsApp */
@@ -198,7 +195,6 @@ body {
 .action-buttons .btn-navigate {
     background-color: #2196F3;
 }
-.action-buttons .btn-reminder:hover { background-color: #e68900; }
 .action-buttons .btn-whatsapp:hover { background-color: #128C7E; }
 .action-buttons .btn-calendar:hover { background-color: #d32f2f; }
 .action-buttons .btn-navigate:hover { background-color: #1976D2; }
@@ -407,6 +403,31 @@ body {
 .nav-stop:hover {
     background: #d32f2f;
 }
+/* PATCH: estado normal do botão azul */
+#compassBtn {
+    background-color: #0d47a1; /* ligado */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* PATCH: efeito hover */
+#compassBtn:hover {
+    background-color: #1565c0;
+}
+
+/* PATCH: estado desligado */
+#compassBtn.off {
+    background-color: #555;
+}
+
+/* PATCH: hover desligado */
+#compassBtn.off:hover {
+    background-color: #777;
+}
 .gps-status {
     display: flex;
     align-items: center;
@@ -600,7 +621,6 @@ body {
 /* Estilos dos botões de ação na lista de tarefas */
 .btn-task-complete { background-color: #4caf50; }
 .btn-task-delete { background-color: #f44336; }
-.btn-task-reminder { background-color: #ff9800; }
 .btn-task-whatsapp { background-color: #25D366; }
 .btn-task-navigate { background-color: #2196f3; }
 .btn-task-calendar { background-color: #f44336; } /* Adicionado para ICS */
@@ -768,7 +788,54 @@ body {
 #taskColorSelect option {
     color: black; /* Garante que o texto das opções seja legível */
     background-color: white;
+}/* Banner superior tipo NavSDK */
+.nav-banner{
+  top:60px;
+  display:flex; align-items:center; gap:10px;
+  background:#1b5e20; color:#fff; border-radius:10px; padding:30px 12px;
+  font-size: 1.4rem;
+  box-shadow:0 6px 18px rgba(0,0,0,0.25);
 }
+#navBanner, #tripProgress {
+  display: none
+}
+#tripProgress,
+.maneuver-callout {
+  display: none !important;
+}
+.nav-banner .maneuver-icon{ width:36px; height:36px; border-radius:8px; background:#2e7d32;
+  display:flex; align-items:center; justify-content:center; font-size:20px; }
+.nav-banner .primary{ font-weight:700; font-size:28px; line-height:1.2; }
+.nav-banner .secondary{ font-size:18px; opacity:.9; }
+.nav-banner .compass{ margin-left:auto; border:none; border-radius:50%; width:36px; height:36px;
+  background:#0d47a1; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+/* Barra de progresso vertical (esquerda) */
+.trip-progress{
+  position:absolute; left:8px; top:70px; bottom:90px; width:10px; z-index:1002;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+.trip-progress .tp-total{ flex:1; width:6px; background:#e0e0e0; border-radius:6px; overflow:hidden; }
+.trip-progress .tp-remaining{ height:100%; width:100%; background:linear-gradient(180deg,#43a047,#1e88e5); transform-origin:bottom; transform:scaleY(1); }
+.trip-progress .tp-labels{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; color:#333; }
+
+/* Look-ahead: afastar centro visual para o fundo */
+#map{ position:relative; }
+.map-lookahead-padding{
+  /* cria “margem” clicável em cima para que o utilizador fique mais em baixo */
+  padding-bottom: 22vh;
+}
+
+/* Polylines */
+.leaf-remaining { stroke: #2196F3; stroke-opacity: .9; }
+.leaf-traversed{ stroke: #90a4ae; stroke-opacity: .5; }
+
+/* Balão da próxima manobra */
+.maneuver-callout{
+  background:#ffffff; color:#333; border-radius:10px; padding:6px 8px; border:1px solid rgba(0,0,0,0.15);
+  box-shadow:0 6px 18px rgba(0,0,0,.15); font-size:12px; white-space:nowrap;
+}
+.maneuver-callout .mi{ margin-right:6px; color:#1565c0; }
 
 /* ======================================================================= */
 /* === NOVOS ESTILOS PARA AS NOVAS FUNCIONALIDADES ======================= */
@@ -1124,12 +1191,12 @@ body {
 .calculator-buttons .clear {
     background: #f44336;
     color: white;
-    grid-column: span 2;
+    grid-column: span 1;
 }
 .calculator-buttons .equals {
     background: #4caf50;
     color: white;
-    grid-column: span 2;
+    grid-column: span 1;
 }
 .calculator-grid {
   display: grid;
@@ -1439,7 +1506,6 @@ body {
   border: 1px solid #ccc;
 }
 
-
 /* Print do Calendário Escolar */
 @media print {
   body.print-school-calendar .app-header,
@@ -1619,7 +1685,6 @@ body {
 .timer-controls .reset,
 .stopwatch-controls .reset,
 .interval-controls .reset { background-color: #f44336; }
-
 
 </style>
 </head>
@@ -1925,6 +1990,28 @@ body {
                     <button id="search-button" onclick="searchMapLocation()"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="map"></div>
+<!-- Overlay de navegação look-ahead -->
+<div id="navBanner" class="nav-banner" aria-live="polite">
+  <div class="maneuver-icon"><i id="navBannerIcon" class="fa-solid fa-arrow-up"></i></div>
+  <div class="maneuver-text">
+    <div id="navBannerPrimary" class="primary">Preparar…</div>
+    <div id="navBannerSecondary" class="secondary">—</div>
+  </div>
+  <button id="compassBtn" class="compass" title="Norte para cima">
+    <i class="fa-solid fa-compass"></i>
+  </button>
+</div>
+
+<!-- Barra de progresso vertical -->
+<div id="tripProgress" class="trip-progress">
+  <div class="tp-total">
+    <div id="tp-remaining" class="tp-remaining"></div>
+  </div>
+  <div class="tp-labels">
+    <span id="tp-eta">—</span>
+    <span id="tp-left">—</span>
+  </div>
+</div>
 <div class="map-fab">
   <button id="recenterBtn" title="Recentra no meu local" onclick="recenterMap()">
     <i class="fa-solid fa-location-crosshairs"></i>
@@ -2043,9 +2130,9 @@ body {
         <input type="number" id="timerSeconds" placeholder="SS" min="0" max="59">
       </div>
       <div class="timer-controls">
-         <button class="start" onclick="startIntervalTimer()"><i class="fa-solid fa-play"></i> Iniciar</button>
-          <button class="pause" onclick="pauseIntervalTimer()"><i class="fa-solid fa-pause"></i> Pausar</button>
-          <button class="reset" onclick="resetIntervalTimer()"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
+         <button class="start" onclick="startTimer()"><i class="fa-solid fa-play"></i> Iniciar</button>
+          <button class="pause" onclick="pauseTimer()"><i class="fa-solid fa-pause"></i> Pausar</button>
+          <button class="reset" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
       </div>
     </div>
   </div>
@@ -2056,9 +2143,9 @@ body {
     <div class="stopwatch-container">
       <div id="stopwatchDisplay" class="stopwatch-display">00:00:00.000</div>
       <div class="stopwatch-controls">
-         <button class="start" onclick="startIntervalTimer()"><i class="fa-solid fa-play"></i> Iniciar</button>
-          <button class="pause" onclick="pauseIntervalTimer()"><i class="fa-solid fa-pause"></i> Pausar</button>
-          <button class="reset" onclick="resetIntervalTimer()"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
+         <button class="start" onclick="startStopwatch()"><i class="fa-solid fa-play"></i> Iniciar</button>
+          <button class="pause" onclick="pauseStopwatch()"><i class="fa-solid fa-pause"></i> Pausar</button>
+          <button class="reset" onclick="resetStopwatch()"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
       </div>
     </div>
   </div>
@@ -2238,37 +2325,13 @@ body {
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- Leaflet Routing Machine JS -->
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
-    
+    <!-- Opcional: rotação do mapa se este plugin estiver disponível -->
+<script src="https://unpkg.com/leaflet-map-rotate@0.2.0/dist/leaflet-map-rotate.min.js"></script>
+<!-- Marcadores rotativos (para seta do balão) -->
+<script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
+
  
   <script>
- // --- Inicialização OneSignal ---
- window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "09cf47e1-545a-4a0b-9873-f09cc9a71707",
-      safari_web_id: "eb.onesignal.auto.2900aeea-27da-4bc5-9f95-2e3d9a76781c",
-      notifyButton: { enable: true },
-      allowLocalhostAsSecureOrigin: true,
-    });
-
-    console.log('OneSignal inicializado');
-
-    // Quando a subscrição estiver disponível, guardamos globalmente
-    async function aguardaId() {
-      for (let i = 0; i < 5; i++) {
-        const id = OneSignal?.User?.pushSubscription?.id;
-        if (id) {
-          window.oneSignalUserId = id; // global
-          console.log('UserID obtido:', id);
-          return;
-        }
-        await new Promise(r => setTimeout(r, 500));
-      }
-      console.warn('Não foi possível obter UserID');
-    }
-    aguardaId();
-  });
-
 
 // =======================================================================
 // === Funções JavaScript Atualizadas e Corrigidas (v26)
@@ -2277,6 +2340,17 @@ body {
 // Variáveis globais
 window.appData = null;
 let map = null;
+// Look-ahead, rotação, progress bar e polylines
+let remainingPolyline = null;
+let traversedPolyline = null;
+let lastGPS = null;
+let currentBearing = 0;
+let nextManeuverMarker = null; // "balão" de próxima manobra
+let lookAheadEnabled = true;
+
+// util: converter graus->rad e vice-versa
+const toRad = d => d*Math.PI/180, toDeg = r => r*180/Math.PI;
+
 let userMarker = null;
 let searchMarker = null; // Marcador para o resultado da pesquisa
 let navigationActive = false;
@@ -2379,7 +2453,36 @@ async function getCurrentLocationPromise() {
         );
     });
 }
+function toggleLookAhead() {
+    lookAheadEnabled = !lookAheadEnabled;
+    const btn = document.getElementById('compassBtn');
 
+    if (lookAheadEnabled) {
+        btn.classList.remove('off');
+        btn.title = 'Look‑Ahead ligado';
+
+        // Bloquear interações
+        map.dragging.disable();
+        map.touchZoom.disable();
+        map.doubleClickZoom.disable();
+        map.scrollWheelZoom.disable();
+        map.boxZoom.disable();
+        map.keyboard.disable();
+    } else {
+        btn.classList.add('off');
+        btn.title = 'Look‑Ahead desligado';
+
+        // Reativar interações
+        map.dragging.enable();
+        map.touchZoom.enable();
+        map.doubleClickZoom.enable();
+        map.scrollWheelZoom.enable();
+        map.boxZoom.enable();
+        map.keyboard.enable();
+    }
+}
+
+document.getElementById('compassBtn')?.addEventListener('click', toggleLookAhead);
 
 async function getLocationByIP() {
     const services = [
@@ -2452,37 +2555,149 @@ async function getUserLocation() {
         return viseuDefault;
     }
 }
+function computeBearing(a, b){
+  if(!a || !b) return currentBearing||0;
+  const φ1 = toRad(a.lat), φ2 = toRad(b.lat);
+  const Δλ = toRad(b.lng - a.lng);
+  const y = Math.sin(Δλ)*Math.cos(φ2);
+  const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+  const θ = Math.atan2(y,x);
+  return (toDeg(θ)+360)%360;
+}
 
+// centra o mapa com offset vertical (utilizador mais perto do fundo)
+function setViewWithOffset(latlng, zoom){
+  if(!map) return;
+  const px = map.latLngToLayerPoint(latlng);
+  const offsetY = Math.round(map.getSize().y*0.22); // 22% da altura
+  const target = map.layerPointToLatLng(px.subtract([0, offsetY]));
+  map.setView(target, zoom, {animate:true});
+}
+
+// tenta rodar o mapa se o plugin existir, senão ignora
+function rotateMapTo(bearing){
+  if(typeof map.rotateTo === 'function'){
+    map.rotateTo(bearing, {duration: 300});
+  }
+}
+function updateNavBanner(step, distMeters, etaSec){
+  const primary = document.getElementById('navBannerPrimary');
+  const secondary = document.getElementById('navBannerSecondary');
+  const icon = document.getElementById('navBannerIcon');
+  if(!step){ primary.textContent = '—'; secondary.textContent='—'; return; }
+
+  primary.innerHTML = getInstructionText(step); // já retorna HTML com <strong>
+  const distTxt = distMeters>=1000 ? `${(distMeters/1000).toFixed(1)} km` : `${Math.max(1,Math.round(distMeters))} m`;
+  const timeTxt = etaSec>=60 ? `${Math.round(etaSec/60)} min` : `${Math.max(5,Math.round(etaSec))} s`;
+  secondary.textContent = `${distTxt} • ${timeTxt}`;
+
+  icon.className = `fa-solid ${getInstructionIcon(step)}`;
+}
+
+function updateTripProgress(){
+  if(!currentRoute) return;
+  const total = currentRoute.distance || 0;
+  const remaining = getRemainingDistanceMeters();
+  const ratio = total>0 ? Math.min(1, Math.max(0, remaining/total)) : 0;
+  const remEl = document.getElementById('tp-remaining');
+  remEl.style.transform = `scaleY(${ratio})`;
+
+  const leftEl = document.getElementById('tp-left');
+  const etaEl  = document.getElementById('tp-eta');
+  leftEl.textContent = remaining>=1000 ? `${(remaining/1000).toFixed(1)} km` : `${Math.round(remaining)} m`;
+
+  const dur = currentRoute.duration || 0;
+  const etaSec = dur*ratio;
+  const now = new Date();
+  const arrival = new Date(now.getTime() + etaSec*1000);
+  const hh = String(arrival.getHours()).padStart(2,'0');
+  const mm = String(arrival.getMinutes()).padStart(2,'0');
+  etaEl.textContent = `${hh}:${mm}`;
+}
+
+function getRemainingDistanceMeters(){
+  if(!remainingPolyline) return currentRoute?.distance || 0;
+  const pts = remainingPolyline.getLatLngs();
+  if(pts.length<2) return 0;
+  let dist=0;
+  for(let i=0;i<pts.length-1;i++) dist += pts[i].distanceTo(pts[i+1]);
+  return dist;
+}
+
+// cria/atualiza o "balão" na próxima manobra
+function showNextManeuverCallout(step) {
+    // Se o navBanner está visível, não mostrar o balão
+    if (document.getElementById('navBanner').style.display === 'flex') {
+        if (nextManeuverMarker) {
+            map.removeLayer(nextManeuverMarker);
+            nextManeuverMarker = null;
+        }
+        return;
+    }
+
+    if (!step || !step.maneuver?.location) return;
+    const p = L.latLng(step.maneuver.location[1], step.maneuver.location[0]);
+    const iconHtml = `
+        <div class="maneuver-callout">
+          <span class="mi"><i class="fa-solid ${getInstructionIcon(step)}"></i></span>
+          ${getInstructionText(step).replace(/<[^>]*>?/gm, '')}
+        </div>`;
+    const divIcon = L.divIcon({ className: '', html: iconHtml, iconSize: null });
+    if (!nextManeuverMarker) {
+        nextManeuverMarker = L.marker(p, { icon: divIcon, zIndexOffset: 1000 }).addTo(map);
+    } else {
+        nextManeuverMarker.setLatLng(p).setIcon(divIcon);
+    }
+}
+
+// ====== ATUALIZA LOCALIZAÇÃO COM LOOK-AHEAD ======
 function updateUserLocation(location) {
-    userLocation = L.latLng(location); 
+    if (!location) return;
+
+    const newLL = L.latLng(location);
     const userIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: '<div style="background-color: #007BFF; width: 1.5rem; height: 1.5rem; display: block; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 0 8px #007BFF;"></div>',
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
+        html: '<div style="background-color:#007BFF; width:1.5rem; height:1.5rem; display:block; border-radius:50%; border:2px solid #FFF; box-shadow:0 0 8px #007BFF;"></div>',
+        iconSize: [24, 24], iconAnchor: [12, 12]
     });
+
+    // Atualiza marcador
+    userLocation = newLL;
     if (userMarker) {
         userMarker.setLatLng(userLocation);
-    } else {
-        if (map) {
-            userMarker = L.marker(userLocation, { icon: userIcon, title: 'userMarker' }).addTo(map);
-            userMarker.bindPopup('A tua localização');
+    } else if (map) {
+        userMarker = L.marker(userLocation, { icon: userIcon, title: 'userMarker' }).addTo(map);
+        userMarker.bindPopup('A tua localização');
+    }
+
+    // Atualiza bearing
+    if (lastGPS) {
+        const dist = map.distance(lastGPS, userLocation);
+        const bearingChange = Math.abs((computeBearing(lastGPS, userLocation) || 0) - (currentBearing || 0));
+
+        if (dist >= 2 || bearingChange >= 5) { // limiar de movimento/rotação
+            currentBearing = computeBearing(lastGPS, userLocation);
         }
     }
-    if (navigationActive && map) {
-        map.setView(userLocation, map.getZoom() || 17);
-        checkOffRoute();
-        updateRouteProgress();
-    }
-try {
-  const mapaTab = document.getElementById('mapa');
-  if (map && mapaTab && mapaTab.classList.contains('active') && !navigationActive) {
-    map.setView(userLocation, map.getZoom() || 17);
-  }
-} catch (e) {}
+    lastGPS = userLocation;
 
-    console.log('Localização do usuário atualizada:', userLocation);
+    if (navigationActive && map && lookAheadEnabled) {
+    setViewWithOffset(userLocation, map.getZoom() || 17);
+    rotateMapTo(currentBearing);
+    checkOffRoute();
+    updateRouteProgress();
+    updateTripProgress();
+    } else {
+        // Fora de navegação: recenter se tab mapa ativa
+        try {
+            const mapaTab = document.getElementById('mapa');
+            if (mapaTab?.classList.contains('active')) {
+                map.setView(userLocation, map.getZoom() || 17);
+            }
+        } catch (e) {}
+    }
 }
+
 
 // --- Funções de Navegação ---
 function speak(text) {
@@ -2525,17 +2740,19 @@ function getInstructionIcon(step) {
         default: return 'fa-arrow-up';
     }
 }
-function recenterMap() {
-  if (!map) initMap();
-  if (userLocation) {
-    map.setView(userLocation, Math.max(map.getZoom() || 15, 15));
-  } else {
-    getUserLocation().then((loc) => {
+function recenterMap(){
+  if(!map) initMap();
+  if(userLocation){
+    setViewWithOffset(userLocation, Math.max(map.getZoom()||15, 15));
+    rotateMapTo(currentBearing);
+  }else{
+    getUserLocation().then(loc=>{
       const ll = Array.isArray(loc) ? L.latLng(loc[0], loc[1]) : L.latLng(loc);
-      map.setView(ll, 15);
+      setViewWithOffset(ll, 15);
     });
   }
 }
+
 
 function getInstructionText(step) {
     const type = step.maneuver.type;
@@ -2567,64 +2784,83 @@ function getInstructionText(step) {
         default: return `Siga em frente${name}`;
     }
 }
+async function calculateRoute(start, end, transportMode = 'driving'){
+  try{
+    const url = `https://router.project-osrm.org/route/v1/${transportMode}/${start.lng},${start.lat};${end.lng},${end.lat}` +
+                `?overview=full&geometries=geojson&steps=true&annotations=distance,duration&continue_straight=true&alternatives=false`;
+    const response = await fetch(url);
+    if(!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+    const data = await response.json();
+    if(!data.routes?.length) throw new Error('Nenhuma rota encontrada');
 
+    currentRoute = data.routes[0];
 
-async function calculateRoute(start, end, transportMode = 'driving') {
-    try {
-        const url = `https://router.project-osrm.org/route/v1/${transportMode}/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson&steps=true`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-        const data = await response.json();
-        if (!data.routes || data.routes.length === 0) throw new Error('Nenhuma rota encontrada');
-        
-        currentRoute = data.routes[0]; 
-        
-        routeInstructions = [];
-        if (currentRoute.legs && currentRoute.legs[0] && currentRoute.legs[0].steps) {
-            currentRoute.legs[0].steps.forEach(step => {
-                routeInstructions.push({
-                    instruction: getInstructionText(step),
-                    distance: step.distance > 1000 ? `${(step.distance / 1000).toFixed(1)} km` : `${Math.round(step.distance)} m`,
-                    icon: getInstructionIcon(step),
-                    location: step.maneuver.location
-                });
-            });
-        }
-        routeInstructions.push({ instruction: 'Chegou ao seu destino', distance: '0m', icon: 'fa-flag-checkered' });
-        currentInstructionIndex = 0;
-        updateNavigationPanel();
-        
-        if (routeControl) map.removeLayer(routeControl);
-        
-        const coordinates = currentRoute.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-        routeControl = L.polyline(coordinates, { color: '#2196F3', weight: 6, opacity: 0.8 }).addTo(map);
-        
-        const bounds = L.latLngBounds(L.latLng(start.lat, start.lng), L.latLng(end.lat, end.lng));
-        map.fitBounds(bounds, { padding: [50, 50] });
-        
-        document.getElementById('navDistance').textContent = `${(currentRoute.distance / 1000).toFixed(1)} km`;
-        document.getElementById('navDuration').textContent = `${Math.round(currentRoute.duration / 60)} min`;
+    // construir instruções ricas
+    routeInstructions = [];
+    const steps = currentRoute.legs?.[0]?.steps || [];
+    steps.forEach(step=>{
+      const duration = Math.max(1, Math.round(step.duration||0));
+      const dTxt = duration>=60 ? `${Math.round(duration/60)} min` : `${duration} s`;
+      // enriquecer texto com ref/destinos quando existirem
+      const name = step.name || '';
+      const ref = step.ref ? ` (${step.ref})` : '';
+      const dest = step.destinations ? ` em direção a <strong>${step.destinations}</strong>` : '';
+      const rich = getInstructionText(step).replace('</strong>', `${ref}</strong>`) + dest;
 
-        speak(routeInstructions[0].instruction);
+      routeInstructions.push({
+        raw: step,
+        instruction: rich,
+        distance: step.distance>1000 ? `${(step.distance/1000).toFixed(1)} km` : `${Math.round(step.distance)} m`,
+        duration: duration,
+        icon: getInstructionIcon(step),
+        location: step.maneuver.location
+      });
+    });
 
-    } catch (error) {
-        console.error('Erro ao calcular rota:', error);
-        throw error;
-    }
+    // polylines: restante (viva) e percorrida (cinza)
+    const coords = currentRoute.geometry.coordinates.map(c=>L.latLng(c[1], c[0]));
+    if(remainingPolyline){ map.removeLayer(remainingPolyline); remainingPolyline=null; }
+    if(traversedPolyline){ map.removeLayer(traversedPolyline); traversedPolyline=null; }
+    remainingPolyline = L.polyline(coords, { color:'#2196F3', weight:6, opacity:0.9, className:'leaf-remaining' }).addTo(map);
+    traversedPolyline = L.polyline([coords[0]], { color:'#90A4AE', weight:6, opacity:0.5, className:'leaf-traversed' }).addTo(map);
+
+    // fit bounds
+    map.fitBounds(remainingPolyline.getBounds(), { padding:[50,50] });
+
+    // UI
+    document.getElementById('navDistance').textContent = `${(currentRoute.distance/1000).toFixed(1)} km`;
+    document.getElementById('navDuration').textContent = `${Math.round(currentRoute.duration/60)} min`;
+    currentInstructionIndex = 0;
+    updateNavigationPanel();
+
+    // banner + balão + progresso
+    const first = steps[0];
+    updateNavBanner(first, first?.distance||0, first?.duration||0);
+    showNextManeuverCallout(first);
+    updateTripProgress();
+
+    // look-ahead
+    document.getElementById('map').classList.add('map-lookahead-padding');
+
+    speak(routeInstructions[0]?.instruction || 'Iniciar navegação');
+  }catch(err){
+    console.error('Erro ao calcular rota:', err);
+    throw err;
+  }
 }
-
 function showTransportModeSelection(destLat, destLng, destName) {
     destinationLocation = L.latLng(destLat, destLng);
     destinationName = destName;
     document.getElementById('transportModeModal').style.display = 'block';
 }
 
+// ====== PASSOS DE NAVEGAÇÃO ======
 async function initiateNavigation(transportMode) {
     closeModal('transportModeModal');
 
     if (!map) {
         initMap();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(r => setTimeout(r, 500));
     }
 
     if (!userLocation) {
@@ -2641,22 +2877,36 @@ async function initiateNavigation(transportMode) {
         }
     }
 
-    if (map && userLocation) map.setView(userLocation, 17);
-    
     try {
         showModal('Calculando rota...');
         await calculateRoute(userLocation, destinationLocation, transportMode);
-        navigationActive = true;
+        closeModal();
+
+        // 📍 PASSO 1 — visão geral
+        if (remainingPolyline) {
+            map.fitBounds(remainingPolyline.getBounds(), { padding: [50, 50] });
+        }
         document.getElementById('navigationPanel').classList.add('active');
         showTab('mapa');
         document.getElementById('mapa').scrollIntoView({ behavior: 'smooth' });
-        closeModal();
-        startGPSTracking();
+
+        // 📍 PASSO 2 — look-ahead após 3s (ou evento do utilizador)
+        setTimeout(() => {
+            navigationActive = true;
+            document.getElementById('map').classList.add('map-lookahead-padding');
+            setViewWithOffset(userLocation, 17);
+            startGPSTracking();
+
+            document.getElementById('navBanner').style.display = 'flex';
+            document.getElementById('tripProgress').style.display = 'flex';
+        }, 3000);
+
     } catch (error) {
         closeModal();
         showModal('Erro ao calcular a rota. Verifique a sua ligação à internet e tente novamente.');
     }
 }
+
 
 
 function showLocationOptions(destLat, destLng, destName) {
@@ -2734,29 +2984,35 @@ function showDirections(destLat, destLng, destName) {
     });
 }
 
+// PATCH: updateNavigationPanel — 1ª instrução na barra verde, 2 seguintes na caixa
 function updateNavigationPanel() {
     const instructionsEl = document.getElementById('navInstructions');
     instructionsEl.innerHTML = '';
-    const numInstructionsToShow = 2;
-    for (let i = 0; i < numInstructionsToShow; i++) {
-        const index = currentInstructionIndex + i;
-        if (index < routeInstructions.length) {
-            const instruction = routeInstructions[index];
+
+    // Caixa verde — próxima instrução
+    const bannerStep = routeInstructions[currentInstructionIndex];
+    if (bannerStep) {
+        document.getElementById('navBannerPrimary').innerHTML = bannerStep.instruction;
+        document.getElementById('navBannerIcon').className = `fa-solid ${bannerStep.icon || getInstructionIcon(bannerStep.raw)}`;
+        document.getElementById('navBannerSecondary').textContent = bannerStep.distance || '';
+    }
+
+    // Caixa de navegação — 2 seguintes
+    for (let i = currentInstructionIndex + 1; i <= currentInstructionIndex + 2; i++) {
+        if (routeInstructions[i]) {
+            const instruction = routeInstructions[i];
             const div = document.createElement('div');
             div.className = 'nav-instruction';
-            div.style.background = i === 0 ? '#e3f2fd' : 'rgba(255,255,255,0.25)';
-            const instructionText = instruction.instruction || "Siga em frente";
-            const instructionDistance = instruction.distance || "0m";
-
             div.innerHTML = `
-                <div class="nav-instruction-icon"><i class="fa-solid ${instruction.icon || 'fa-arrow-right'}"></i></div>
-                <div class="nav-instruction-text">${instructionText}</div>
-                <div class="nav-instruction-distance">${instructionDistance}</div>
+                <div class="nav-instruction-icon"><i class="fa-solid ${instruction.icon || getInstructionIcon(instruction.raw)}"></i></div>
+                <div class="nav-instruction-text">${instruction.instruction}</div>
+                <div class="nav-instruction-distance">${instruction.distance || ''}</div>
             `;
             instructionsEl.appendChild(div);
         }
     }
 }
+
 
 function startGPSTracking() {
     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
@@ -2801,6 +3057,12 @@ function stopNavigation() {
     currentRoute = null;
     synth.cancel(); 
     console.log('Navegação parada');
+document.getElementById('map').classList.remove('map-lookahead-padding');
+document.getElementById('navBanner').style.display = 'none';
+document.getElementById('tripProgress').style.display = 'none';
+if(nextManeuverMarker){ map.removeLayer(nextManeuverMarker); nextManeuverMarker=null; }
+if(traversedPolyline){ map.removeLayer(traversedPolyline); traversedPolyline=null; }
+if(remainingPolyline){ map.removeLayer(remainingPolyline); remainingPolyline=null; }
 }
 
 function checkOffRoute() {
@@ -2817,33 +3079,50 @@ function checkOffRoute() {
     }
 }
 
-function updateRouteProgress() {
-    if (!userLocation || !routeControl || !routeInstructions.length) return;
+function updateRouteProgress(){
+  if(!userLocation || !remainingPolyline || !routeInstructions.length) return;
 
-    const nextInstruction = routeInstructions[currentInstructionIndex];
-    if (!nextInstruction || !nextInstruction.location) return;
-
-    const nextInstructionPoint = L.latLng(nextInstruction.location[1], nextInstruction.location[0]);
-    const distanceToNextInstruction = userLocation.distanceTo(nextInstructionPoint);
-
-    if (distanceToNextInstruction < 20) { 
-        currentInstructionIndex++;
-        if (currentInstructionIndex < routeInstructions.length) {
-            updateNavigationPanel();
-            speak(routeInstructions[currentInstructionIndex].instruction);
-        } else {
-            stopNavigation(); 
-        }
+  // Proximidade da próxima manobra
+  const next = routeInstructions[currentInstructionIndex];
+  if(next?.location){
+    const p = L.latLng(next.location[1], next.location[0]);
+    const d = userLocation.distanceTo(p);
+    if(d < 20){
+      currentInstructionIndex++;
+      const nxt = routeInstructions[currentInstructionIndex];
+      updateNavigationPanel();
+      updateNavBanner(nxt?.raw, nxt?.raw?.distance||0, nxt?.duration||0);
+      showNextManeuverCallout(nxt?.raw);
+      speak(routeInstructions[currentInstructionIndex]?.instruction || '—');
+      if(currentInstructionIndex >= routeInstructions.length) { stopNavigation(); return; }
     }
+  }
 
-    const routeCoords = currentRoute.geometry.coordinates.map(coord => L.latLng(coord[1], coord[0]));
-    const userPointOnRoute = L.GeometryUtil.closest(map, routeCoords, userLocation);
-    const closestIndex = L.GeometryUtil.closestLayer(map, routeCoords.map((c, i) => ({latlng: c, i: i})), userPointOnRoute).layer.i;
+  // Re-cortar as polylines
+  const coords = currentRoute.geometry.coordinates.map(c=>L.latLng(c[1], c[0]));
+  // ponto da rota mais próximo do utilizador
+  const closest = L.GeometryUtil.closest(map, coords, userLocation);
+  // índice aproximado
+  const clIdx = L.GeometryUtil.closestLayer(map, coords.map((c,i)=>({latlng:c,i})), closest).layer.i;
 
-    const remainingCoords = routeCoords.slice(closestIndex);
-    remainingCoords.unshift(userLocation); 
-    routeControl.setLatLngs(remainingCoords);
+  // acumulamos percorrido (até índice) e restante (do índice ao fim)
+  const traversed = coords.slice(0, Math.max(1, clIdx));
+  if(traversed.length) traversed.push(userLocation);
+  const remaining = [userLocation].concat(coords.slice(clIdx));
+
+  traversedPolyline.setLatLngs(traversed);
+  remainingPolyline.setLatLngs(remaining);
+
+  // atualizar banner (distância menor até próxima manobra)
+  const nextStep = routeInstructions[currentInstructionIndex]?.raw;
+  if(nextStep){
+    const nm = L.latLng(nextStep.maneuver.location[1], nextStep.maneuver.location[0]);
+    const distToNext = userLocation.distanceTo(nm);
+    updateNavBanner(nextStep, distToNext, routeInstructions[currentInstructionIndex]?.duration||0);
+    showNextManeuverCallout(nextStep);
+  }
 }
+
 
 // --- Funções da Aba PDF ---
 function renderPdfButtons() {
@@ -2888,23 +3167,52 @@ let reminders = JSON.parse(localStorage.getItem('busReminders')) || [];
 function renderReminders() {
     const list = document.getElementById('reminderList');
     list.innerHTML = '';
+
     if (reminders.length === 0) {
         list.innerHTML = '<p style="text-align: center; color: #666;">Não há lembretes definidos.</p>';
         return;
     }
+
     reminders.forEach((r, index) => {
         const item = document.createElement('li');
         item.className = 'reminder-item';
-        let typeText = r.type === 'ics' ? 'ICS' : 'Notificação';
+
+        // Determinar origem — garantir sempre em minúsculas
+        const origem = (r.origem || (r.routeName ? 'Rota' : 'Tarefa')).toLowerCase();
+        const nome   = r.routeName || r.name || r.nome;
+        const minutos = r.minutesBefore || 10;
+
+        // Montar info de tempo/data
+        let infoTempo = '';
+        if (origem === 'tarefa') {
+    if (r.date) {
+        infoTempo = `${r.diaSemana}, ${r.date}${r.time ? ` às ${r.time}` : ''}`;
+    } else if (r.time) {
+        infoTempo = `Hora: ${r.time}`;
+    } else {
+        infoTempo = 'Sem data/hora';
+    }
+} else { // rota
+    if (r.date && r.time) {
+        infoTempo = `${r.diaSemana}, ${r.date} às ${r.time}`;
+    } else if (r.time) {
+        infoTempo = `Horário: ${r.time}`;
+    } else {
+        infoTempo = 'Horário não definido';
+    }
+}
+
 
         item.innerHTML = `
             <div class="reminder-details">
-                <h4>Lembrete (${typeText}) para a rota: ${r.routeName || r.name || r.nome}</h4>
-                <p>Horário: ${r.time} - Ativado ${r.minutesBefore || 10} minutos antes</p>
+                <h4>Lembrete (${origem}): ${nome}</h4>
+                <p>${infoTempo} - Ativado ${minutos} minutos antes</p>
             </div>
-            <button class="reminder-remove" onclick="removeReminder(${index})"><i class="fa-solid fa-trash-can"></i>
-</button>
+            <button class="reminder-remove" onclick="removeReminder(${index})">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
         `;
+
         list.appendChild(item);
     });
 }
@@ -2913,117 +3221,9 @@ function checkIfReminderExists(name, time) {
     return reminders.some(r => (r.routeName === name || r.name === name || r.nome === name) && r.time === time);
 }
 
-async function addReminder(itemData) {
-  const name = itemData.routeName || itemData.name || itemData.nome;
-  const time = itemData.time;
-  const date = itemData.date || new Date().toISOString().slice(0, 10); // hoje se não vier data
-
-  if (checkIfReminderExists(name, time)) {
-    showModal('Já existe um lembrete para este horário/tarefa.');
-    return;
-  }
-
-  // Guarda já no array e no storage
-  reminders.push({ ...itemData, name, date });
-  localStorage.setItem('busReminders', JSON.stringify(reminders));
-  renderReminders();
-  try {
-    const userId = await (window.getOneSignalId ? window.getOneSignalId() : null);
-
-    if (userId) {
-      const reminderPayload = {
-        playerId: userId,
-        name, time, date,
-        minutesBefore: 10
-      };
-
-      const response = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reminderPayload)
-      });
-
-      // Garante que lidas com não-200
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
-      if (data.success) {
-        reminders.push({ ...itemData, type: 'onesignal', name });
-        localStorage.setItem('busReminders', JSON.stringify(reminders));
-        showModal('Lembrete agendado com sucesso!');
-        renderReminders();
-      } else {
-        throw new Error(data.message || 'Resposta inesperada do servidor');
-      }
-    } else {
-      // Sem OneSignal ID: fallback local e prompt de permissão
-      reminders.push({ ...itemData, type: 'manual', name });
-      localStorage.setItem('busReminders', JSON.stringify(reminders));
-      showModal('Lembrete adicionado localmente. Ative as notificações para lembretes automáticos.');
-      renderReminders();
-      if (window.OneSignal) OneSignal.Notifications.requestPermission();
-    }
-  } catch (error) {
-    console.error('Erro ao agendar lembrete:', error);
-    reminders.push({ ...itemData, type: 'manual', name });
-    localStorage.setItem('busReminders', JSON.stringify(reminders));async function addReminder(itemData) {
-  const name = itemData.routeName || itemData.name || itemData.nome;
-  const time = itemData.time;
-  const date = itemData.date;
-
-  // Evitar duplicados
-  if (checkIfReminderExists(name, time)) {
-    showModal('Já existe um lembrete ou ficheiro ICS para este horário/tarefa.');
-    return;
-  }
-
-  try {
-    const playerId = await (window.getOneSignalId ? window.getOneSignalId() : null);
-    console.log("📌 Player ID:", playerId);
-
-    if (playerId) {
-      const payload = { playerId, name, time, date, minutesBefore: 10 };
-      console.log("📦 Payload:", payload);
-
-      const res = await fetch('https://schedulenotification-lpmrppc7cq-uc.a.run.app', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-      console.log("📬 Resposta do servidor:", data);
-
-      if (data.success) {
-        reminders.push({ ...itemData, type: 'onesignal', name });
-        localStorage.setItem('busReminders', JSON.stringify(reminders));
-        showModal('Lembrete agendado com sucesso!');
-        renderReminders();
-      } else {
-        throw new Error(data.message || 'Erro inesperado no agendamento');
-      }
-    } else {
-      // Fallback local
-      reminders.push({ ...itemData, type: 'manual', name });
-      localStorage.setItem('busReminders', JSON.stringify(reminders));
-      showModal('Lembrete adicionado localmente (ative notificações para agendar automaticamente).');
-      renderReminders();
-      if (window.OneSignal) OneSignal.Notifications.requestPermission();
-    }
-  } catch (err) {
-    console.error("💥 Erro no addReminder:", err);
-    reminders.push({ ...itemData, type: 'manual', name });
-    localStorage.setItem('busReminders', JSON.stringify(reminders));
-    showModal('Erro ao comunicar com o servidor. Lembrete guardado localmente.');
-    renderReminders();
-  }
+function addReminder() {
+  console.warn('Função addReminder desativada – usar apenas generateICS().');
 }
-
-    showModal('Erro de comunicação com o servidor. Lembrete adicionado localmente.');
-    renderReminders();
-  }
-}
-
 
 function removeReminder(index) {
     reminders.splice(index, 1);
@@ -3059,21 +3259,38 @@ setInterval(cleanupExpiredReminders, 60 * 1000);
 
 
 function generateICS(itemData, isTask = false) {
-    const name = itemData.routeName || itemData.name || itemData.nome;
-    const time = itemData.time;
-    const date = itemData.date;
+    const name        = itemData.routeName || itemData.name || itemData.nome;
+    const time        = itemData.time;
+    const date        = itemData.date || null;
     const description = itemData.description || itemData.descricao || '';
 
+    // Determinar origem de forma segura
+    const origem = isTask || !itemData.routeName ? 'Tarefa' : 'Rota';
+
     if (checkIfReminderExists(name, time)) {
-        showModal('Já existe um lembrete ou um ficheiro ICS para este horário/tarefa. Por favor, remova o existente para criar um novo.');
+        showModal('Já existe um lembrete para este horário/tarefa. Por favor, remova o existente para criar um novo.');
         return;
     }
 
-    reminders.push({ ...itemData, type: 'ics', name: name });
+    // Guardar lembrete com campo origem
+    reminders.push({
+    ...itemData,
+    type: 'ics',
+    name,
+    time,
+    date,
+    routeName: itemData.routeName || null,
+    origem: isTask || !itemData.routeName ? 'tarefa' : 'rota',
+    diaSemana: nomeDiaSemana(date) // <<< novo campo
+});
+
+
     localStorage.setItem('busReminders', JSON.stringify(reminders));
     renderReminders();
+
     showModal('Ficheiro ICS gerado. Por favor, importe-o para o seu calendário.');
 
+    // Preparar datas para ICS
     const now = new Date();
     const [hour, minute] = time.split(':').map(Number);
     let eventDate;
@@ -3090,33 +3307,35 @@ function generateICS(itemData, isTask = false) {
     const formatICSDate = (d) => d.toISOString().replace(/[-:]|\.\d{3}/g, '');
 
     const start = formatICSDate(eventDate);
-    const end = formatICSDate(new Date(eventDate.getTime() + 30 * 60000));
+    const end   = formatICSDate(new Date(eventDate.getTime() + 30 * 60000));
 
+    // Alarmes consoante tipo
     let alarms = '';
     if (isTask) {
         const trigger1Day = new Date(eventDate.getTime() - (24 * 60 * 60 * 1000));
         alarms += `
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Lembrete: ${itemData.routeName ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`} (1 dia antes)
+DESCRIPTION:Lembrete: ${origem === 'rota' ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`} (1 dia antes)
 TRIGGER;VALUE=DATE-TIME:${formatICSDate(trigger1Day)}
 END:VALARM`;
 
         alarms += `
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Lembrete: ${itemData.routeName ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`} (30 minutos antes)
+DESCRIPTION:Lembrete: ${origem === 'rota' ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`} (30 minutos antes)
 TRIGGER:-PT30M
 END:VALARM`;
     } else {
         alarms += `
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Lembrete: ${itemData.routeName ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`}
+DESCRIPTION:Lembrete: ${origem === 'rota' ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`}
 TRIGGER:-PT10M
 END:VALARM`;
     }
 
+    // Conteúdo ICS
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//gemini-app//NONSGML v1.0//EN
@@ -3125,12 +3344,15 @@ UID:${Date.now()}-${Math.random()}
 DTSTAMP:${start}
 DTSTART:${start}
 DTEND:${end}
-SUMMARY:${itemData.routeName ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`}
-DESCRIPTION:${itemData.routeName ? `O teu autocarro para a rota ${name} parte às ${time}.` : description || `Lembrete para a tarefa: ${name}.`}
+SUMMARY:${origem === 'rota' ? `Autocarro - Rota ${name}` : `Tarefa - ${name}`}
+DESCRIPTION:${origem === 'rota'
+        ? `O teu autocarro para a rota ${name} parte às ${time}.`
+        : description || `Lembrete para a tarefa: ${name}.`}
 ${alarms}
 END:VEVENT
 END:VCALENDAR`;
 
+    // Download do ficheiro
     const blob = new Blob([icsContent], { type: 'text/calendar' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -3141,6 +3363,7 @@ END:VCALENDAR`;
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
+
 
 function shareWhatsApp(itemData) {
     const name = itemData.routeName || itemData.name || itemData.nome;
@@ -3301,7 +3524,16 @@ function initMap() {
                 `);
         });
     }
+
+    // Só liga o evento quando o mapa estiver pronto
+    map.whenReady(() => {
+        document.getElementById('compassBtn')?.addEventListener('click', () => {
+            currentBearing = 0;
+            rotateMapTo(0);
+        });
+    });
 }
+
 
 async function searchMapLocation() {
     const query = document.getElementById('search-input').value;
@@ -3633,9 +3865,6 @@ function renderTaskList() {
                 <button class="btn-task-complete" onclick="toggleTaskCompletion('${task.id}')" title="${task.isCompleted ? 'Marcar como incompleto' : 'Marcar como completo'}">
                     <i class="fas fa-check"></i>
                 </button>
-                <button class="btn-task-reminder" onclick="addReminder({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}'})" title="Adicionar lembrete">
-                    <i class="fas fa-bell"></i>
-                </button>
                 <button class="btn-task-calendar" onclick="generateICS({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}', description: '${task.description}'}, true)" title="Gerar ICS">
                     <i class="fas fa-calendar-plus"></i>
                 </button>
@@ -3765,7 +3994,6 @@ function renderTaskDetailsModalContent(task, isEditing) {
         <div class="task-actions centered" style="margin-top: 20px;">
             <button class="btn-primary" id="toggleEditButton" onclick="toggleEditMode('${task.id}')"><i class="fas fa-edit"></i> ${isEditing ? 'Guardar Alterações' : 'Alterar Tarefa'}</button>
             <button class="btn-task-complete" onclick="toggleTaskCompletion('${task.id}'); closeModal('taskDetailsModal');"><i class="fas fa-check"></i> ${task.isCompleted ? 'Marcar como incompleto' : 'Marcar como completo'}</button>
-            <button class="btn-task-reminder" onclick="addReminder({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}'}); closeModal('taskDetailsModal');"><i class="fas fa-bell"></i> Lembrete</button>
             <button class="btn-task-calendar" onclick="generateICS({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}', description: '${task.description}'}, true); closeModal('taskDetailsModal');"><i class="fas fa-calendar-plus"></i> ICS</button>
             <button class="btn-task-whatsapp" onclick="shareWhatsApp({id: '${task.id}', name: '${task.name}', date: '${task.date}', time: '${task.time}'}); closeModal('taskDetailsModal');"><i class="fab fa-whatsapp"></i> WhatsApp</button>
             ${task.isTravel && task.lat && task.lng ? `<button class="btn-task-navigate" onclick="navigateToTask('${task.id}'); closeModal('taskDetailsModal');"><i class="fas fa-route"></i> Rota</button>` : ''}
@@ -3886,6 +4114,7 @@ function renderSchedule(routeName) {
         resultDiv.innerHTML = '<p class="no-more-buses">Horário não encontrado para a rota selecionada.</p>';
         return;
     }
+
     const today = new Date();
     const dayOfWeek = today.getDay();
     const currentTime = today.getHours() * 60 + today.getMinutes();
@@ -3894,36 +4123,57 @@ function renderSchedule(routeName) {
     if (dayOfWeek === 0) { currentDayTimes = schedule.Sunday || []; currentDayText = 'Domingo'; }
     else if (dayOfWeek === 6) { currentDayTimes = schedule.weekend || []; currentDayText = 'Sábado'; }
     else { currentDayTimes = schedule.weekday || []; currentDayText = 'Dia de Semana'; }
+
     let upcomingTimes = currentDayTimes.filter(time => {
         const [h, m] = time.split(':').map(Number);
         const busTime = h * 60 + m;
         return busTime > currentTime;
     });
+
     let nextBusTime = null;
     let nextBusDayText = currentDayText;
     let nextUpcomingTimes = [];
+    let nextBusDateStr = null;
+
     if (upcomingTimes.length > 0) {
         nextBusTime = upcomingTimes[0];
-        nextUpcomingTimes = upcomingTimes.slice(1, 5);
+        nextBusDateStr = today.toISOString().slice(0,10);
+        nextUpcomingTimes = upcomingTimes.slice(1, 5).map(t => ({
+            time: t,
+            dateStr: nextBusDateStr
+        }));
     } else {
         let nextDay = dayOfWeek;
         let foundNextDay = false;
         while (!foundNextDay) {
             nextDay = (nextDay + 1) % 7;
             let nextDaySchedule;
-            let nextDayText;
-            if (nextDay === 0) { nextDaySchedule = schedule.Sunday || []; nextDayText = 'Próximo Domingo'; }
-            else if (nextDay === 6) { nextDaySchedule = schedule.weekend || []; nextDayText = 'Próximo Sábado'; }
-            else { nextDaySchedule = schedule.weekday || []; nextDayText = 'Próxima Segunda-feira'; if (dayOfWeek !== 6) nextDayText = 'Amanhã'; }
+            if (nextDay === 0) nextDaySchedule = schedule.Sunday || [];
+            else if (nextDay === 6) nextDaySchedule = schedule.weekend || [];
+            else nextDaySchedule = schedule.weekday || [];
+
             if (nextDaySchedule.length > 0) {
                 nextBusTime = nextDaySchedule[0];
-                nextBusDayText = nextDayText;
-                nextUpcomingTimes = nextDaySchedule.slice(1, 5);
+                const daysAhead = (nextDay - dayOfWeek + 7) % 7;
+                const dateObj = new Date(today);
+                dateObj.setDate(today.getDate() + daysAhead);
+                nextBusDateStr = dateObj.toISOString().slice(0,10);
+
+                nextUpcomingTimes = nextDaySchedule.slice(1, 5).map(t => ({
+                    time: t,
+                    dateStr: nextBusDateStr
+                }));
+
+                if (daysAhead === 1) nextBusDayText = 'Amanhã';
+                else if (daysAhead === 0) nextBusDayText = currentDayText;
+                else nextBusDayText = dateObj.toLocaleDateString('pt-PT', { weekday: 'long' });
+
                 foundNextDay = true;
             }
             if (nextDay === dayOfWeek) break;
         }
     }
+
     let html = '';
     if (nextBusTime) {
         html += `
@@ -3937,8 +4187,7 @@ function renderSchedule(routeName) {
                     </div>
                     <span class="time-remaining" id="timeRemaining-${routeName}">Calculando...</span>
                     <div class="action-buttons centered" style="margin-top: 15px;">
-                        <button class="btn-reminder" onclick="addReminder({routeName: '${routeName}', time: '${nextBusTime}'})"><i class="fa-solid fa-bell"></i></button>
-                        <button class="btn-calendar" onclick="generateICS({routeName: '${routeName}', time: '${nextBusTime}'})"><i class="fa-solid fa-calendar-plus"></i></button>
+                        <button class="btn-calendar" onclick="generateICS({routeName: '${routeName}', date: '${nextBusDateStr}', time: '${nextBusTime}'})"><i class="fa-solid fa-calendar-plus"></i></button>
                         <button class="btn-whatsapp" onclick="shareWhatsApp({routeName: '${routeName}', time: '${nextBusTime}'})"><i class="fa-brands fa-whatsapp"></i></button>
                     </div>
                 </div>
@@ -3947,45 +4196,61 @@ function renderSchedule(routeName) {
     } else {
         html += `<div class="schedule-info"><p class="no-more-buses">Não há horários disponíveis para os próximos dias.</p></div>`;
     }
+
     if (nextUpcomingTimes.length > 0) {
         html += `<div class="upcoming-times"><h3>Próximos horários</h3><div class="time-list">`;
-        nextUpcomingTimes.forEach(time => {
+        nextUpcomingTimes.forEach(obj => {
+            const id = `${routeName}-${obj.time.replace(':','')}`;
             html += `
                 <div class="time-item">
-                    <span>${time}</span>
+                    <span>${obj.time}</span>
+                    <!-- Mantemos o span invisível para cálculo -->
+                    <span id="timeRemaining-${id}" style="display:none;"></span>
                     <div class="action-buttons">
-                        <button class="btn-reminder" onclick="addReminder({routeName: '${routeName}', time: '${time}'})"><i class="fa-solid fa-bell"></i></button>
-                        <button class="btn-calendar" onclick="generateICS({routeName: '${routeName}', time: '${time}'})"><i class="fa-solid fa-calendar-plus"></i></button>
-                        <button class="btn-whatsapp" onclick="shareWhatsApp({routeName: '${routeName}', time: '${time}'})"><i class="fa-brands fa-whatsapp"></i></button>
+                        <button class="btn-calendar" onclick="generateICS({routeName: '${routeName}', date: '${obj.dateStr}', time: '${obj.time}'})"><i class="fa-solid fa-calendar-plus"></i></button>
+                        <button class="btn-whatsapp" onclick="shareWhatsApp({routeName: '${routeName}', time: '${obj.time}'})"><i class="fa-brands fa-whatsapp"></i></button>
                     </div>
                 </div>
             `;
         });
         html += `</div></div>`;
     }
+
     resultDiv.innerHTML = html;
+
     if (nextBusTime) {
-        updateTimeRemaining(routeName, nextBusTime);
-        setInterval(() => updateTimeRemaining(routeName, nextBusTime), 60000);
+        updateTimeRemaining(routeName, nextBusTime, nextBusDateStr);
+        setInterval(() => updateTimeRemaining(routeName, nextBusTime, nextBusDateStr), 60000);
     }
+    nextUpcomingTimes.forEach(obj => {
+        const id = `${routeName}-${obj.time.replace(':','')}`;
+        updateTimeRemaining(id, obj.time, obj.dateStr);
+        setInterval(() => updateTimeRemaining(id, obj.time, obj.dateStr), 60000);
+    });
 }
 
-function updateTimeRemaining(routeName, nextTime) {
+function updateTimeRemaining(routeName, nextTime, nextDateStr) {
+    const [h, m] = nextTime.split(':').map(Number);
+    const [year, month, day] = nextDateStr.split('-').map(Number);
+
+    const nextBus = new Date(year, month - 1, day, h, m);
     const now = new Date();
-    const [nextHour, nextMinute] = nextTime.split(':').map(Number);
-    const nextBus = new Date(now.getFullYear(), now.getMonth(), now.getDate(), nextHour, nextMinute);
-    if (nextBus < now) nextBus.setDate(nextBus.getDate() + 1);
-    const diff = nextBus.getTime() - now.getTime();
+    const diff = nextBus - now;
+
     if (diff <= 0) {
-        document.getElementById(`timeRemaining-${routeName}`).innerText = "Partiu!";
+        const el = document.getElementById(`timeRemaining-${routeName}`);
+        if (el) el.innerText = "Partiu!";
         return;
     }
+
     const minutes = Math.floor((diff / 1000 / 60) % 60);
     const hours = Math.floor(diff / 1000 / 60 / 60);
     let timeString = '';
     if (hours > 0) timeString += `${hours}h `;
     timeString += `${minutes}min`;
-    document.getElementById(`timeRemaining-${routeName}`).innerText = `Faltam ${timeString}`;
+
+    const el = document.getElementById(`timeRemaining-${routeName}`);
+    if (el) el.innerText = `Faltam ${timeString}`;
 }
 
 function updateCurrentTime() {
@@ -3996,6 +4261,15 @@ function updateCurrentTime() {
     const dateString = now.toLocaleDateString('pt-PT', dateOptions);
     document.getElementById('currentTime').innerText = `${timeString} - ${dateString}`;
 }
+function nomeDiaSemana(dateStr) {
+    const dias = [
+        'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+        'Quinta-feira', 'Sexta-feira', 'Sábado'
+    ];
+    const dt = new Date(dateStr);
+    return dias[dt.getDay()];
+}
+
 
 // =======================================================================
 // === NOVAS FUNÇÕES JAVASCRIPT PARA AS NOVAS FUNCIONALIDADES ===========
